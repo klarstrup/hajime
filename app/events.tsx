@@ -281,7 +281,11 @@ export const getSortedEvents = async ({
       }
       return !e.start || e.start >= new Date();
     })
-    .sort((b, a) => (a.start?.valueOf() ?? 0) - (b.start?.valueOf() ?? 0));
+    .sort((b, a) =>
+      cotemporality === "past"
+        ? (a.start?.valueOf() ?? 0) - (b.start?.valueOf() ?? 0)
+        : (b.start?.valueOf() ?? 0) - (a.start?.valueOf() ?? 0),
+    );
 
   return sortedEvent;
 };
