@@ -235,6 +235,23 @@ const eventsSources = [
     },
   },
   {
+    name: "Nivå Budoklub",
+    load: async () => {
+      const events = await fetchJson<KarateKlubbenKyokushinkai.Event[]>(
+        "https://nbudo.klub-modul.dk/cms/include/api/calendarj.aspx?start=2006-10-26T00%3A00%3A00%2B01%3A00&end=2046-12-07T00%3A00%3A00%2B01%3A00&tag=",
+      );
+      return events.map((e) => ({
+        ...e,
+        linkEvent: new URL(
+          e.linkEvent,
+          "https://nbudo.klub-modul.dk/cms/",
+        ).toString(),
+        start: new Date(e.start),
+        end: new Date(e.end),
+      }));
+    },
+  },
+  {
     name: "Shinryokudan - Nansensgade Karate",
     load: async () => {
       const shinryokudanSquarespaceCalendarStartDate = new Date(2022, 5);
