@@ -468,6 +468,17 @@ export const getSortedEvents = async ({
           !title.includes("fællesmøde") &&
           !title.includes("kagami biraki") &&
           !title.includes("arbejdsdag") &&
+          !title.includes("bestyrelsen") &&
+          !title.includes("fastelavn") &&
+          !title.includes("miniput") &&
+          !title.includes("filmaften") &&
+          !title.includes("klubmesterskab") &&
+          !title.includes("kr. himmelfartsdag") &&
+          !title.includes("pizza og hygge") &&
+          !title.includes("erstatningslokaler") &&
+          !title.includes("store bededag") &&
+          !title.includes("aflysning") &&
+          !title.includes("gæsteinstruktør") &&
           !title.includes("førstehjælpskursus") &&
           !(
             title.includes("graduering") &&
