@@ -301,7 +301,7 @@ function EventList({
       <header className="text-xl font-bold mt-2 mb-4">{title}</header>
       <ul className="flex flex-col gap-2">
         {events.map((event) => (
-          <li key={event.id} className="bg-gray-900 p-4 rounded flex flex-col">
+          <li key={event.id} className="bg-gray-900 p-2 rounded flex flex-col">
             <a
               href={event.url}
               target="_blank"
