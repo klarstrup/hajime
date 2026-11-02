@@ -111,13 +111,27 @@ export default async function Home() {
   const shinryokudanHtml = await fetch(
     "https://www.nansensgadekarate.dk/klubkalender",
   ).then((res) => res.text());
-  const $ = cheerio.load(shinryokudanHtml);
-  $(".eventlist-meta-export-ical").each((_, el) => {
-    const icsUrl = $(el).attr("href");
+  const shinryokudan$ = cheerio.load(shinryokudanHtml);
+  shinryokudan$(".eventlist-meta-export-ical").each((_, el) => {
+    const icsUrl = shinryokudan$(el).attr("href");
     if (icsUrl) {
       icsSources.push({
         name: "Shinryokudan - Nansensgade Karate",
         url: new URL(icsUrl, "https://www.nansensgadekarate.dk/").toString(),
+      });
+    }
+  });
+
+  const farumKyokushinHtml = await fetch(
+    "https://farumkyokushin.dk/kalenderliste/",
+  ).then((res) => res.text());
+  const farumKyokushin$ = cheerio.load(farumKyokushinHtml);
+  farumKyokushin$("[data-event_id]").each((_, el) => {
+    const eventId = farumKyokushin$(el).attr("data-event_id");
+    if (eventId) {
+      icsSources.push({
+        name: "Farum Kyokushin",
+        url: `https://farumkyokushin.dk/export-events/${eventId}_0/?key=c2ee1168ae`,
       });
     }
   });
