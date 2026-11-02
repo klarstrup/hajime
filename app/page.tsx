@@ -1,4 +1,5 @@
 import { parseIcsCalendar } from "@ts-ics/schema-zod";
+import * as cheerio from "cheerio";
 import { pick } from "next/dist/lib/pick";
 import type { IcsCalendar, IcsEvent, NonStandardValuesGeneric } from "ts-ics";
 
@@ -11,7 +12,7 @@ const icsSources = [
     name: "Karateklubben Kenzoku",
     url: "https://calendar.google.com/calendar/ical/b418b06beb19586d457e0914c5faa192e5823a33120645206a58c61c8bac1565%40group.calendar.google.com/public/basic.ics",
   },
-] as const;
+];
 
 type HajimeMeta = {
   _h_source: string;
@@ -62,6 +63,21 @@ namespace KarateKlubbenKyokushinkai {
 
 export default async function Home() {
   "use cache";
+
+  const shinryokudanHtml = await fetch(
+    "https://www.nansensgadekarate.dk/klubkalender",
+  ).then((res) => res.text());
+  const $ = cheerio.load(shinryokudanHtml);
+  $(".eventlist-meta-export-ical").each((_, el) => {
+    const icsUrl = $(el).attr("href");
+    if (icsUrl) {
+      icsSources.push({
+        name: "Shinryokudan - Nansensgade Karate",
+        url: new URL(icsUrl, "https://www.nansensgadekarate.dk/").toString(),
+      });
+    }
+  });
+
   const icsEvents: (IcsEvent<NonStandardValuesGeneric> &
     HajimeMeta & {
       _h_url: string;
