@@ -336,6 +336,29 @@ const eventsSources = [
     },
   },
   {
+    name: "Taifu Karate Dojo",
+    load: () =>
+      fetchJson<FullCalendarEvent[]>(
+        "https://www.taifu.dk/klub/taifu-karate-dojo/activities?club_id=26219&content_id=3697598&activity_types=null&start=2006-10-26T00%3A00%3A00&end=2046-12-07T00%3A00%3A00&timeZone=Europe%2FBerlin",
+      ).then((events) =>
+        events.map((e) => ({
+          ...e,
+          title: cheerio
+            .load(e.title)(".inner_event_wrapper > div")
+            .eq(0)
+            .text()
+            .replace(cheerio.load(e.title)(".event_time").text(), ""),
+          description: cheerio.load(e.tooltip).text(),
+          start: new Date(e.start),
+          end: e.end ? new Date(e.end) : null,
+          location: cheerio
+            .load(e.tooltip)(".activity_tooltip_subinfo")
+            .eq(1)
+            .text(),
+        })),
+      ),
+  },
+  {
     name: "Kumite Technology",
     load: async ({ cotemporality }: { cotemporality: "past" | "future" }) => {
       const response = await fetch("https://kumitetechnology.com/api/graphql", {
