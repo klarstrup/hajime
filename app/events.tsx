@@ -438,6 +438,7 @@ export const getSortedEvents = async ({
           !title.includes("træning") &&
           !title.includes("lukket") &&
           !title.includes("bestyrelsesmøde") &&
+          !title.includes("bestyrelsemøde") &&
           !title.includes("generalforsamling") &&
           !title.includes("chefinstruktørmøde") &&
           !title.includes("aspirantsamling") &&
