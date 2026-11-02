@@ -204,6 +204,7 @@ const getSortedEvents = async () => {
   const sortedEvent = allEvents
     .map((e) => ({
       ...e,
+      source: e._h_source,
       id: String(
         "uid" in e
           ? e.uid
@@ -270,18 +271,18 @@ export default async function Home() {
     <div>
       <div className="flex gap-8 justify-evenly">
         <EventList
+          events={sortedEvents.filter(
+            (event) => !event.start || event.start <= new Date(),
+          )}
+          title="Past Events"
+        />
+        <EventList
           events={sortedEvents
             .filter((event) => !event.start || event.start >= new Date())
             .sort(
               (a, b) => (a.start?.valueOf() ?? 0) - (b.start?.valueOf() ?? 0),
             )}
           title="Upcoming Events"
-        />
-        <EventList
-          events={sortedEvents.filter(
-            (event) => !event.start || event.start <= new Date(),
-          )}
-          title="Past Events"
         />
       </div>
     </div>
@@ -327,6 +328,7 @@ function EventList({
                   : null}
             </span>
             {event.location && <span> @ {event.location}</span>}
+            <span>via {event.source ?? "unknown"}</span>
           </li>
         ))}
       </ul>
