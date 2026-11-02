@@ -202,8 +202,6 @@ export const getSortedEvents = async ({
                   startDate: new Date(e.structuredContent.startDate),
                   endDate: new Date(e.structuredContent.endDate),
                 },
-                _h_source: "Shinryokudan - Nansensgade Karate",
-                _h_url: url,
               })),
             );
           }
