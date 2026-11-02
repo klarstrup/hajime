@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import * as cheerio from "cheerio";
-import { pick } from "next/dist/lib/pick";
 import {
   convertIcsCalendar,
   type IcsEvent,
@@ -105,9 +104,7 @@ namespace KarateKlubbenKyokushinkai {
   }
 }
 
-export default async function Home() {
-  "use cache";
-
+const getSortedEvents = async () => {
   const shinryokudanHtml = await fetch(
     "https://www.nansensgadekarate.dk/klubkalender",
   ).then((res) => res.text());
@@ -204,85 +201,135 @@ export default async function Home() {
 
   const allEvents = [...icsEvents, ...karateklubEvents, ...shinryokudanEvents];
 
+  const sortedEvent = allEvents
+    .map((e) => ({
+      ...e,
+      id: String(
+        "uid" in e
+          ? e.uid
+          : "id" in e
+            ? e.id
+            : "fullUrl" in e
+              ? e.fullUrl
+              : (e satisfies never),
+      ),
+      url:
+        "fullUrl" in e
+          ? e.fullUrl
+          : "url" in e
+            ? e.url
+            : "linkEvent" in e
+              ? e.linkEvent
+              : undefined,
+      title: "summary" in e ? e.summary : e.title,
+      description:
+        "excerpt" in e ? e.excerpt || undefined : e.description || undefined,
+      start:
+        "structuredContent" in e && e.structuredContent.startDate
+          ? new Date(e.structuredContent.startDate)
+          : "start" in e
+            ? e.start instanceof Date
+              ? e.start
+              : e.start?.date
+                ? new Date(e.start?.date ?? 0)
+                : undefined
+            : undefined,
+      end:
+        "structuredContent" in e && e.structuredContent.endDate
+          ? new Date(e.structuredContent.endDate)
+          : "end" in e
+            ? e.end instanceof Date
+              ? e.end
+              : e.end?.date
+                ? new Date(e.end?.date ?? 0)
+                : undefined
+            : undefined,
+      location:
+        (typeof e.location === "object"
+          ? [
+              e.location.addressTitle,
+              e.location.addressLine1,
+              e.location.addressLine2,
+              e.location.addressCountry,
+            ]
+              .filter((s) => s.trim())
+              .join(", ")
+          : e.location) || undefined,
+    }))
+    .sort((b, a) => (a.start?.valueOf() ?? 0) - (b.start?.valueOf() ?? 0));
+
+  return sortedEvent;
+};
+
+export default async function Home() {
+  "use cache";
+
+  const sortedEvents = await getSortedEvents();
+
   return (
-    <pre>
-      {JSON.stringify(
-        allEvents
-          .map((e) => ({
-            ...e,
-            id: String(
-              "uid" in e
-                ? e.uid
-                : "id" in e
-                  ? e.id
-                  : "fullUrl" in e
-                    ? e.fullUrl
-                    : (e satisfies never),
-            ),
-            url:
-              "fullUrl" in e
-                ? e.fullUrl
-                : "url" in e
-                  ? e.url
-                  : "linkEvent" in e
-                    ? e.linkEvent
-                    : undefined,
-            title: "summary" in e ? e.summary : e.title,
-            description:
-              "excerpt" in e
-                ? e.excerpt || undefined
-                : e.description || undefined,
-            start:
-              "structuredContent" in e && e.structuredContent.startDate
-                ? new Date(e.structuredContent.startDate)
-                : "start" in e
-                  ? e.start instanceof Date
-                    ? e.start
-                    : e.start?.date
-                      ? new Date(e.start?.date ?? 0)
-                      : undefined
-                  : undefined,
-            end:
-              "structuredContent" in e && e.structuredContent.endDate
-                ? new Date(e.structuredContent.endDate)
-                : "end" in e
-                  ? e.end instanceof Date
-                    ? e.end
-                    : e.end?.date
-                      ? new Date(e.end?.date ?? 0)
-                      : undefined
-                  : undefined,
-            location:
-              (typeof e.location === "object"
-                ? [
-                    e.location.addressTitle,
-                    e.location.addressLine1,
-                    e.location.addressLine2,
-                    e.location.addressCountry,
-                  ]
-                    .filter((s) => s.trim())
-                    .join(", ")
-                : e.location) || undefined,
-          }))
-          .sort((b, a) => (a.start?.valueOf() ?? 0) - (b.start?.valueOf() ?? 0))
-          .map((e) =>
-            pick(e, [
-              "_h_source",
-              "id",
-              "url",
-              "description",
-              "title",
-              "end",
-              "start",
-              "location",
-            ]),
-          )
-          .map((e) => ({
-            ...e,
-          })),
-        null,
-        2,
-      )}
-    </pre>
+    <div>
+      <div className="flex gap-8 justify-evenly">
+        <EventList
+          events={sortedEvents
+            .filter((event) => !event.start || event.start >= new Date())
+            .sort(
+              (a, b) => (a.start?.valueOf() ?? 0) - (b.start?.valueOf() ?? 0),
+            )}
+          title="Upcoming Events"
+        />
+        <EventList
+          events={sortedEvents.filter(
+            (event) => !event.start || event.start <= new Date(),
+          )}
+          title="Past Events"
+        />
+      </div>
+    </div>
+  );
+}
+
+function EventList({
+  events,
+  title,
+}: {
+  events: Awaited<ReturnType<typeof getSortedEvents>>;
+  title: string;
+}) {
+  return (
+    <div className="flex flex-col">
+      <header className="text-xl font-bold mt-2 mb-4">{title}</header>
+      <ul className="flex flex-col gap-2">
+        {events.map((event) => (
+          <li key={event.id} className="bg-gray-900 p-4 rounded flex flex-col">
+            <a
+              href={event.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:underline text-lg"
+            >
+              {event.title}
+            </a>
+            <span>
+              {event.start && event.end
+                ? Intl.DateTimeFormat("da", {
+                    timeStyle: "short",
+                    dateStyle: "medium",
+                  }).formatRange(event.start, event.end)
+                : event.start
+                  ? Intl.DateTimeFormat("da", {
+                      second: undefined,
+                      minute: "2-digit",
+                      hour: "2-digit",
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    }).format(event.start)
+                  : null}
+            </span>
+            {event.location && <span> @ {event.location}</span>}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
