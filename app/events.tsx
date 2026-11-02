@@ -206,7 +206,10 @@ const eventsSources = [
       ).then((events) =>
         events.map((e) => ({
           ...e,
-          linkEvent: new URL(e.linkEvent, "https://karateklub.com/cms/"),
+          linkEvent: new URL(
+            e.linkEvent,
+            "https://karateklub.com/cms/",
+          ).toString(),
           start: new Date(e.start),
           end: new Date(e.end),
         })),
@@ -220,7 +223,7 @@ const eventsSources = [
       );
       return events.map((e) => ({
         ...e,
-        linkEvent: new URL(e.linkEvent, "https://karate-do-gentofte.dk/cms/"),
+        linkEvent: new URL(e.linkEvent, "https://karate-do-gentofte.dk/cms/").toString(),
         start: new Date(e.start),
         end: new Date(e.end),
       }));
