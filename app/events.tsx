@@ -93,6 +93,60 @@ export interface FullCalendarEvent {
   tooltip: string;
 }
 
+export interface KumiteTechnologyEventsResponse {
+  data: Data;
+}
+
+export interface Data {
+  events: Events;
+}
+
+export interface Events {
+  edges: Edge[];
+}
+
+export interface Edge {
+  node: Node;
+}
+
+export interface Node {
+  id: string;
+  entityId: number;
+  name: string;
+  website: null | string;
+  date: Date;
+  type: Type;
+  cover: null | string;
+  isActivated: boolean;
+  discipline: Discipline;
+  address: Address;
+}
+
+export interface Address {
+  fullAddress: string;
+  countryCode: string;
+  region: null | string;
+  city: null | string;
+  country: Country;
+}
+
+export interface Country {
+  name: string;
+  code: string;
+}
+
+export enum Discipline {
+  Ashihara = "ASHIHARA",
+  Kickboxing = "KICKBOXING",
+  Kudo = "KUDO",
+  Kyokushin = "KYOKUSHIN",
+  Shotokan = "SHOTOKAN",
+}
+
+export enum Type {
+  Tournament = "TOURNAMENT",
+}
+
 const fetchText = async (url: string) => (await fetch(url)).text();
 const fetchJson = async <T,>(url: string) =>
   (await fetch(url)).json() as Promise<T>;
@@ -254,6 +308,24 @@ const eventsSources = [
       }));
     },
   },
+  {
+    name: "Kumite Technology",
+    load: async ({ cotemporality }: { cotemporality: "past" | "future" }) => {
+      const response = await fetch("https://kumitetechnology.com/api/graphql", {
+        headers: { "content-type": "application/json" },
+        body: `{"query":"query Events {\\n  events(filter: {address: {countryCode: {_eq: \\"DK\\"}}}, futureEvents: ${cotemporality === "future" ? "true" : "false"} ) {\\n    edges {\\n      node {\\n        id\\n        entityId\\n        name\\n        website\\n        date\\n        type\\n        cover\\n        isActivated\\n        discipline\\n#        categories {          id          name        }\\n#        registration {          registrationStartDate          registrationEndDate        }\\n        address {\\n          fullAddress\\n          countryCode\\n          region\\n          city\\n          country {\\n            name\\n            code\\n          }\\n        }\\n      }\\n    }\\n  }\\n}","operationName":"Events"}`,
+        method: "POST",
+      }).then((r) => r.json() as Promise<KumiteTechnologyEventsResponse>);
+
+      return response.data.events.edges.map((edge) => {
+        const node = edge.node;
+        return {
+          ...node,
+          start: new Date(node.date),
+        };
+      });
+    },
+  },
 ] as const;
 
 export const getSortedEvents = async ({
@@ -266,7 +338,7 @@ export const getSortedEvents = async ({
   const allEvents = await Promise.all(
     eventsSources.map((source) =>
       source
-        .load()
+        .load({ cotemporality })
         .then((events) =>
           events.map((e) => ({ ...e, _h_source: source.name })),
         ),
@@ -293,10 +365,23 @@ export const getSortedEvents = async ({
             ? e.url
             : "linkEvent" in e
               ? e.linkEvent
-              : undefined,
-      title: "summary" in e ? e.summary : e.title,
+              : "website" in e && e.website
+                ? e.website
+                : undefined,
+      title:
+        "summary" in e
+          ? e.summary
+          : "title" in e
+            ? e.title
+            : "name" in e
+              ? e.name
+              : (e satisfies never),
       description:
-        "excerpt" in e ? e.excerpt || undefined : e.description || undefined,
+        "excerpt" in e
+          ? e.excerpt || undefined
+          : "description" in e
+            ? e.description || undefined
+            : undefined,
       start:
         "structuredContent" in e && e.structuredContent.startDate
           ? new Date(e.structuredContent.startDate)
@@ -318,16 +403,20 @@ export const getSortedEvents = async ({
                 : undefined
             : undefined,
       location:
-        (typeof e.location === "object"
-          ? [
-              e.location.addressTitle,
-              e.location.addressLine1,
-              e.location.addressLine2,
-              e.location.addressCountry,
-            ]
-              .filter((s) => s.trim())
-              .join(", ")
-          : e.location) || undefined,
+        ("address" in e && typeof e.address === "object"
+          ? e.address.fullAddress
+          : "location" in e && typeof e.location === "object"
+            ? [
+                e.location.addressTitle,
+                e.location.addressLine1,
+                e.location.addressLine2,
+                e.location.addressCountry,
+              ]
+                .filter((s) => s.trim())
+                .join(", ")
+            : "location" in e && typeof e.location === "string"
+              ? e.location
+              : undefined) || undefined,
     }))
     .filter((e, i, l) => l.findIndex((ev) => ev.id === e.id) === i)
     .filter((e) => {
