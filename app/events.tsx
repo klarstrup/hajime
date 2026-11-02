@@ -167,6 +167,12 @@ export const getSortedEvents = async ({
       load: () =>
         fetchJson<KarateKlubbenKyokushinkai.Event[]>(
           "https://karateklub.com/cms/include/api/calendarj.aspx?start=2007-03-01T00%3A00%3A00%2B01%3A00&end=2047-04-05T00%3A00%3A00%2B02%3A00&tag=",
+        ).then((events) =>
+          events.map((e) => ({
+            ...e,
+            start: new Date(e.start),
+            end: new Date(e.end),
+          })),
         ),
     },
     {
