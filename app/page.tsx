@@ -6,11 +6,7 @@ import {
   parseAsStringLiteral,
   SearchParams,
 } from "nuqs/server";
-import {
-  convertIcsCalendar,
-  type IcsEvent,
-  type NonStandardValuesGeneric,
-} from "ts-ics";
+import { convertIcsCalendar } from "ts-ics";
 
 // Describe your search params, and reuse this in useQueryStates / createSerializer:
 const eventsSearchParams = {
@@ -19,6 +15,8 @@ const eventsSearchParams = {
 const loadSearchParams = createLoader(eventsSearchParams);
 
 const serializeSearchParams = createSerializer(eventsSearchParams);
+
+const timeZone = "Europe/Copenhagen";
 
 type HajimeMeta = {
   _h_source: string;
@@ -99,6 +97,15 @@ namespace KarateKlubbenKyokushinkai {
   }
 }
 
+const fetchText = async (url: string) => (await fetch(url)).text();
+const fetchJson = async <T,>(url: string) =>
+  (await fetch(url)).json() as Promise<T>;
+const fetchIcsCalendar = async (url: string) =>
+  convertIcsCalendar(undefined, await fetchText(url));
+const fetchIcsEvents = async (url: string) =>
+  (await fetchIcsCalendar(url))?.events || [];
+const fetch$ = async (url: string) => cheerio.load(await fetchText(url));
+
 const getSortedEvents = async ({
   cotemporality,
 }: {
@@ -106,120 +113,125 @@ const getSortedEvents = async ({
 }) => {
   "use cache";
 
-  const icsSources = [
+  const eventsSources = [
     {
       name: "Dansk Karate Union",
-      url: "https://kyokushin.dk/kalender/?ical=1&eventDisplay=past",
+      load: () =>
+        fetchIcsEvents(
+          "https://kyokushin.dk/kalender/?ical=1&eventDisplay=past",
+        ),
     },
     {
       name: "Dansk Karate Union",
-      url: "https://kyokushin.dk/kalender/?ical=1",
+      load: () => fetchIcsEvents("https://kyokushin.dk/kalender/?ical=1"),
     },
     {
       name: "Karateklubben Kenzoku",
-      url: "https://calendar.google.com/calendar/ical/b418b06beb19586d457e0914c5faa192e5823a33120645206a58c61c8bac1565%40group.calendar.google.com/public/basic.ics",
+      load: () =>
+        fetchIcsEvents(
+          "https://calendar.google.com/calendar/ical/b418b06beb19586d457e0914c5faa192e5823a33120645206a58c61c8bac1565%40group.calendar.google.com/public/basic.ics",
+        ),
     },
     {
       name: "Roskilde Karate Klub",
-      url: "https://calendar.google.com/calendar/ical/ph0n9gra71t3a81ksfjkhts7mc%40group.calendar.google.com/public/basic.ics",
+      load: () =>
+        fetchIcsEvents(
+          "https://calendar.google.com/calendar/ical/ph0n9gra71t3a81ksfjkhts7mc%40group.calendar.google.com/public/basic.ics",
+        ),
     },
-  ];
+    {
+      name: "Shinryokudan - Nansensgade Karate",
+      load: async () => {
+        const shinryokudan$ = await fetch$(
+          "https://www.nansensgadekarate.dk/klubkalender",
+        );
+        const icsUrls: string[] = [];
+        shinryokudan$(".eventlist-meta-export-ical").each((_, el) => {
+          const icsUrl = shinryokudan$(el).attr("href");
+          if (icsUrl) {
+            icsUrls.push(
+              new URL(icsUrl, "https://www.nansensgadekarate.dk/").toString(),
+            );
+          }
+        });
+        return Promise.all(icsUrls.map((url) => fetchIcsEvents(url))).then(
+          (events) => events.flat(),
+        );
+      },
+    },
+    {
+      name: "Farum Kyokushin",
+      load: async () => {
+        const farumKyokushin$ = await fetch$(
+          "https://farumkyokushin.dk/kalenderliste/",
+        );
+        return Promise.all(
+          farumKyokushin$("[data-event_id]")
+            .map((_, el) => farumKyokushin$(el).attr("data-event_id"))
+            .toArray()
+            .map((eventId) =>
+              fetchIcsEvents(
+                `https://farumkyokushin.dk/export-events/${eventId}_0/?key=c2ee1168ae`,
+              ),
+            ),
+        ).then((events) => events.flat());
+      },
+    },
+    {
+      name: "Karateklubben Kyokushinkai København",
+      load: () =>
+        fetchJson<KarateKlubbenKyokushinkai.Event[]>(
+          "https://karateklub.com/cms/include/api/calendarj.aspx?start=2007-03-01T00%3A00%3A00%2B01%3A00&end=2047-04-05T00%3A00%3A00%2B02%3A00&tag=",
+        ),
+    },
+    {
+      name: "Shinryokudan - Nansensgade Karate",
+      load: async () => {
+        const shinryokudanSquarespaceCalendarStartDate = new Date(2022, 5);
+        // iterate over every month from shinryokudanSquarespaceCalendarStartDate until three empty months are encountered
+        let emptyMonths = 0;
+        const currentMonth = new Date(shinryokudanSquarespaceCalendarStartDate);
+        const shinryokudanEvents: SquareSpace.GetItemsByMonthEvent[] = [];
+        while (emptyMonths < 3) {
+          // fetch events for the current month
+          const month = currentMonth.getMonth() + 1;
+          const year = currentMonth.getFullYear();
+          const url = `https://www.nansensgadekarate.dk/api/open/GetItemsByMonth?month=${month}-${year}&collectionId=628f69cd8b60603dfc865e80`;
+          const events =
+            await fetchJson<SquareSpace.GetItemsByMonthEvent[]>(url);
+          if (events.length === 0) {
+            emptyMonths++;
+          } else {
+            emptyMonths = 0;
+            shinryokudanEvents.push(
+              ...events.map((e) => ({
+                ...e,
+                structuredContent: {
+                  ...e.structuredContent,
+                  startDate: new Date(e.structuredContent.startDate),
+                  endDate: new Date(e.structuredContent.endDate),
+                },
+                _h_source: "Shinryokudan - Nansensgade Karate",
+                _h_url: url,
+              })),
+            );
+          }
+          currentMonth.setMonth(currentMonth.getMonth() + 1);
+        }
+        return shinryokudanEvents;
+      },
+    },
+  ] as const;
 
-  const shinryokudanHtml = await fetch(
-    "https://www.nansensgadekarate.dk/klubkalender",
-  ).then((res) => res.text());
-  const shinryokudan$ = cheerio.load(shinryokudanHtml);
-  shinryokudan$(".eventlist-meta-export-ical").each((_, el) => {
-    const icsUrl = shinryokudan$(el).attr("href");
-    if (icsUrl) {
-      icsSources.push({
-        name: "Shinryokudan - Nansensgade Karate",
-        url: new URL(icsUrl, "https://www.nansensgadekarate.dk/").toString(),
-      });
-    }
-  });
-
-  const farumKyokushinHtml = await fetch(
-    "https://farumkyokushin.dk/kalenderliste/",
-  ).then((res) => res.text());
-  const farumKyokushin$ = cheerio.load(farumKyokushinHtml);
-  farumKyokushin$("[data-event_id]").each((_, el) => {
-    const eventId = farumKyokushin$(el).attr("data-event_id");
-    if (eventId) {
-      icsSources.push({
-        name: "Farum Kyokushin",
-        url: `https://farumkyokushin.dk/export-events/${eventId}_0/?key=c2ee1168ae`,
-      });
-    }
-  });
-
-  const icsEvents: (IcsEvent<NonStandardValuesGeneric> &
-    HajimeMeta & {
-      _h_url: string;
-      _h_source: string;
-    })[] = [];
-  for (const { url: icsUrl, name: icsName } of icsSources) {
-    const response = await fetch(icsUrl);
-    const icsCalendarString = await response.text();
-    const calendarParsed = convertIcsCalendar(undefined, icsCalendarString);
-    if (calendarParsed.events)
-      icsEvents.push(
-        ...calendarParsed.events.map((e) => ({
-          ...e,
-          _h_url: icsUrl,
-          _h_source: icsName,
-        })),
-      );
-  }
-  const karateklubEvents: (KarateKlubbenKyokushinkai.Event & HajimeMeta)[] = [];
-  const kkUrl =
-    "https://karateklub.com/cms/include/api/calendarj.aspx?start=2007-03-01T00%3A00%3A00%2B01%3A00&end=2047-04-05T00%3A00%3A00%2B02%3A00&tag=";
-  for (const event of await fetch(kkUrl).then<
-    KarateKlubbenKyokushinkai.Event[]
-  >((res) => res.json())) {
-    karateklubEvents.push({
-      ...event,
-      start: new Date(event.start),
-      end: new Date(event.end),
-      _h_source: "Karateklubben Kyokushinkai København",
-      _h_url: kkUrl,
-    });
-  }
-
-  const shinryokudanSquarespaceCalendarStartDate = new Date(2022, 5);
-  // iterate over every month from shinryokudanSquarespaceCalendarStartDate until three empty months are encountered
-  let emptyMonths = 0;
-  const currentMonth = new Date(shinryokudanSquarespaceCalendarStartDate);
-  const shinryokudanEvents: (SquareSpace.GetItemsByMonthEvent & HajimeMeta)[] =
-    [];
-  while (emptyMonths < 3) {
-    // fetch events for the current month
-    const month = currentMonth.getMonth() + 1;
-    const year = currentMonth.getFullYear();
-    const url = `https://www.nansensgadekarate.dk/api/open/GetItemsByMonth?month=${month}-${year}&collectionId=628f69cd8b60603dfc865e80`;
-    const response = await fetch(url);
-    const events: SquareSpace.GetItemsByMonthEvent[] = await response.json();
-    if (events.length === 0) {
-      emptyMonths++;
-    } else {
-      emptyMonths = 0;
-      shinryokudanEvents.push(
-        ...events.map((e) => ({
-          ...e,
-          structuredContent: {
-            ...e.structuredContent,
-            startDate: new Date(e.structuredContent.startDate),
-            endDate: new Date(e.structuredContent.endDate),
-          },
-          _h_source: "Shinryokudan - Nansensgade Karate",
-          _h_url: url,
-        })),
-      );
-    }
-    currentMonth.setMonth(currentMonth.getMonth() + 1);
-  }
-
-  const allEvents = [...icsEvents, ...karateklubEvents, ...shinryokudanEvents];
+  const allEvents = await Promise.all(
+    eventsSources.map((source) =>
+      source
+        .load()
+        .then((events) =>
+          events.map((e) => ({ ...e, _h_source: source.name })),
+        ),
+    ),
+  ).then((events) => events.flat());
 
   const sortedEvent = allEvents
     .map((e) => ({
@@ -349,7 +361,7 @@ function EventList({
               href={event.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-red-500 hover:underline text-lg"
+              className="text-red-500 hover:underline text-lg font-medium"
             >
               {event.title}
             </a>
@@ -358,6 +370,7 @@ function EventList({
                 ? Intl.DateTimeFormat("da", {
                     timeStyle: "short",
                     dateStyle: "medium",
+                    timeZone,
                   }).formatRange(event.start, event.end)
                 : event.start
                   ? Intl.DateTimeFormat("da", {
@@ -367,6 +380,7 @@ function EventList({
                       day: "2-digit",
                       month: "2-digit",
                       year: "numeric",
+                      timeZone,
                     }).format(event.start)
                   : null}
             </span>
