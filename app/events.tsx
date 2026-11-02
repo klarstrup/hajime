@@ -330,28 +330,32 @@ export const getSortedEvents = async ({
     )
     .filter(
       // roughly filter out training and internal club events for now
-      (e) =>
-        !e.title.toLowerCase().includes("træning") &&
-        !e.title.toLowerCase().includes("lukket") &&
-        !e.title.toLowerCase().includes("bestyrelsesmøde") &&
-        !e.title.toLowerCase().includes("generalforsamling") &&
-        !e.title.toLowerCase().includes("chefinstruktørmøde") &&
-        !e.title.toLowerCase().includes("aspirantsamling") &&
-        !e.title.toLowerCase().includes("julefrokost") &&
-        !e.title.toLowerCase().includes("juletræsfest") &&
-        !e.title.toLowerCase().includes("ferie") &&
-        !e.title.toLowerCase().includes("frivillig fredag") &&
-        !e.title.toLowerCase().includes("aflyst") &&
-        !e.title.toLowerCase().includes("udskydes") &&
-        !e.title.toLowerCase().includes("placeholder") &&
-        !e.title.toLowerCase().includes("afslutning") &&
-        !e.title.toLowerCase().includes("arbejdsdag") &&
-        !e.title.toLowerCase().includes("førstehjælpskursus") &&
-        !(
-          e.title.toLowerCase().includes("graduering") &&
-          !e.title.toLowerCase().includes("dangraduering") &&
-          !e.title.toLowerCase().includes("sortbæltegraduering")
-        ),
+      (e) => {
+        const title = e.title.toLowerCase();
+        return (
+          !title.includes("træning") &&
+          !title.includes("lukket") &&
+          !title.includes("bestyrelsesmøde") &&
+          !title.includes("generalforsamling") &&
+          !title.includes("chefinstruktørmøde") &&
+          !title.includes("aspirantsamling") &&
+          !title.includes("julefrokost") &&
+          !title.includes("juletræsfest") &&
+          !title.includes("ferie") &&
+          !title.includes("frivillig fredag") &&
+          !title.includes("aflyst") &&
+          !title.includes("udskydes") &&
+          !title.includes("placeholder") &&
+          !title.includes("afslutning") &&
+          !title.includes("arbejdsdag") &&
+          !title.includes("førstehjælpskursus") &&
+          !(
+            title.includes("graduering") &&
+            !title.includes("dangraduering") &&
+            !title.includes("sortbæltegraduering")
+          )
+        );
+      },
     );
 
   return sortedEvent;
