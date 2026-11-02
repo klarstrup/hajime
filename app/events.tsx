@@ -295,53 +295,9 @@ const eventsSources = [
       const events = await fetchJson<FullCalendarEvent[]>(
         "https://www.amagerkarateskole.dk/klub/jinzen-do/activities?club_id=27671&content_id=703630&activity_types=null&start=2006-10-26T00%3A00%3A00&end=2046-12-07T00%3A00%3A00&timeZone=Europe%2FBerlin",
       );
-      return events.map((e) => ({
-        ...e,
-        title: cheerio
-          .load(e.title)(".inner_event_wrapper > div")
-          .eq(0)
-          .text()
-          .replace(cheerio.load(e.title)(".event_time").text(), ""),
-        description: cheerio.load(e.tooltip).text(),
-        start: new Date(e.start),
-        end: e.end ? new Date(e.end) : null,
-        location: cheerio
-          .load(e.tooltip)(".activity_tooltip_subinfo")
-          .eq(1)
-          .text(),
-      }));
-    },
-  },
-  {
-    name: "Ashihara Karate København",
-    load: async () => {
-      const events = await fetchJson<FullCalendarEvent[]>(
-        "https://www.ak-kbh.dk/klub/ashihara-karate-kobenhavn/activities?club_id=43859&content_id=3764362&activity_types=null&start=2006-09-28T00%3A00%3A00&end=2046-11-09T00%3A00%3A00&timeZone=Europe%2FCopenhagen",
-      );
-      return events.map((e) => ({
-        ...e,
-        title: cheerio
-          .load(e.title)(".inner_event_wrapper > div")
-          .eq(0)
-          .text()
-          .replace(cheerio.load(e.title)(".event_time").text(), ""),
-        description: cheerio.load(e.tooltip).text(),
-        start: new Date(e.start),
-        end: e.end ? new Date(e.end) : null,
-        location: cheerio
-          .load(e.tooltip)(".activity_tooltip_subinfo")
-          .eq(1)
-          .text(),
-      }));
-    },
-  },
-  {
-    name: "Taifu Karate Dojo",
-    load: () =>
-      fetchJson<FullCalendarEvent[]>(
-        "https://www.taifu.dk/klub/taifu-karate-dojo/activities?club_id=26219&content_id=3697598&activity_types=null&start=2006-10-26T00%3A00%3A00&end=2046-12-07T00%3A00%3A00&timeZone=Europe%2FBerlin",
-      ).then((events) =>
-        events.map((e) => ({
+      return events
+        .filter((e) => e.event_type === 4)
+        .map((e) => ({
           ...e,
           title: cheerio
             .load(e.title)(".inner_event_wrapper > div")
@@ -355,7 +311,57 @@ const eventsSources = [
             .load(e.tooltip)(".activity_tooltip_subinfo")
             .eq(1)
             .text(),
-        })),
+        }));
+    },
+  },
+  {
+    name: "Ashihara Karate København",
+    load: async () => {
+      const events = await fetchJson<FullCalendarEvent[]>(
+        "https://www.ak-kbh.dk/klub/ashihara-karate-kobenhavn/activities?club_id=43859&content_id=3764362&activity_types=null&start=2006-09-28T00%3A00%3A00&end=2046-11-09T00%3A00%3A00&timeZone=Europe%2FCopenhagen",
+      );
+      return events
+        .filter((e) => e.event_type === 4)
+        .map((e) => ({
+          ...e,
+          title: cheerio
+            .load(e.title)(".inner_event_wrapper > div")
+            .eq(0)
+            .text()
+            .replace(cheerio.load(e.title)(".event_time").text(), ""),
+          description: cheerio.load(e.tooltip).text(),
+          start: new Date(e.start),
+          end: e.end ? new Date(e.end) : null,
+          location: cheerio
+            .load(e.tooltip)(".activity_tooltip_subinfo")
+            .eq(1)
+            .text(),
+        }));
+    },
+  },
+  {
+    name: "Taifu Karate Dojo",
+    load: () =>
+      fetchJson<FullCalendarEvent[]>(
+        "https://www.taifu.dk/klub/taifu-karate-dojo/activities?club_id=26219&content_id=3697598&activity_types=null&start=2006-10-26T00%3A00%3A00&end=2046-12-07T00%3A00%3A00&timeZone=Europe%2FBerlin",
+      ).then((events) =>
+        events
+          .filter((e) => e.event_type === 4)
+          .map((e) => ({
+            ...e,
+            title: cheerio
+              .load(e.title)(".inner_event_wrapper > div")
+              .eq(0)
+              .text()
+              .replace(cheerio.load(e.title)(".event_time").text(), ""),
+            description: cheerio.load(e.tooltip).text(),
+            start: new Date(e.start),
+            end: e.end ? new Date(e.end) : null,
+            location: cheerio
+              .load(e.tooltip)(".activity_tooltip_subinfo")
+              .eq(1)
+              .text(),
+          })),
       ),
   },
   {
