@@ -136,26 +136,6 @@ export const getSortedEvents = async ({
         ),
     },
     {
-      name: "Shinryokudan - Nansensgade Karate",
-      load: async () => {
-        const shinryokudan$ = await fetch$(
-          "https://www.nansensgadekarate.dk/klubkalender",
-        );
-        const icsUrls: string[] = [];
-        shinryokudan$(".eventlist-meta-export-ical").each((_, el) => {
-          const icsUrl = shinryokudan$(el).attr("href");
-          if (icsUrl) {
-            icsUrls.push(
-              new URL(icsUrl, "https://www.nansensgadekarate.dk/").toString(),
-            );
-          }
-        });
-        return Promise.all(icsUrls.map((url) => fetchIcsEvents(url))).then(
-          (events) => events.flat(),
-        );
-      },
-    },
-    {
       name: "Farum Kyokushin",
       load: async () => {
         const farumKyokushin$ = await fetch$(
