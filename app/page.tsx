@@ -257,6 +257,7 @@ const getSortedEvents = async () => {
               .join(", ")
           : e.location) || undefined,
     }))
+    .filter((e, i, l) => l.findIndex((ev) => ev.id === e.id) === i)
     .sort((b, a) => (a.start?.valueOf() ?? 0) - (b.start?.valueOf() ?? 0));
 
   return sortedEvent;
@@ -274,7 +275,7 @@ export default async function Home() {
           events={sortedEvents.filter(
             (event) => !event.start || event.start <= new Date(),
           )}
-          title="Past Events"
+          title="Hvad Der Skete"
         />
         <EventList
           events={sortedEvents
@@ -282,7 +283,7 @@ export default async function Home() {
             .sort(
               (a, b) => (a.start?.valueOf() ?? 0) - (b.start?.valueOf() ?? 0),
             )}
-          title="Upcoming Events"
+          title="Hvad Der Sker"
         />
       </div>
     </div>
@@ -327,8 +328,10 @@ function EventList({
                     }).format(event.start)
                   : null}
             </span>
-            {event.location && <span> @ {event.location}</span>}
-            <span>via {event.source ?? "unknown"}</span>
+            {event.location && (
+              <span className="text-sm text-gray-400"> @ {event.location}</span>
+            )}
+            <span className="text-xs text-gray-600">via {event.source}</span>
           </li>
         ))}
       </ul>
