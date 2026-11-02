@@ -11,9 +11,11 @@
     "ci": "bunx npm-run-all --parallel ts build lint"
   },
   "dependencies": {
+    "@ts-ics/schema-zod": "^2.4.8",
     "next": "16.4.4",
     "react": "19.3.1",
-    "react-dom": "19.3.1"
+    "react-dom": "19.3.1",
+    "ts-ics": "^2.4.8"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
