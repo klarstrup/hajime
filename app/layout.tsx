@@ -27,7 +27,19 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased bg-[#f6ebda]`}
     >
-      <body className="min-h-full flex flex-col bg-[#f6ebda]">{children}</body>
+      <body className="min-h-full flex flex-col bg-[#f6ebda]">
+        {children}
+
+        <span className="text-3xl text-gray-500 self-center mt-4 font-extralight">af io</span>
+        <a
+          href="https://github.com/klarstrup/hajime"
+          className="text-xs text-red-500 self-center mb-4"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          se koden
+        </a>
+      </body>
     </html>
   );
 }
