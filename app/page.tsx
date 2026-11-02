@@ -210,6 +210,23 @@ export default async function Home() {
         allEvents
           .map((e) => ({
             ...e,
+            id: String(
+              "uid" in e
+                ? e.uid
+                : "id" in e
+                  ? e.id
+                  : "fullUrl" in e
+                    ? e.fullUrl
+                    : (e satisfies never),
+            ),
+            url:
+              "fullUrl" in e
+                ? e.fullUrl
+                : "url" in e
+                  ? e.url
+                  : "linkEvent" in e
+                    ? e.linkEvent
+                    : undefined,
             title: "summary" in e ? e.summary : e.title,
             description:
               "excerpt" in e
@@ -251,6 +268,8 @@ export default async function Home() {
           .map((e) =>
             pick(e, [
               "_h_source",
+              "id",
+              "url",
               "description",
               "title",
               "end",
