@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import * as cheerio from "cheerio";
+import { isSameDay } from "date-fns";
+import Fuse from "fuse.js";
 import { convertIcsCalendar } from "ts-ics";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -223,7 +225,10 @@ const eventsSources = [
       );
       return events.map((e) => ({
         ...e,
-        linkEvent: new URL(e.linkEvent, "https://karate-do-gentofte.dk/cms/").toString(),
+        linkEvent: new URL(
+          e.linkEvent,
+          "https://karate-do-gentofte.dk/cms/",
+        ).toString(),
         start: new Date(e.start),
         end: new Date(e.end),
       }));
@@ -350,7 +355,7 @@ export const getSortedEvents = async ({
     ),
   ).then((events) => events.flat());
 
-  const sortedEvent = allEvents
+  const sortedEvents = allEvents
     .map((e) => ({
       ...e,
       source: e._h_source,
@@ -373,14 +378,14 @@ export const getSortedEvents = async ({
               : "website" in e && e.website
                 ? e.website
                 : undefined,
-      title:
-        "summary" in e
-          ? e.summary
-          : "title" in e
-            ? e.title
-            : "name" in e
-              ? e.name
-              : (e satisfies never),
+      title: ("summary" in e
+        ? e.summary
+        : "title" in e
+          ? e.title
+          : "name" in e
+            ? e.name
+            : (e satisfies never)
+      ).trim(),
       description:
         "excerpt" in e
           ? e.excerpt || undefined
@@ -423,13 +428,13 @@ export const getSortedEvents = async ({
               ? e.location
               : undefined) || undefined,
     }))
-    .filter((e, i, l) => l.findIndex((ev) => ev.id === e.id) === i)
-    .filter((e) => {
-      if (cotemporality === "past") {
-        return !e.start || e.start <= new Date();
-      }
-      return !e.start || e.start >= new Date();
-    })
+    .filter(
+      (e) =>
+        !e.start ||
+        (cotemporality === "past"
+          ? e.start <= new Date()
+          : e.start >= new Date()),
+    )
     .sort((b, a) =>
       cotemporality === "past"
         ? (a.start?.valueOf() ?? 0) - (b.start?.valueOf() ?? 0)
@@ -466,5 +471,39 @@ export const getSortedEvents = async ({
       },
     );
 
-  return sortedEvent;
+  const fuse = new Fuse(sortedEvents, {
+    keys: ["title"],
+    useExtendedSearch: true,
+    includeScore: true,
+    ignoreFieldNorm: true,
+    threshold: 1,
+    findAllMatches: true,
+    ignoreLocation: true,
+    minMatchCharLength: 1,
+    location: 0,
+    distance: 100,
+    tokenMatch: "any",
+  });
+
+  return sortedEvents
+    .sort((a, b) => b.title.length - a.title.length)
+    .filter((event, i) => {
+      const similarEvents = fuse
+        .search(event.title.replaceAll(/\d\d\d\d/g, "").split(" - ")[0])
+        .filter((result) =>
+          result.item.start && event.start
+            ? isSameDay(result.item.start, event.start)
+            : true,
+        );
+
+      // If a similar event is earlier on the list skip this one
+      return !similarEvents.some(
+        (result) => sortedEvents.indexOf(result.item) < i,
+      );
+    })
+    .sort((b, a) =>
+      cotemporality === "past"
+        ? (a.start?.valueOf() ?? 0) - (b.start?.valueOf() ?? 0)
+        : (b.start?.valueOf() ?? 0) - (a.start?.valueOf() ?? 0),
+    );
 };

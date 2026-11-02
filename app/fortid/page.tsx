@@ -42,7 +42,7 @@ function EventList({
               rel="noopener noreferrer"
               className="text-red-500 hover:underline text-lg font-medium"
             >
-              {event.title}
+              {event.title.replaceAll(/\d\d\d\d/g, "")}
             </a>
             <span>
               {event.start && event.end

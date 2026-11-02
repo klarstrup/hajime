@@ -42,7 +42,7 @@ function EventList({
               rel="noopener noreferrer"
               className="text-red-500 hover:underline text-lg font-medium"
             >
-              {event.title}
+              {event.title.replaceAll(/\d\d\d\d/g, "")}
             </a>
             <span>
               {event.start && event.end
@@ -53,9 +53,9 @@ function EventList({
                   }).formatRange(event.start, event.end)
                 : event.start
                   ? Intl.DateTimeFormat("da", {
-                    timeStyle: "short",
-                    dateStyle: "medium",
-                    timeZone,
+                      timeStyle: "short",
+                      dateStyle: "medium",
+                      timeZone,
                     }).format(event.start)
                   : null}
             </span>
