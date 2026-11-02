@@ -20,25 +20,6 @@ const loadSearchParams = createLoader(eventsSearchParams);
 
 const serializeSearchParams = createSerializer(eventsSearchParams);
 
-const icsSources = [
-  {
-    name: "Dansk Karate Union",
-    url: "https://kyokushin.dk/kalender/?ical=1&eventDisplay=past",
-  },
-  {
-    name: "Dansk Karate Union",
-    url: "https://kyokushin.dk/kalender/?ical=1",
-  },
-  {
-    name: "Karateklubben Kenzoku",
-    url: "https://calendar.google.com/calendar/ical/b418b06beb19586d457e0914c5faa192e5823a33120645206a58c61c8bac1565%40group.calendar.google.com/public/basic.ics",
-  },
-  {
-    name: "Roskilde Karate Klub",
-    url: "https://calendar.google.com/calendar/ical/ph0n9gra71t3a81ksfjkhts7mc%40group.calendar.google.com/public/basic.ics",
-  },
-];
-
 type HajimeMeta = {
   _h_source: string;
   _h_url: string;
@@ -124,6 +105,25 @@ const getSortedEvents = async ({
   cotemporality: "past" | "future";
 }) => {
   "use cache";
+
+  const icsSources = [
+    {
+      name: "Dansk Karate Union",
+      url: "https://kyokushin.dk/kalender/?ical=1&eventDisplay=past",
+    },
+    {
+      name: "Dansk Karate Union",
+      url: "https://kyokushin.dk/kalender/?ical=1",
+    },
+    {
+      name: "Karateklubben Kenzoku",
+      url: "https://calendar.google.com/calendar/ical/b418b06beb19586d457e0914c5faa192e5823a33120645206a58c61c8bac1565%40group.calendar.google.com/public/basic.ics",
+    },
+    {
+      name: "Roskilde Karate Klub",
+      url: "https://calendar.google.com/calendar/ical/ph0n9gra71t3a81ksfjkhts7mc%40group.calendar.google.com/public/basic.ics",
+    },
+  ];
 
   const shinryokudanHtml = await fetch(
     "https://www.nansensgadekarate.dk/klubkalender",
@@ -341,7 +341,10 @@ function EventList({
       </div>
       <ul className="flex flex-col gap-2">
         {events.map((event) => (
-          <li key={event.id} className="dark:bg-gray-900 bg-white p-2 rounded flex flex-col">
+          <li
+            key={event.id}
+            className="dark:bg-gray-900 bg-white p-2 rounded flex flex-col"
+          >
             <a
               href={event.url}
               target="_blank"
