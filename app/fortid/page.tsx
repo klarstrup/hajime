@@ -34,7 +34,7 @@ function EventList({
         {events.map((event) => (
           <li
             key={event.id}
-            className="dark:bg-gray-900 bg-white p-2 rounded flex flex-col"
+            className="dark:bg-gray-900 bg-white p-2 pt-1 rounded flex flex-col"
           >
             <a
               href={event.url}
