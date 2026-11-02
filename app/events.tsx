@@ -102,133 +102,130 @@ const fetchIcsEvents = async (url: string) =>
   (await fetchIcsCalendar(url))?.events || [];
 const fetch$ = async (url: string) => cheerio.load(await fetchText(url));
 
+const eventsSources = [
+  {
+    name: "Dansk Karate Union",
+    load: () =>
+      fetchIcsEvents("https://kyokushin.dk/kalender/?ical=1&eventDisplay=past"),
+  },
+  {
+    name: "Dansk Karate Union",
+    load: () => fetchIcsEvents("https://kyokushin.dk/kalender/?ical=1"),
+  },
+  {
+    name: "Karateklubben Kenzoku",
+    load: () =>
+      fetchIcsEvents(
+        "https://calendar.google.com/calendar/ical/b418b06beb19586d457e0914c5faa192e5823a33120645206a58c61c8bac1565%40group.calendar.google.com/public/basic.ics",
+      ),
+  },
+  {
+    name: "Roskilde Karate Klub",
+    load: () =>
+      fetchIcsEvents(
+        "https://calendar.google.com/calendar/ical/ph0n9gra71t3a81ksfjkhts7mc%40group.calendar.google.com/public/basic.ics",
+      ),
+  },
+  {
+    name: "Farum Kyokushin",
+    load: async () => {
+      const farumKyokushin$ = await fetch$(
+        "https://farumkyokushin.dk/kalenderliste/",
+      );
+      return Promise.all(
+        farumKyokushin$("[data-event_id]")
+          .map((_, el) => farumKyokushin$(el).attr("data-event_id"))
+          .toArray()
+          .map((eventId) =>
+            fetchIcsEvents(
+              `https://farumkyokushin.dk/export-events/${eventId}_0/?key=c2ee1168ae`,
+            ),
+          ),
+      ).then((events) => events.flat());
+    },
+  },
+  {
+    name: "Karateklubben Kyokushinkai København",
+    load: () =>
+      fetchJson<KarateKlubbenKyokushinkai.Event[]>(
+        "https://karateklub.com/cms/include/api/calendarj.aspx?start=2007-03-01T00%3A00%3A00%2B01%3A00&end=2047-04-05T00%3A00%3A00%2B02%3A00&tag=",
+      ).then((events) =>
+        events.map((e) => ({
+          ...e,
+          start: new Date(e.start),
+          end: new Date(e.end),
+        })),
+      ),
+  },
+  {
+    name: "Shinryokudan - Nansensgade Karate",
+    load: async () => {
+      const shinryokudanSquarespaceCalendarStartDate = new Date(2022, 5);
+      // iterate over every month from shinryokudanSquarespaceCalendarStartDate until three empty months are encountered
+      let emptyMonths = 0;
+      const currentMonth = new Date(shinryokudanSquarespaceCalendarStartDate);
+      const shinryokudanEvents: SquareSpace.GetItemsByMonthEvent[] = [];
+      while (emptyMonths < 3) {
+        // fetch events for the current month
+        const month = currentMonth.getMonth() + 1;
+        const year = currentMonth.getFullYear();
+        const url = `https://www.nansensgadekarate.dk/api/open/GetItemsByMonth?month=${month}-${year}&collectionId=628f69cd8b60603dfc865e80`;
+        const events = await fetchJson<SquareSpace.GetItemsByMonthEvent[]>(url);
+        if (events.length === 0) {
+          emptyMonths++;
+        } else {
+          emptyMonths = 0;
+          shinryokudanEvents.push(
+            ...events.map((e) => ({
+              ...e,
+              fullUrl: new URL(
+                e.fullUrl,
+                "https://www.nansensgadekarate.dk",
+              ).toString(),
+              structuredContent: {
+                ...e.structuredContent,
+                startDate: new Date(e.structuredContent.startDate),
+                endDate: new Date(e.structuredContent.endDate),
+              },
+            })),
+          );
+        }
+        currentMonth.setMonth(currentMonth.getMonth() + 1);
+      }
+      return shinryokudanEvents;
+    },
+  },
+  {
+    name: "Amager Karateskole",
+    load: async () => {
+      const events = await fetchJson<FullCalendarEvent[]>(
+        "https://www.amagerkarateskole.dk/klub/jinzen-do/activities?club_id=27671&content_id=703630&activity_types=null&start=2006-10-26T00%3A00%3A00&end=2046-12-07T00%3A00%3A00&timeZone=Europe%2FBerlin",
+      );
+      return events.map((e) => ({
+        ...e,
+        title: cheerio
+          .load(e.title)(".inner_event_wrapper > div")
+          .eq(0)
+          .text()
+          .replace(cheerio.load(e.title)(".event_time").text(), ""),
+        description: cheerio.load(e.tooltip).text(),
+        start: new Date(e.start),
+        end: e.end ? new Date(e.end) : null,
+        location: cheerio
+          .load(e.tooltip)(".activity_tooltip_subinfo")
+          .eq(1)
+          .text(),
+      }));
+    },
+  },
+] as const;
+
 export const getSortedEvents = async ({
   cotemporality,
 }: {
   cotemporality: "past" | "future";
 }) => {
   "use cache";
-
-  const eventsSources = [
-    {
-      name: "Dansk Karate Union",
-      load: () =>
-        fetchIcsEvents(
-          "https://kyokushin.dk/kalender/?ical=1&eventDisplay=past",
-        ),
-    },
-    {
-      name: "Dansk Karate Union",
-      load: () => fetchIcsEvents("https://kyokushin.dk/kalender/?ical=1"),
-    },
-    {
-      name: "Karateklubben Kenzoku",
-      load: () =>
-        fetchIcsEvents(
-          "https://calendar.google.com/calendar/ical/b418b06beb19586d457e0914c5faa192e5823a33120645206a58c61c8bac1565%40group.calendar.google.com/public/basic.ics",
-        ),
-    },
-    {
-      name: "Roskilde Karate Klub",
-      load: () =>
-        fetchIcsEvents(
-          "https://calendar.google.com/calendar/ical/ph0n9gra71t3a81ksfjkhts7mc%40group.calendar.google.com/public/basic.ics",
-        ),
-    },
-    {
-      name: "Farum Kyokushin",
-      load: async () => {
-        const farumKyokushin$ = await fetch$(
-          "https://farumkyokushin.dk/kalenderliste/",
-        );
-        return Promise.all(
-          farumKyokushin$("[data-event_id]")
-            .map((_, el) => farumKyokushin$(el).attr("data-event_id"))
-            .toArray()
-            .map((eventId) =>
-              fetchIcsEvents(
-                `https://farumkyokushin.dk/export-events/${eventId}_0/?key=c2ee1168ae`,
-              ),
-            ),
-        ).then((events) => events.flat());
-      },
-    },
-    {
-      name: "Karateklubben Kyokushinkai København",
-      load: () =>
-        fetchJson<KarateKlubbenKyokushinkai.Event[]>(
-          "https://karateklub.com/cms/include/api/calendarj.aspx?start=2007-03-01T00%3A00%3A00%2B01%3A00&end=2047-04-05T00%3A00%3A00%2B02%3A00&tag=",
-        ).then((events) =>
-          events.map((e) => ({
-            ...e,
-            start: new Date(e.start),
-            end: new Date(e.end),
-          })),
-        ),
-    },
-    {
-      name: "Shinryokudan - Nansensgade Karate",
-      load: async () => {
-        const shinryokudanSquarespaceCalendarStartDate = new Date(2022, 5);
-        // iterate over every month from shinryokudanSquarespaceCalendarStartDate until three empty months are encountered
-        let emptyMonths = 0;
-        const currentMonth = new Date(shinryokudanSquarespaceCalendarStartDate);
-        const shinryokudanEvents: SquareSpace.GetItemsByMonthEvent[] = [];
-        while (emptyMonths < 3) {
-          // fetch events for the current month
-          const month = currentMonth.getMonth() + 1;
-          const year = currentMonth.getFullYear();
-          const url = `https://www.nansensgadekarate.dk/api/open/GetItemsByMonth?month=${month}-${year}&collectionId=628f69cd8b60603dfc865e80`;
-          const events =
-            await fetchJson<SquareSpace.GetItemsByMonthEvent[]>(url);
-          if (events.length === 0) {
-            emptyMonths++;
-          } else {
-            emptyMonths = 0;
-            shinryokudanEvents.push(
-              ...events.map((e) => ({
-                ...e,
-                fullUrl: new URL(
-                  e.fullUrl,
-                  "https://www.nansensgadekarate.dk",
-                ).toString(),
-                structuredContent: {
-                  ...e.structuredContent,
-                  startDate: new Date(e.structuredContent.startDate),
-                  endDate: new Date(e.structuredContent.endDate),
-                },
-              })),
-            );
-          }
-          currentMonth.setMonth(currentMonth.getMonth() + 1);
-        }
-        return shinryokudanEvents;
-      },
-    },
-    {
-      name: "Amager Karateskole",
-      load: async () => {
-        const events = await fetchJson<FullCalendarEvent[]>(
-          "https://www.amagerkarateskole.dk/klub/jinzen-do/activities?club_id=27671&content_id=703630&activity_types=null&start=2006-10-26T00%3A00%3A00&end=2046-12-07T00%3A00%3A00&timeZone=Europe%2FBerlin",
-        );
-        return events.map((e) => ({
-          ...e,
-          title: cheerio
-            .load(e.title)(".inner_event_wrapper > div")
-            .eq(0)
-            .text()
-            .replace(cheerio.load(e.title)(".event_time").text(), ""),
-          description: cheerio.load(e.tooltip).text(),
-          start: new Date(e.start),
-          end: e.end ? new Date(e.end) : null,
-          location: cheerio
-            .load(e.tooltip)(".activity_tooltip_subinfo")
-            .eq(1)
-            .text(),
-        }));
-      },
-    },
-  ] as const;
 
   const allEvents = await Promise.all(
     eventsSources.map((source) =>
