@@ -449,6 +449,9 @@ export const getSortedEvents = async ({
           !title.includes("lukket") &&
           !title.includes("bestyrelsesmøde") &&
           !title.includes("bestyrelsemøde") &&
+          !title.includes("instruktørmøde") &&
+          !title.includes("assistentmøde") &&
+          !title.includes("åben dojo") &&
           !title.includes("generalforsamling") &&
           !title.includes("chefinstruktørmøde") &&
           !title.includes("aspirantsamling") &&
@@ -460,6 +463,7 @@ export const getSortedEvents = async ({
           !title.includes("udskydes") &&
           !title.includes("placeholder") &&
           !title.includes("afslutning") &&
+          !title.includes("rengøringsdojo") &&
           !title.includes("arbejdsdag") &&
           !title.includes("førstehjælpskursus") &&
           !(
