@@ -82,6 +82,17 @@ namespace KarateKlubbenKyokushinkai {
   }
 }
 
+export interface FullCalendarEvent {
+  id: number;
+  start: Date;
+  title: string;
+  end: Date | null;
+  color: string;
+  event_type: number;
+  allDay: boolean;
+  tooltip: string;
+}
+
 const fetchText = async (url: string) => (await fetch(url)).text();
 const fetchJson = async <T,>(url: string) =>
   (await fetch(url)).json() as Promise<T>;
@@ -208,6 +219,29 @@ export const getSortedEvents = async ({
           currentMonth.setMonth(currentMonth.getMonth() + 1);
         }
         return shinryokudanEvents;
+      },
+    },
+    {
+      name: "Amager Karateskole",
+      load: async () => {
+        const events = await fetchJson<FullCalendarEvent[]>(
+          "https://www.amagerkarateskole.dk/klub/jinzen-do/activities?club_id=27671&content_id=703630&activity_types=null&start=2006-10-26T00%3A00%3A00&end=2046-12-07T00%3A00%3A00&timeZone=Europe%2FBerlin",
+        );
+        return events.map((e) => ({
+          ...e,
+          title: cheerio
+            .load(e.title)(".inner_event_wrapper > div")
+            .eq(0)
+            .text()
+            .replace(cheerio.load(e.title)(".event_time").text(), ""),
+          description: cheerio.load(e.tooltip).text(),
+          start: new Date(e.start),
+          end: e.end ? new Date(e.end) : null,
+          location: cheerio
+            .load(e.tooltip)(".activity_tooltip_subinfo")
+            .eq(1)
+            .text(),
+        }));
       },
     },
   ] as const;
