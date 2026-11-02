@@ -1,7 +1,11 @@
-import { parseIcsCalendar } from "@ts-ics/schema-zod";
+/* eslint-disable @typescript-eslint/no-namespace */
 import * as cheerio from "cheerio";
 import { pick } from "next/dist/lib/pick";
-import type { IcsCalendar, IcsEvent, NonStandardValuesGeneric } from "ts-ics";
+import {
+  convertIcsCalendar,
+  type IcsEvent,
+  type NonStandardValuesGeneric,
+} from "ts-ics";
 
 const icsSources = [
   {
@@ -9,8 +13,16 @@ const icsSources = [
     url: "https://kyokushin.dk/kalender/?ical=1&eventDisplay=past",
   },
   {
+    name: "Dansk Karate Union",
+    url: "https://kyokushin.dk/kalender/?ical=1",
+  },
+  {
     name: "Karateklubben Kenzoku",
     url: "https://calendar.google.com/calendar/ical/b418b06beb19586d457e0914c5faa192e5823a33120645206a58c61c8bac1565%40group.calendar.google.com/public/basic.ics",
+  },
+  {
+    name: "Roskilde Karate Klub",
+    url: "https://calendar.google.com/calendar/ical/ph0n9gra71t3a81ksfjkhts7mc%40group.calendar.google.com/public/basic.ics",
   },
 ];
 
@@ -18,8 +30,40 @@ type HajimeMeta = {
   _h_source: string;
   _h_url: string;
 };
+namespace SquareSpace {
+  export interface GetItemsByMonthEvent {
+    recordType: number;
+    structuredContent: StructuredContent;
+    addedOn: number;
+    title: string;
+    fullUrl: string;
+    assetUrl: string;
+    excerpt: string;
+    location: Location;
+    systemDataId?: string;
+    originalSize?: string;
+  }
 
-// eslint-disable-next-line @typescript-eslint/no-namespace
+  export interface Location {
+    addressTitle: string;
+    addressLine1: string;
+    addressLine2: string;
+    addressCountry: AddressCountry;
+  }
+
+  export enum AddressCountry {
+    Denmark = "Denmark",
+    Empty = "",
+    Letland = "Letland",
+    Polen = "Polen",
+    Svendborg = "Svendborg",
+  }
+
+  export interface StructuredContent {
+    startDate: Date;
+    endDate: Date;
+  }
+}
 namespace KarateKlubbenKyokushinkai {
   export interface Event {
     id: number;
@@ -86,7 +130,7 @@ export default async function Home() {
   for (const { url: icsUrl, name: icsName } of icsSources) {
     const response = await fetch(icsUrl);
     const icsCalendarString = await response.text();
-    const calendarParsed: IcsCalendar = parseIcsCalendar(icsCalendarString);
+    const calendarParsed = convertIcsCalendar(undefined, icsCalendarString);
     if (calendarParsed.events)
       icsEvents.push(
         ...calendarParsed.events.map((e) => ({
@@ -111,7 +155,40 @@ export default async function Home() {
     });
   }
 
-  const allEvents = [...icsEvents, ...karateklubEvents];
+  const shinryokudanSquarespaceCalendarStartDate = new Date(2022, 5);
+  // iterate over every month from shinryokudanSquarespaceCalendarStartDate until three empty months are encountered
+  let emptyMonths = 0;
+  const currentMonth = new Date(shinryokudanSquarespaceCalendarStartDate);
+  const shinryokudanEvents: (SquareSpace.GetItemsByMonthEvent & HajimeMeta)[] =
+    [];
+  while (emptyMonths < 3) {
+    // fetch events for the current month
+    const month = currentMonth.getMonth() + 1;
+    const year = currentMonth.getFullYear();
+    const url = `https://www.nansensgadekarate.dk/api/open/GetItemsByMonth?month=${month}-${year}&collectionId=628f69cd8b60603dfc865e80`;
+    const response = await fetch(url);
+    const events: SquareSpace.GetItemsByMonthEvent[] = await response.json();
+    if (events.length === 0) {
+      emptyMonths++;
+    } else {
+      emptyMonths = 0;
+      shinryokudanEvents.push(
+        ...events.map((e) => ({
+          ...e,
+          structuredContent: {
+            ...e.structuredContent,
+            startDate: new Date(e.structuredContent.startDate),
+            endDate: new Date(e.structuredContent.endDate),
+          },
+          _h_source: "Shinryokudan - Nansensgade Karate",
+          _h_url: url,
+        })),
+      );
+    }
+    currentMonth.setMonth(currentMonth.getMonth() + 1);
+  }
+
+  const allEvents = [...icsEvents, ...karateklubEvents, ...shinryokudanEvents];
 
   return (
     <pre>
@@ -120,18 +197,41 @@ export default async function Home() {
           .map((e) => ({
             ...e,
             title: "summary" in e ? e.summary : e.title,
+            description:
+              "excerpt" in e
+                ? e.excerpt || undefined
+                : e.description || undefined,
             start:
-              e.start instanceof Date
-                ? e.start
-                : e.start?.date
-                  ? new Date(e.start?.date ?? 0)
+              "structuredContent" in e && e.structuredContent.startDate
+                ? new Date(e.structuredContent.startDate)
+                : "start" in e
+                  ? e.start instanceof Date
+                    ? e.start
+                    : e.start?.date
+                      ? new Date(e.start?.date ?? 0)
+                      : undefined
                   : undefined,
             end:
-              e.end instanceof Date
-                ? e.end
-                : e.end?.date
-                  ? new Date(e.end?.date ?? 0)
+              "structuredContent" in e && e.structuredContent.endDate
+                ? new Date(e.structuredContent.endDate)
+                : "end" in e
+                  ? e.end instanceof Date
+                    ? e.end
+                    : e.end?.date
+                      ? new Date(e.end?.date ?? 0)
+                      : undefined
                   : undefined,
+            location:
+              (typeof e.location === "object"
+                ? [
+                    e.location.addressTitle,
+                    e.location.addressLine1,
+                    e.location.addressLine2,
+                    e.location.addressCountry,
+                  ]
+                    .filter((s) => s.trim())
+                    .join(", ")
+                : e.location) || undefined,
           }))
           .sort((b, a) => (a.start?.valueOf() ?? 0) - (b.start?.valueOf() ?? 0))
           .map((e) =>
