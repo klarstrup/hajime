@@ -1,10 +1,24 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import * as cheerio from "cheerio";
 import {
+  createLoader,
+  createSerializer,
+  parseAsStringLiteral,
+  SearchParams,
+} from "nuqs/server";
+import {
   convertIcsCalendar,
   type IcsEvent,
   type NonStandardValuesGeneric,
 } from "ts-ics";
+
+// Describe your search params, and reuse this in useQueryStates / createSerializer:
+const eventsSearchParams = {
+  cotemporality: parseAsStringLiteral(["past", "future"]).withDefault("future"),
+};
+const loadSearchParams = createLoader(eventsSearchParams);
+
+const serializeSearchParams = createSerializer(eventsSearchParams);
 
 const icsSources = [
   {
@@ -104,7 +118,13 @@ namespace KarateKlubbenKyokushinkai {
   }
 }
 
-const getSortedEvents = async () => {
+const getSortedEvents = async ({
+  cotemporality,
+}: {
+  cotemporality: "past" | "future";
+}) => {
+  "use cache";
+
   const shinryokudanHtml = await fetch(
     "https://www.nansensgadekarate.dk/klubkalender",
   ).then((res) => res.text());
@@ -258,32 +278,37 @@ const getSortedEvents = async () => {
           : e.location) || undefined,
     }))
     .filter((e, i, l) => l.findIndex((ev) => ev.id === e.id) === i)
+    .filter((e) => {
+      if (cotemporality === "past") {
+        return !e.start || e.start <= new Date();
+      }
+      return !e.start || e.start >= new Date();
+    })
     .sort((b, a) => (a.start?.valueOf() ?? 0) - (b.start?.valueOf() ?? 0));
 
   return sortedEvent;
 };
+export const instant = false;
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const { cotemporality } = await loadSearchParams(searchParams);
 
-export default async function Home() {
-  "use cache";
-
-  const sortedEvents = await getSortedEvents();
+  const events = await getSortedEvents({ cotemporality });
 
   return (
     <div>
       <div className="flex gap-8 justify-evenly">
         <EventList
-          events={sortedEvents.filter(
-            (event) => !event.start || event.start <= new Date(),
-          )}
-          title="Hvad Der Skete"
-        />
-        <EventList
-          events={sortedEvents
-            .filter((event) => !event.start || event.start >= new Date())
-            .sort(
-              (a, b) => (a.start?.valueOf() ?? 0) - (b.start?.valueOf() ?? 0),
-            )}
-          title="Hvad Der Sker"
+          events={events}
+          title={
+            cotemporality === "past"
+              ? "Hvad Der Skete I Karate"
+              : "Hvad Der Sker I Karate"
+          }
+          cotemporality={cotemporality}
         />
       </div>
     </div>
@@ -293,13 +318,27 @@ export default async function Home() {
 function EventList({
   events,
   title,
+  cotemporality,
 }: {
   events: Awaited<ReturnType<typeof getSortedEvents>>;
   title: string;
+  cotemporality: "past" | "future";
 }) {
   return (
     <div className="flex flex-col">
-      <header className="text-xl font-bold mt-2 mb-4">{title}</header>
+      <div className="flex gap-2 mt-2 mb-4 items-baseline justify-between">
+        <header className="text-xl font-extrabold">🥋 {title}</header>
+        <a
+          className="text-sm text-red-300"
+          href={serializeSearchParams("/", {
+            cotemporality: cotemporality === "future" ? "past" : "future",
+          })}
+        >
+          {cotemporality === "future"
+            ? "Se tidligere karatebegivenheder"
+            : "Se kommende karatebegivenheder"}
+        </a>
+      </div>
       <ul className="flex flex-col gap-2">
         {events.map((event) => (
           <li key={event.id} className="bg-gray-900 p-2 rounded flex flex-col">
@@ -307,7 +346,7 @@ function EventList({
               href={event.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-500 hover:underline text-lg"
+              className="text-red-500 hover:underline text-lg"
             >
               {event.title}
             </a>
