@@ -773,7 +773,8 @@ export const getSortedEvents = async ({
           !(
             title.includes("graduering") &&
             !title.includes("dangraduering") &&
-            !title.includes("sortbæltegraduering")
+            !title.includes("sortbæltegraduering") &&
+            !title.includes("dan graduering")
           ) &&
           !location.includes("spanien") &&
           !location.includes("montesilvano") &&
