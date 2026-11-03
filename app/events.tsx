@@ -1,7 +1,12 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import { TZDate } from "@date-fns/tz/date";
 import * as cheerio from "cheerio";
-import { endOfDay, isDate, startOfDay } from "date-fns";
+import {
+  areIntervalsOverlapping,
+  endOfDay,
+  isDate,
+  startOfDay,
+} from "date-fns";
 import Fuse from "fuse.js";
 import { convertIcsCalendar } from "ts-ics";
 
@@ -406,9 +411,16 @@ const eventsSources = [
   },
 ] as const;
 
-function isWithin24Hours(date1: Date, date2: Date) {
-  const diff = Math.abs(date1.getTime() - date2.getTime());
-  return diff <= 24 * 60 * 60 * 1000;
+function eventsAreCoinciding(
+  event1: Awaited<ReturnType<typeof getSortedEvents>>[number][number],
+  event2: Awaited<ReturnType<typeof getSortedEvents>>[number][number],
+) {
+  if (!event1.start) console.warn("Event 1 has no start date", event1);
+  if (!event2.start) console.warn("Event 2 has no start date", event2);
+  return areIntervalsOverlapping(
+    { start: event1.start!, end: event1.end ?? endOfDay(event1.start!) },
+    { start: event2.start!, end: event2.end ?? endOfDay(event2.start!) },
+  );
 }
 
 export const fetchEvents = async ({
@@ -524,11 +536,6 @@ export const getSortedEvents = async ({
           ? e.start <= new Date()
           : e.start >= new Date()),
     )
-    .sort((b, a) =>
-      cotemporality === "past"
-        ? (a.start?.valueOf() ?? 0) - (b.start?.valueOf() ?? 0)
-        : (b.start?.valueOf() ?? 0) - (a.start?.valueOf() ?? 0),
-    )
     .filter(
       // roughly filter out training and internal club events for now
       (e) => {
@@ -576,7 +583,40 @@ export const getSortedEvents = async ({
           )
         );
       },
-    );
+    )
+    .sort((a, b) => b.title.length - a.title.length)
+    .sort((a, b) =>
+      cotemporality === "past"
+        ? (b.start?.valueOf() ?? 0) - (a.start?.valueOf() ?? 0)
+        : (a.start?.valueOf() ?? 0) - (b.start?.valueOf() ?? 0),
+    )
+    .sort((a, b) => {
+      // sort by event hours
+      const aLength =
+        a.end && a.start ? a.end.valueOf() - a.start.valueOf() : 0;
+      const bLength =
+        b.end && b.start ? b.end.valueOf() - b.start.valueOf() : 0;
+      return aLength - bLength;
+    })
+    .sort((a, b) => {
+      // sort by event days
+      const aDays =
+        a.end && a.start
+          ? Math.ceil(
+              (endOfDay(a.end).valueOf() - startOfDay(a.start).valueOf()) /
+                (1000 * 60 * 60 * 24),
+            )
+          : 0;
+      const bDays =
+        b.end && b.start
+          ? Math.ceil(
+              (endOfDay(b.end).valueOf() - startOfDay(b.start).valueOf()) /
+                (1000 * 60 * 60 * 24),
+            )
+          : 0;
+
+      return bDays - aDays;
+    });
 
   const fuse = new Fuse(sortedEvents, {
     keys: ["title"],
@@ -597,9 +637,7 @@ export const getSortedEvents = async ({
     ...typeof sortedEvents,
   ][] = [];
 
-  for (const event of sortedEvents.sort(
-    (a, b) => b.title.length - a.title.length,
-  )) {
+  for (const event of sortedEvents) {
     const similarEvents = fuse
       .search(
         event.title
@@ -607,26 +645,18 @@ export const getSortedEvents = async ({
           .split(" - ")[0]
           .trim(),
       )
-      .filter((result) =>
-        result.item.start && event.start
-          ? isWithin24Hours(result.item.start, event.start)
-          : true,
+      .filter(
+        (result) =>
+          eventsAreCoinciding(result.item, event) &&
+          (result.score !== undefined ? result.score < 0.9 : true),
       );
 
     // if a similar event is already in groupedEvents, add this to the same group
     const existingGroup = groupedEvents.find((group) =>
       group.some(
         (e) =>
-          (e.start && event.start
-            ? isWithin24Hours(e.start, event.start)
-            : true) &&
-          (similarEvents.some(
-            (result) =>
-              result.item === e &&
-              (e.start && event.start
-                ? isWithin24Hours(e.start, event.start)
-                : true),
-          ) ||
+          eventsAreCoinciding(e, event) &&
+          (similarEvents.some((result) => result.item === e) ||
             e.title === event.title),
       ),
     );
