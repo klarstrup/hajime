@@ -78,23 +78,30 @@ export function EventList({
                 ))}
               <span className="text-xs text-gray-600">
                 via{" "}
-                {gEvents.map((e, i, l) => (
-                  <Fragment key={e.source}>
-                    {i === l.length - 1 ? " og " : i > 0 ? ", " : ""}
-                    {"calendarUrl" in e && typeof e.calendarUrl === "string" ? (
-                      <a
-                        href={e.calendarUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-red-500 hover:underline"
-                      >
-                        {e.source}
-                      </a>
-                    ) : (
-                      e.source
-                    )}
-                  </Fragment>
-                ))}
+                {gEvents
+                  .filter(
+                    // unique sources
+                    (e, index, list) =>
+                      list.findIndex((ev) => ev.source === e.source) === index,
+                  )
+                  .map((e, i, l) => (
+                    <Fragment key={i}>
+                      {i === l.length - 1 ? " og " : i > 0 ? ", " : ""}
+                      {"calendarUrl" in e &&
+                      typeof e.calendarUrl === "string" ? (
+                        <a
+                          href={e.calendarUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-red-500 hover:underline"
+                        >
+                          {e.source}
+                        </a>
+                      ) : (
+                        e.source
+                      )}
+                    </Fragment>
+                  ))}
               </span>
             </li>
           );
