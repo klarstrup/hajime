@@ -1,4 +1,3 @@
-import { differenceInHours } from "date-fns";
 import Link from "next/link";
 import { Fragment } from "react";
 import type { getSortedEvents } from "./events";
@@ -87,11 +86,7 @@ export function EventList({
                 .slice(0, 1)
                 .map((e) => [
                   e,
-                  e.start &&
-                  e.end &&
-                  (isUTCOrLocalMidnight(e.end)
-                    ? differenceInHours(e.start, e.end) > 24
-                    : true)
+                  e.start && e.end
                     ? Intl.DateTimeFormat("da", {
                         timeStyle: isUTCOrLocalMidnight(e.start)
                           ? undefined

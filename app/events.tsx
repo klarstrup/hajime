@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-namespace */
-import { tz } from "@date-fns/tz";
-import { TZDate } from "@date-fns/tz/date";
+import { tz, TZDate } from "@date-fns/tz";
 import * as cheerio from "cheerio";
 import {
   areIntervalsOverlapping,
@@ -538,6 +537,43 @@ const eventsSources = [
           ),
         };
       });
+    },
+  },
+  {
+    sourceId: "international-okinawan-goju-ryu-karate-do-federation-danmark",
+    name: "International Okinawan Goju Ryu Karate-do Federation – Danmark",
+    calendarUrl: "https://www.iogkf.dk/iogkf-events/",
+    load: async () => {
+      const $ = await fetch$("https://www.iogkf.dk/iogkf-events/");
+
+      const events = $(".event_listing")
+        .map((_, el) => {
+          const dateString = $(el)
+            .find(".wpem-event-date-time-text")
+            .text()
+            .replace(/\s+/g, " ")
+            .trim();
+          const [start, end] = dateString
+            .split(" - ")
+            .map((s) => s.split(/[-T:]/).map(Number))
+            .map((parts) => new Date(parts[2], parts[1] - 1, parts[0])) as [
+            TZDate,
+            TZDate?,
+          ];
+          return {
+            id: $(el).find(".wpem-event-action-url").attr("href")!.trim(),
+            title: $(el).find(".wpem-event-title").text().trim(),
+            start: new Date(start),
+            end: end ? new Date(end) : undefined,
+            location:
+              $(el).find(".wpem-event-location-text").text().trim() ||
+              undefined,
+            url: $(el).find(".wpem-event-action-url").attr("href")!.trim(),
+          };
+        })
+        .get();
+
+      return events;
     },
   },
 ] as const;
