@@ -24,7 +24,7 @@ function EventList({
 }) {
   return (
     <div className="flex flex-col">
-      <div className="flex gap-2 mt-2 mb-4 items-baseline justify-between">
+      <div className="flex gap-2 mt-2 mb-4 items-baseline justify-between px-2">
         <header className="text-xl font-extrabold">🥋 {title}</header>
         <Link className="text-sm text-red-300" href={"/"}>
           Se kommende karatebegivenheder
