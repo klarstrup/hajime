@@ -511,7 +511,8 @@ export const getSortedEvents = async ({
                 .join(", ")
             : "location" in e && typeof e.location === "string"
               ? e.location
-              : undefined) || undefined,
+              : ""
+        ).trim().replace(/\s+/g, " ") || undefined,
     }))
     .filter(
       (e) =>

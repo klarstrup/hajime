@@ -1,8 +1,7 @@
-import { differenceInDays } from "date-fns/fp/differenceInDays";
+import { differenceInHours } from "date-fns";
 import Link from "next/link";
 import { Fragment } from "react";
 import type { getSortedEvents } from "./events";
-import { differenceInHours } from "date-fns/fp/differenceInHours";
 
 const timeZone = "Europe/Copenhagen";
 
@@ -98,8 +97,16 @@ export function EventList({
                 .filter(
                   (location, index, list) =>
                     location &&
-                    (list.indexOf(location) === index ||
-                      !list.find((l) => l.includes(location))),
+                    list.findIndex(
+                      (l) =>
+                        l === location ||
+                        l
+                          .replaceAll(",", "")
+                          .includes(location.replaceAll(",", "")) ||
+                        location
+                          .replaceAll(",", "")
+                          .includes(l.replaceAll(",", "")),
+                    ) === index,
                 )
                 .map((location, index) => (
                   <span key={index} className="text-sm text-gray-400">
