@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-namespace */
+import { TZDate } from "@date-fns/tz/date";
 import * as cheerio from "cheerio";
-import { isSameDay } from "date-fns";
+import { endOfDay, isDate, startOfDay } from "date-fns";
 import Fuse from "fuse.js";
 import { convertIcsCalendar } from "ts-ics";
 
@@ -153,7 +154,18 @@ const fetchText = async (url: string) => (await fetch(url)).text();
 const fetchJson = async <T,>(url: string) =>
   (await fetch(url)).json() as Promise<T>;
 const fetchIcsCalendar = async (url: string) =>
-  convertIcsCalendar(undefined, await fetchText(url));
+  convertIcsCalendar(
+    undefined,
+    (await fetchText(url))
+      .replace(
+        /^(DTSTART:\d{8})$/gm,
+        (_, p1) => `DTSTART;VALUE=DATE:${p1.slice(8)}`,
+      )
+      .replace(
+        /^(DTEND:\d{8})$/gm,
+        (_, p1) => `DTEND;VALUE=DATE:${p1.slice(6)}`,
+      ),
+  );
 const fetchIcsEvents = async (url: string) =>
   (await fetchIcsCalendar(url))?.events || [];
 const fetch$ = async (url: string) => cheerio.load(await fetchText(url));
@@ -375,23 +387,38 @@ const eventsSources = [
 
       return response.data.events.edges.map((edge) => {
         const node = edge.node;
+        const dateParts = (
+          node.date as unknown as `${number}-${number}-${number}`
+        )
+          .split(/[-T:]/)
+          .map(Number);
         return {
           ...node,
-          start: new Date(node.date),
+          date: new TZDate(
+            dateParts[0],
+            dateParts[1] - 1,
+            dateParts[2],
+            "Europe/Copenhagen",
+          ),
         };
       });
     },
   },
 ] as const;
 
-export const getSortedEvents = async ({
+function isWithin24Hours(date1: Date, date2: Date) {
+  const diff = Math.abs(date1.getTime() - date2.getTime());
+  return diff <= 24 * 60 * 60 * 1000;
+}
+
+export const fetchEvents = async ({
   cotemporality,
 }: {
   cotemporality: "past" | "future";
 }) => {
   "use cache";
 
-  const allEvents = await Promise.all(
+  return Promise.all(
     eventsSources.map((source) =>
       source
         .load({ cotemporality })
@@ -400,6 +427,16 @@ export const getSortedEvents = async ({
         ),
     ),
   ).then((events) => events.flat());
+};
+
+export const getSortedEvents = async ({
+  cotemporality,
+}: {
+  cotemporality: "past" | "future";
+}) => {
+  "use cache";
+
+  const allEvents = await fetchEvents({ cotemporality });
 
   const sortedEvents = allEvents
     .map((e) => ({
@@ -439,23 +476,25 @@ export const getSortedEvents = async ({
             ? e.description || undefined
             : undefined,
       start:
-        "structuredContent" in e && e.structuredContent.startDate
+        "structuredContent" in e
           ? new Date(e.structuredContent.startDate)
           : "start" in e
-            ? e.start instanceof Date
+            ? isDate(e.start)
               ? e.start
-              : e.start?.date
-                ? new Date(e.start?.date ?? 0)
+              : isDate(e.start?.date)
+                ? e.start.date
                 : undefined
-            : undefined,
+            : "date" in e
+              ? new Date(e.date)
+              : (e satisfies never),
       end:
-        "structuredContent" in e && e.structuredContent.endDate
+        "structuredContent" in e
           ? new Date(e.structuredContent.endDate)
           : "end" in e
-            ? e.end instanceof Date
+            ? isDate(e.end)
               ? e.end
               : e.end?.date
-                ? new Date(e.end?.date ?? 0)
+                ? new Date(e.end.date)
                 : undefined
             : undefined,
       location:
@@ -549,25 +588,92 @@ export const getSortedEvents = async ({
     tokenMatch: "any",
   });
 
-  return sortedEvents
-    .sort((a, b) => b.title.length - a.title.length)
-    .filter((event, i) => {
-      const similarEvents = fuse
-        .search(event.title.replaceAll(/\d\d\d\d/g, "").split(" - ")[0])
-        .filter((result) =>
-          result.item.start && event.start
-            ? isSameDay(result.item.start, event.start)
-            : true,
-        );
+  const groupedEvents: [
+    (typeof sortedEvents)[number],
+    ...typeof sortedEvents,
+  ][] = [];
 
-      // If a similar event is earlier on the list skip this one
-      return !similarEvents.some(
-        (result) => sortedEvents.indexOf(result.item) < i,
+  for (const event of sortedEvents.sort(
+    (a, b) => b.title.length - a.title.length,
+  )) {
+    const similarEvents = fuse
+      .search(
+        event.title
+          .replaceAll(/\d\d\d\d/g, "")
+          .split(" - ")[0]
+          .trim(),
+      )
+      .filter((result) =>
+        result.item.start && event.start
+          ? isWithin24Hours(result.item.start, event.start)
+          : true,
       );
-    })
-    .sort((b, a) =>
+
+    // if a similar event is already in groupedEvents, add this to the same group
+    const existingGroup = groupedEvents.find((group) =>
+      group.some(
+        (e) =>
+          (e.start && event.start
+            ? isWithin24Hours(e.start, event.start)
+            : true) &&
+          (similarEvents.some(
+            (result) =>
+              result.item === e &&
+              (e.start && event.start
+                ? isWithin24Hours(e.start, event.start)
+                : true),
+          ) ||
+            e.title === event.title),
+      ),
+    );
+    if (!event.start) console.warn("Event has no start date:", event);
+
+    if (existingGroup) {
+      existingGroup.push(event);
+    } else {
+      groupedEvents.push([event]);
+    }
+  }
+
+  return groupedEvents
+    .map((events) =>
+      events
+        .sort((a, b) =>
+          cotemporality === "past"
+            ? (b.start?.valueOf() ?? 0) - (a.start?.valueOf() ?? 0)
+            : (a.start?.valueOf() ?? 0) - (b.start?.valueOf() ?? 0),
+        )
+        .sort((a, b) => {
+          // sort by event hours
+          const aLength =
+            a.end && a.start ? a.end.valueOf() - a.start.valueOf() : 0;
+          const bLength =
+            b.end && b.start ? b.end.valueOf() - b.start.valueOf() : 0;
+          return aLength - bLength;
+        })
+        .sort((a, b) => {
+          // sort by event days
+          const aDays =
+            a.end && a.start
+              ? Math.ceil(
+                  (endOfDay(a.end).valueOf() - startOfDay(a.start).valueOf()) /
+                    (1000 * 60 * 60 * 24),
+                )
+              : 0;
+          const bDays =
+            b.end && b.start
+              ? Math.ceil(
+                  (endOfDay(b.end).valueOf() - startOfDay(b.start).valueOf()) /
+                    (1000 * 60 * 60 * 24),
+                )
+              : 0;
+
+          return bDays - aDays;
+        }),
+    )
+    .sort(([a], [b]) =>
       cotemporality === "past"
-        ? (a.start?.valueOf() ?? 0) - (b.start?.valueOf() ?? 0)
-        : (b.start?.valueOf() ?? 0) - (a.start?.valueOf() ?? 0),
+        ? (b.start?.valueOf() ?? 0) - (a.start?.valueOf() ?? 0)
+        : (a.start?.valueOf() ?? 0) - (b.start?.valueOf() ?? 0),
     );
 };

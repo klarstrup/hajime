@@ -31,7 +31,7 @@ function EventList({
         </Link>
       </div>
       <ul className="flex flex-col gap-2">
-        {events.map((event) => (
+        {events.map(([event]) => (
           <li
             key={event.id}
             className="dark:bg-gray-900 bg-white p-2 pt-1 rounded flex flex-col"
