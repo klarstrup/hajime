@@ -1,6 +1,8 @@
+import { differenceInDays } from "date-fns/fp/differenceInDays";
 import Link from "next/link";
 import { Fragment } from "react";
 import type { getSortedEvents } from "./events";
+import { differenceInHours } from "date-fns/fp/differenceInHours";
 
 const timeZone = "Europe/Copenhagen";
 
@@ -44,23 +46,52 @@ export function EventList({
               >
                 {event.title.replaceAll(/\d\d\d\d/g, "")}
               </a>
-              {gEvents.map((e, index) => (
-                <span key={index}>
-                  {e.start && e.end
+              {gEvents
+                .filter((e, i, l) =>
+                  l.filter(
+                    (le) =>
+                      le.start &&
+                      !(
+                        le.start.getUTCHours() === 0 ||
+                        le.start.getHours() === 0
+                      ),
+                  ).length > 0
+                    ? e.start &&
+                      !(e.start.getUTCHours() === 0 || e.start.getHours() === 0)
+                    : true,
+                )
+                .map((e) =>
+                  e.start &&
+                  e.end &&
+                  (e.end.getHours() === 0 || e.end.getUTCHours() === 0
+                    ? differenceInHours(e.start, e.end) > 24
+                    : true)
                     ? Intl.DateTimeFormat("da", {
-                        timeStyle: "short",
+                        timeStyle:
+                          e.start.getUTCHours() === 0 ||
+                          e.start.getHours() === 0
+                            ? undefined
+                            : "short",
                         dateStyle: "medium",
                         timeZone,
                       }).formatRange(e.start, e.end)
                     : e.start
                       ? Intl.DateTimeFormat("da", {
-                          timeStyle: "short",
-                          dateStyle: "medium",
+                          timeStyle:
+                            e.start.getUTCHours() === 0 ||
+                            e.start.getHours() === 0
+                              ? undefined
+                              : "short",
+                          dateStyle: "short",
                           timeZone,
                         }).format(e.start)
-                      : null}
-                </span>
-              ))}
+                      : null,
+                )
+                .filter((etext): etext is string => !!etext)
+                .filter((etext, index, list) => list.indexOf(etext) === index)
+                .map((e, index) => (
+                  <span key={index}>{e}</span>
+                ))}
               {gEvents
                 .map((e) => e.location)
                 .filter((l): l is string => !!l)
