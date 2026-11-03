@@ -189,7 +189,6 @@ export function EventList({
                     index,
                     list,
                   ) => {
-                    return list;
                     // If one location has clear consensus just keep that one
                     const [, locationSources] = eventLocationSourcesPair;
                     const maxLength = Math.max(
@@ -207,24 +206,34 @@ export function EventList({
                     <span key={index} className="text-sm text-gray-400">
                       {" "}
                       @ {e.location}
-                      {locationSources.map((s, i) => {
-                        let usedIndex = usedSources.findIndex(
-                          (us) => us.sourceId === s.sourceId,
-                        );
-                        if (usedIndex === -1) {
-                          usedIndex = usedSources.push(s) - 1;
-                        }
+                      {locationSources
+                        .sort(
+                          (a, b) =>
+                            usedSources.findIndex(
+                              (us) => us.sourceId === a.sourceId,
+                            ) -
+                            usedSources.findIndex(
+                              (us) => us.sourceId === b.sourceId,
+                            ),
+                        )
+                        .map((s, i) => {
+                          let usedIndex = usedSources.findIndex(
+                            (us) => us.sourceId === s.sourceId,
+                          );
+                          if (usedIndex === -1) {
+                            usedIndex = usedSources.push(s) - 1;
+                          }
 
-                        return (
-                          <span
-                            key={s.sourceId}
-                            className="text-[8px] align-super text-gray-500 attribution"
-                          >
-                            {i > 0 ? "," : ""}
-                            {usedIndex + 1}
-                          </span>
-                        );
-                      })}
+                          return (
+                            <span
+                              key={s.sourceId}
+                              className="text-[8px] align-super text-gray-500 attribution"
+                            >
+                              {i > 0 ? "," : ""}
+                              {usedIndex + 1}
+                            </span>
+                          );
+                        })}
                     </span>
                   );
                 })}
