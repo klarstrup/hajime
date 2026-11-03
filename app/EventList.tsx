@@ -8,7 +8,7 @@ const timeZone = "Europe/Copenhagen";
 const isUTCOrLocalMidnight = (date: Date) =>
   date.getUTCHours() === 0 ||
   date.getHours() === 0 ||
-  date.toLocaleTimeString("da-DK", { timeZone }) === "00:00";
+  date.toLocaleTimeString("da-DK", { timeZone }) === "00.00";
 
 export function EventList({
   events,
