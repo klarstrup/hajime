@@ -37,7 +37,9 @@ export function EventList({
       </div>
       <ul className="flex flex-col gap-2">
         {events.map((gEvents) => {
-          const event = gEvents[0];
+          const event =
+            gEvents.find((e) => e.sourceId === "kumite-technology") ??
+            gEvents[0];
 
           const uniqueSources = gEvents.filter(
             (s, index, list) =>
@@ -62,7 +64,9 @@ export function EventList({
             >
               <div>
                 <a
-                  href={gEvents.find((e) => e.url?.trim().length)?.url}
+                  href={
+                    event.url || gEvents.find((e) => e.url?.trim().length)?.url
+                  }
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-red-500 hover:underline text-lg font-medium"

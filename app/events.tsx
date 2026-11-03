@@ -611,8 +611,8 @@ export const getSortedEvents = async ({
             ? e.url
             : "linkEvent" in e
               ? e.linkEvent
-              : "website" in e && e.website
-                ? e.website
+              : "entityId" in e && e.entityId
+                ? `https://kumitetechnology.com/en/tournament/${e.entityId}/`
                 : /*"origin_url" in e
                   ? e.origin_url
                   :*/ undefined,
