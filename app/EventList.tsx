@@ -5,6 +5,11 @@ import type { getSortedEvents } from "./events";
 
 const timeZone = "Europe/Copenhagen";
 
+const isUTCOrLocalMidnight = (date: Date) =>
+  date.getUTCHours() === 0 ||
+  date.getHours() === 0 ||
+  date.toLocaleTimeString("da-DK", { timeZone }) === "00:00";
+
 export function EventList({
   events,
   title,
@@ -47,40 +52,29 @@ export function EventList({
               </a>
               {gEvents
                 .filter((e, i, l) =>
-                  l.filter(
-                    (le) =>
-                      le.start &&
-                      !(
-                        le.start.getUTCHours() === 0 ||
-                        le.start.getHours() === 0
-                      ),
-                  ).length > 0
-                    ? e.start &&
-                      !(e.start.getUTCHours() === 0 || e.start.getHours() === 0)
+                  l.filter((le) => le.start && !isUTCOrLocalMidnight(le.start))
+                    .length > 0
+                    ? e.start && !isUTCOrLocalMidnight(e.start)
                     : true,
                 )
                 .map((e) =>
                   e.start &&
                   e.end &&
-                  (e.end.getHours() === 0 || e.end.getUTCHours() === 0
+                  (isUTCOrLocalMidnight(e.end)
                     ? differenceInHours(e.start, e.end) > 24
                     : true)
                     ? Intl.DateTimeFormat("da", {
-                        timeStyle:
-                          e.start.getUTCHours() === 0 ||
-                          e.start.getHours() === 0
-                            ? undefined
-                            : "short",
+                        timeStyle: isUTCOrLocalMidnight(e.start)
+                          ? undefined
+                          : "short",
                         dateStyle: "medium",
                         timeZone,
                       }).formatRange(e.start, e.end)
                     : e.start
                       ? Intl.DateTimeFormat("da", {
-                          timeStyle:
-                            e.start.getUTCHours() === 0 ||
-                            e.start.getHours() === 0
-                              ? undefined
-                              : "short",
+                          timeStyle: isUTCOrLocalMidnight(e.start)
+                            ? undefined
+                            : "short",
                           dateStyle: "short",
                           timeZone,
                         }).format(e.start)
