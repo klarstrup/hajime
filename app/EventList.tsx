@@ -123,11 +123,15 @@ export function EventList({
                         l &&
                         (l === location ||
                           l!
+                            .toLowerCase()
                             .replaceAll(",", "")
-                            .includes(location.replaceAll(",", "")) ||
+                            .includes(
+                              location.toLocaleLowerCase().replaceAll(",", ""),
+                            ) ||
                           location
+                            .toLowerCase()
                             .replaceAll(",", "")
-                            .includes(l!.replaceAll(",", ""))),
+                            .includes(l!.toLowerCase().replaceAll(",", ""))),
                     ) === index,
                 )
                 .map((e, index) => (

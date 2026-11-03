@@ -536,7 +536,10 @@ export const getSortedEvents = async ({
         )
           .trim()
           .replace(/\s+/g, " ")
-          .replace(/, ,/g, ",") || undefined,
+          .replace(/, ,/g, ",")
+          .replace(/ ,/g, ",")
+          .replace("Denmark", "Danmark")
+          .replace("Copenhagen", "København") || undefined,
     }))
     .filter(
       (e) =>
@@ -549,6 +552,7 @@ export const getSortedEvents = async ({
       // roughly filter out training and internal club events for now
       (e) => {
         const title = e.title.toLowerCase();
+        const location = (e.location || "").toLowerCase();
         return (
           !title.includes("træning") &&
           !title.includes("lukket") &&
@@ -585,11 +589,20 @@ export const getSortedEvents = async ({
           !title.includes("aflysning") &&
           !title.includes("gæsteinstruktør") &&
           !title.includes("førstehjælpskursus") &&
+          !title.includes("kristi himmelfartsdag") &&
           !(
             title.includes("graduering") &&
             !title.includes("dangraduering") &&
             !title.includes("sortbæltegraduering")
-          )
+          ) &&
+          !location.includes("spanien") &&
+          !location.includes("montesilvano") &&
+          !location.includes("letland") &&
+          !location.includes("tokyo") &&
+          !location.includes("georgia") &&
+          !location.includes("sverige") &&
+          !location.includes("barcelona") &&
+          !location.includes("zoom")
         );
       },
     )
