@@ -316,16 +316,24 @@ const eventsSources = [
       const farumKyokushin$ = await fetch$(
         "https://farumkyokushin.dk/kalenderliste/",
       );
-      return Promise.all(
-        farumKyokushin$("[data-event_id]")
-          .map((_, el) => farumKyokushin$(el).attr("data-event_id"))
-          .toArray()
-          .map((eventId) =>
-            fetchIcsEvents(
-              `https://farumkyokushin.dk/export-events/${eventId}_0/?key=c2ee1168ae`,
-            ),
-          ),
-      ).then((events) => events.flat());
+      return farumKyokushin$("[data-event_id]")
+        .map((_, el) => {
+          const timeString = farumKyokushin$(el).attr("data-time")!;
+          const [start, end] = timeString
+            .split("-")
+            .map(Number)
+            .map((n) => new Date(n * 1000));
+
+          return {
+            id: farumKyokushin$(el).attr("data-event_id"),
+            start,
+            end,
+            title: farumKyokushin$(el).find(".evcal_event_title").text(),
+            location: farumKyokushin$(el).find(".event_location_name").text(),
+            url: farumKyokushin$(el).find("[itemprop='url']").attr("href"),
+          };
+        })
+        .toArray();
     },
   },
   {
@@ -571,7 +579,7 @@ const eventsSources = [
             url: $(el).find(".wpem-event-action-url").attr("href")!.trim(),
           };
         })
-        .get();
+        .toArray();
 
       return events;
     },
