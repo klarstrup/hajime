@@ -670,12 +670,6 @@ export const getSortedEvents = async ({
               ? e.eventname_raw
               : (e satisfies never)
       ).trim(),
-      description:
-        "excerpt" in e
-          ? e.excerpt || undefined
-          : "description" in e
-            ? e.description || undefined
-            : undefined,
       start:
         "structuredContent" in e
           ? new Date(e.structuredContent.startDate)
