@@ -50,6 +50,99 @@ namespace SquareSpace {
     endDate: Date;
   }
 }
+
+export interface AllEventsResponse {
+  error: number;
+  message: string;
+  request: Request;
+  data: Datum[];
+  count: number;
+}
+
+export interface Datum {
+  event_id: string;
+  eventname: string;
+  eventname_raw: string;
+  thumb_url: string;
+  thumb_url_large: null;
+  banner_url: string;
+  start_time: number;
+  start_time_display: string;
+  end_time: number;
+  end_time_display: string;
+  location: string;
+  venue: Venue;
+  label: Label;
+  event_url: string;
+  share_url: string;
+  origin_url: string;
+  ticket_url: null | string;
+  buy_ticket: number;
+  categories: string[];
+  tags: string[];
+  rsvp_status: number;
+  params: ParamsUnion;
+  tickets: Tickets;
+  organizer: Organizer;
+  display_time_label: string;
+  display_month: string;
+  display_day: number;
+  app_display_time: string;
+  sort_time: number;
+  id: null;
+  timezone?: string;
+  app_display_time_past?: string;
+}
+
+export enum Label {
+  Empty = "",
+  Upcoming = "Upcoming",
+}
+
+export interface Organizer {
+  org_id: number;
+  username: string;
+  is_verified: number;
+  name: string;
+  org_review: OrgReview;
+}
+
+export interface OrgReview {
+  rating: number;
+  count: number;
+}
+
+export type ParamsUnion = unknown[] | ParamsClass | number;
+
+export interface ParamsClass {
+  total_interested_count?: number;
+  x_categories?: string[];
+  xscore_categories?: number[];
+}
+
+export interface Tickets {
+  has_tickets: boolean;
+  ticket_url: string;
+}
+
+export interface Venue {
+  street: string;
+  city: string;
+  state: string;
+  country: string;
+  latitude: string;
+  longitude: string;
+  full_address: string;
+}
+
+export interface Request {
+  organizer_id: string;
+  past: number;
+  count: number;
+  city: number;
+  past_events_filter: number;
+}
+
 namespace KarateKlubbenKyokushinkai {
   export interface Event {
     id: number;
@@ -177,6 +270,16 @@ const fetchIcsEvents = async (url: string) =>
 const fetch$ = async (url: string) => cheerio.load(await fetchText(url));
 
 const eventsSources = [
+  {
+    name: "Danish Karate Union",
+    load: ({ cotemporality }: { cotemporality: "past" | "future" }) =>
+      fetch("https://allevents.in/api/index.php/organizer/web/get_events", {
+        body: `{"organizer_id":"20980280","past":${cotemporality === "future" ? 0 : 1},"count":99,"city":0,"past_events_filter":0}`,
+        method: "POST",
+      })
+        .then((r) => r.json() as Promise<AllEventsResponse>)
+        .then((data) => data.data),
+  },
   {
     name: "Dansk Karate Union",
     load: () =>
@@ -481,14 +584,18 @@ export const getSortedEvents = async ({
               ? e.linkEvent
               : "website" in e && e.website
                 ? e.website
-                : undefined,
+                : "origin_url" in e
+                  ? e.origin_url
+                  : undefined,
       title: ("summary" in e
         ? e.summary
         : "title" in e
           ? e.title
           : "name" in e
             ? e.name
-            : (e satisfies never)
+            : "eventname_raw" in e
+              ? e.eventname_raw
+              : (e satisfies never)
       ).trim(),
       description:
         "excerpt" in e
@@ -507,7 +614,9 @@ export const getSortedEvents = async ({
                 : undefined
             : "date" in e
               ? new Date(e.date)
-              : (e satisfies never),
+              : "start_time" in e
+                ? new Date(e.start_time * 1000)
+                : (e satisfies never),
       end:
         "structuredContent" in e
           ? new Date(e.structuredContent.endDate)
@@ -517,7 +626,9 @@ export const getSortedEvents = async ({
               : e.end?.date
                 ? new Date(e.end.date)
                 : undefined
-            : undefined,
+            : "end_time" in e
+              ? new Date(e.end_time * 1000)
+              : undefined,
       location:
         ("address" in e && typeof e.address === "object"
           ? e.address.fullAddress
@@ -540,6 +651,7 @@ export const getSortedEvents = async ({
           .replace(/ ,/g, ",")
           .replace("Denmark", "Danmark")
           .replace("Copenhagen", "København")
+          .replace("Roskilde Karateklub", "Roskilde Karate Klub")
           .replace(/^Danmark$/, "") || undefined,
     }))
     .filter(
