@@ -37,3 +37,15 @@ body {
     arial,
     sans-serif;
 }
+
+.attribution-container {
+  position: relative;
+}
+.attribution {
+  user-select: none;
+  opacity: 0.1;
+  transition: opacity 0.3s ease;
+}
+.attribution-container:hover .attribution {
+  opacity: 1;
+}
