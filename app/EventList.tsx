@@ -53,7 +53,7 @@ export function EventList({
             >
               <div>
                 <a
-                  href={event.url}
+                  href={gEvents.find((e) => e.url?.trim().length)?.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-red-500 hover:underline text-lg font-medium"

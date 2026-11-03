@@ -584,9 +584,9 @@ export const getSortedEvents = async ({
               ? e.linkEvent
               : "website" in e && e.website
                 ? e.website
-                : "origin_url" in e
+                : /*"origin_url" in e
                   ? e.origin_url
-                  : undefined,
+                  :*/ undefined,
       title: ("summary" in e
         ? e.summary
         : "title" in e
