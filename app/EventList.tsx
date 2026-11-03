@@ -124,7 +124,11 @@ export function EventList({
                   )
                   .map((e, i, l) => (
                     <Fragment key={i}>
-                      {i === l.length - 1 ? " og " : i > 0 ? ", " : ""}
+                      {l.length > 1 && i === l.length - 1
+                        ? " og "
+                        : i > 0
+                          ? ", "
+                          : ""}
                       {"calendarUrl" in e &&
                       typeof e.calendarUrl === "string" ? (
                         <a
