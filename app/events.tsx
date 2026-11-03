@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-namespace */
+import { tz } from "@date-fns/tz";
 import { TZDate } from "@date-fns/tz/date";
 import * as cheerio from "cheerio";
 import {
@@ -418,8 +419,16 @@ function eventsAreCoinciding(
   if (!event1.start) console.warn("Event 1 has no start date", event1);
   if (!event2.start) console.warn("Event 2 has no start date", event2);
   return areIntervalsOverlapping(
-    { start: event1.start!, end: event1.end ?? endOfDay(event1.start!) },
-    { start: event2.start!, end: event2.end ?? endOfDay(event2.start!) },
+    {
+      start: event1.start!,
+      end:
+        event1.end ?? endOfDay(event1.start!, { in: tz("Europe/Copenhagen") }),
+    },
+    {
+      start: event2.start!,
+      end:
+        event2.end ?? endOfDay(event2.start!, { in: tz("Europe/Copenhagen") }),
+    },
   );
 }
 
@@ -673,14 +682,20 @@ export const getSortedEvents = async ({
           const aDays =
             a.end && a.start
               ? Math.ceil(
-                  (endOfDay(a.end).valueOf() - startOfDay(a.start).valueOf()) /
+                  (endOfDay(a.end, { in: tz("Europe/Copenhagen") }).valueOf() -
+                    startOfDay(a.start, {
+                      in: tz("Europe/Copenhagen"),
+                    }).valueOf()) /
                     (1000 * 60 * 60 * 24),
                 )
               : 0;
           const bDays =
             b.end && b.start
               ? Math.ceil(
-                  (endOfDay(b.end).valueOf() - startOfDay(b.start).valueOf()) /
+                  (endOfDay(b.end, { in: tz("Europe/Copenhagen") }).valueOf() -
+                    startOfDay(b.start, {
+                      in: tz("Europe/Copenhagen"),
+                    }).valueOf()) /
                     (1000 * 60 * 60 * 24),
                 )
               : 0;
