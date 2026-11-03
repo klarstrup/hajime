@@ -72,6 +72,7 @@ export function EventList({
                     ? e.start && !isUTCOrLocalMidnight(e.start)
                     : true,
                 )
+                .slice(0, 1)
                 .map((e) => [
                   e,
                   e.start &&
