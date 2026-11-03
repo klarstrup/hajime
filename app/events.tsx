@@ -271,7 +271,9 @@ const fetch$ = async (url: string) => cheerio.load(await fetchText(url));
 
 const eventsSources = [
   {
+    sourceId: "danish-karate-union-facebook",
     name: "Danish Karate Union",
+    calendarUrl: "https://www.facebook.com/profile.php?id=100064868797020",
     load: ({ cotemporality }: { cotemporality: "past" | "future" }) =>
       fetch("https://allevents.in/api/index.php/organizer/web/get_events", {
         body: `{"organizer_id":"20980280","past":${cotemporality === "future" ? 0 : 1},"count":99,"city":0,"past_events_filter":0}`,
@@ -281,30 +283,36 @@ const eventsSources = [
         .then((data) => data.data),
   },
   {
+    sourceId: "dansk-karate-union",
     name: "Dansk Karate Union",
-    load: () =>
-      fetchIcsEvents("https://kyokushin.dk/kalender/?ical=1&eventDisplay=past"),
+    calendarUrl: "https://kyokushin.dk/kalender/",
+    load: ({ cotemporality }: { cotemporality: "past" | "future" }) =>
+      fetchIcsEvents(
+        `https://kyokushin.dk/kalender/?ical=1${cotemporality === "past" ? "&eventDisplay=past" : ""}`,
+      ),
   },
   {
-    name: "Dansk Karate Union",
-    load: () => fetchIcsEvents("https://kyokushin.dk/kalender/?ical=1"),
-  },
-  {
+    sourceId: "karateklubben-kenzoku",
     name: "Karateklubben Kenzoku",
+    calendarUrl: "https://kenzoku-karate.dk/kalender",
     load: () =>
       fetchIcsEvents(
         "https://calendar.google.com/calendar/ical/b418b06beb19586d457e0914c5faa192e5823a33120645206a58c61c8bac1565%40group.calendar.google.com/public/basic.ics",
       ),
   },
   {
+    sourceId: "roskilde-karate-klub",
     name: "Roskilde Karate Klub",
+    calendarUrl: "https://roskildekarateklub.dk/events",
     load: () =>
       fetchIcsEvents(
         "https://calendar.google.com/calendar/ical/ph0n9gra71t3a81ksfjkhts7mc%40group.calendar.google.com/public/basic.ics",
       ),
   },
   {
+    sourceId: "farum-kyokushin",
     name: "Farum Kyokushin",
+    calendarUrl: "https://farumkyokushin.dk/kalenderliste/",
     load: async () => {
       const farumKyokushin$ = await fetch$(
         "https://farumkyokushin.dk/kalenderliste/",
@@ -322,7 +330,9 @@ const eventsSources = [
     },
   },
   {
+    sourceId: "karateklubben-kyokushinkai-kobenhavn",
     name: "Karateklubben Kyokushinkai København",
+    calendarUrl: "https://karateklub.com/cms/Activity.aspx",
     load: () =>
       fetchJson<KarateKlubbenKyokushinkai.Event[]>(
         "https://karateklub.com/cms/include/api/calendarj.aspx?start=2007-03-01T00%3A00%3A00%2B01%3A00&end=2047-04-05T00%3A00%3A00%2B02%3A00&tag=",
@@ -339,7 +349,9 @@ const eventsSources = [
       ),
   },
   {
+    sourceId: "karate-do-gentofte",
     name: "Karate-Do Gentofte",
+    calendarUrl: "https://karate-do-gentofte.dk/cms/Activity.aspx",
     load: () =>
       fetchJson<KarateKlubbenKyokushinkai.Event[]>(
         "https://karate-do-gentofte.dk/cms/include/api/calendarj.aspx?start=2006-10-26T00%3A00%3A00%2B01%3A00&end=2046-12-07T00%3A00%3A00%2B01%3A00&tag=",
@@ -356,7 +368,9 @@ const eventsSources = [
       ),
   },
   {
+    sourceId: "niva-budoklub",
     name: "Nivå Budoklub",
+    calendarUrl: "https://nbudo.klub-modul.dk/cms/Activity.aspx",
     load: () =>
       fetchJson<KarateKlubbenKyokushinkai.Event[]>(
         "https://nbudo.klub-modul.dk/cms/include/api/calendarj.aspx?start=2006-10-26T00%3A00%3A00%2B01%3A00&end=2046-12-07T00%3A00%3A00%2B01%3A00&tag=",
@@ -373,7 +387,9 @@ const eventsSources = [
       ),
   },
   {
+    sourceId: "shinryokudan-nansensgade-karate",
     name: "Shinryokudan - Nansensgade Karate",
+    calendarUrl: "https://www.nansensgadekarate.dk/klubkalender",
     load: async () => {
       const shinryokudanSquarespaceCalendarStartDate = new Date(2022, 5);
       // iterate over every month from shinryokudanSquarespaceCalendarStartDate until three empty months are encountered
@@ -411,7 +427,10 @@ const eventsSources = [
     },
   },
   {
+    sourceId: "amager-karateskole",
     name: "Amager Karateskole",
+    calendarUrl:
+      "https://www.amagerkarateskole.dk/klub/jinzen-do/sider/h1-style-text-align-center-kalender-h1",
     load: async () => {
       const events = await fetchJson<FullCalendarEvent[]>(
         "https://www.amagerkarateskole.dk/klub/jinzen-do/activities?club_id=27671&content_id=703630&activity_types=null&start=2006-10-26T00%3A00%3A00&end=2046-12-07T00%3A00%3A00&timeZone=Europe%2FBerlin",
@@ -436,7 +455,10 @@ const eventsSources = [
     },
   },
   {
+    sourceId: "ashihara-karate-kobenhavn",
     name: "Ashihara Karate København",
+    calendarUrl:
+      "https://www.ak-kbh.dk/klub/ashihara-karate-kobenhavn/sider/aktiviteter",
     load: async () => {
       const events = await fetchJson<FullCalendarEvent[]>(
         "https://www.ak-kbh.dk/klub/ashihara-karate-kobenhavn/activities?club_id=43859&content_id=3764362&activity_types=null&start=2006-09-28T00%3A00%3A00&end=2046-11-09T00%3A00%3A00&timeZone=Europe%2FCopenhagen",
@@ -461,7 +483,10 @@ const eventsSources = [
     },
   },
   {
+    sourceId: "taifu-karate-dojo",
     name: "Taifu Karate Dojo",
+    calendarUrl:
+      "https://www.taifu.dk/klub/taifu-karate-dojo/sider/aktiviteter",
     load: () =>
       fetchJson<FullCalendarEvent[]>(
         "https://www.taifu.dk/klub/taifu-karate-dojo/activities?club_id=26219&content_id=3697598&activity_types=null&start=2006-10-26T00%3A00%3A00&end=2046-12-07T00%3A00%3A00&timeZone=Europe%2FBerlin",
@@ -486,7 +511,9 @@ const eventsSources = [
       ),
   },
   {
+    sourceId: "kumite-technology",
     name: "Kumite Technology",
+    calendarUrl: "https://kumitetechnology.com/en/tournament/?countryCode=DK",
     load: async ({ cotemporality }: { cotemporality: "past" | "future" }) => {
       const response = await fetch("https://kumitetechnology.com/api/graphql", {
         headers: { "content-type": "application/json" },
@@ -544,11 +571,14 @@ export const fetchEvents = async ({
 
   return Promise.all(
     eventsSources.map((source) =>
-      source
-        .load({ cotemporality })
-        .then((events) =>
-          events.map((e) => ({ ...e, _h_source: source.name })),
-        ),
+      source.load({ cotemporality }).then((events) =>
+        events.map((e) => ({
+          ...e,
+          source: source.name,
+          sourceId: source.sourceId,
+          sourceCalendarUrl: source.calendarUrl,
+        })),
+      ),
     ),
   ).then((events) => events.flat());
 };
@@ -565,7 +595,6 @@ export const getSortedEvents = async ({
   const sortedEvents = allEvents
     .map((e) => ({
       ...e,
-      source: e._h_source,
       id: String(
         "uid" in e
           ? e.uid

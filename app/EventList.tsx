@@ -44,6 +44,15 @@ export function EventList({
               list.findIndex((x) => x.source === s.source) === index,
           );
 
+          const usedSources: typeof uniqueSources = [];
+
+          let usedIndex = usedSources.findIndex(
+            (us) => us.sourceId === event.sourceId,
+          );
+          if (usedIndex === -1) {
+            usedIndex = usedSources.push(event) - 1;
+          }
+
           return (
             <li
               key={
@@ -61,8 +70,7 @@ export function EventList({
                   {event.title.replaceAll(/\d\d\d\d/g, "").trim()}
                 </a>
                 <span className="text-[8px] align-super text-gray-500 attribution -mr-1">
-                  {uniqueSources.findIndex((s) => s.source === event.source) +
-                    1}
+                  {usedIndex + 1}
                 </span>
               </div>
               {gEvents
@@ -105,16 +113,22 @@ export function EventList({
                   ([, etext], index, list) =>
                     list.findIndex(([, t]) => t === etext) === index,
                 )
-                .map((e, index) => (
-                  <span key={index}>
-                    {e[1]}
-                    <span className="text-[8px] align-super text-gray-500 attribution -mr-1">
-                      {uniqueSources.findIndex(
-                        (s) => s.source === e[0].source,
-                      ) + 1}
+                .map((e, index) => {
+                  let usedIndex = usedSources.findIndex(
+                    (us) => us.sourceId === e[0].sourceId,
+                  );
+                  if (usedIndex === -1) {
+                    usedIndex = usedSources.push(e[0]) - 1;
+                  }
+                  return (
+                    <span key={index}>
+                      {e[1]}
+                      <span className="text-[8px] align-super text-gray-500 attribution -mr-1">
+                        {usedIndex + 1}
+                      </span>
                     </span>
-                  </span>
-                ))}
+                  );
+                })}
               {gEvents
                 .filter(
                   ({ location }, index, list) =>
@@ -122,17 +136,16 @@ export function EventList({
                     list.findIndex(
                       ({ location: l }) =>
                         l &&
-                        (l === location ||
-                          l!
-                            .toLowerCase()
-                            .replaceAll(",", "")
-                            .includes(
-                              location.toLocaleLowerCase().replaceAll(",", ""),
-                            ) ||
+                        (l
+                          .toLowerCase()
+                          .replaceAll(",", "")
+                          .includes(
+                            location.toLocaleLowerCase().replaceAll(",", ""),
+                          ) ||
                           location
                             .toLowerCase()
                             .replaceAll(",", "")
-                            .includes(l!.toLowerCase().replaceAll(",", ""))),
+                            .includes(l.toLowerCase().replaceAll(",", ""))),
                     ) === index,
                 )
                 .map(
@@ -144,13 +157,12 @@ export function EventList({
                           (ge) =>
                             e.location &&
                             ge.location &&
-                            (ge.location === e.location ||
-                              ge.location
-                                .toLowerCase()
-                                .replaceAll(",", "")
-                                .includes(
-                                  e.location.toLowerCase().replaceAll(",", ""),
-                                ) ||
+                            (ge.location
+                              .toLowerCase()
+                              .replaceAll(",", "")
+                              .includes(
+                                e.location.toLowerCase().replaceAll(",", ""),
+                              ) ||
                               e.location
                                 .toLowerCase()
                                 .replaceAll(",", "")
@@ -173,6 +185,7 @@ export function EventList({
                     index,
                     list,
                   ) => {
+                    return list;
                     // If one location has clear consensus just keep that one
                     const [, locationSources] = eventLocationSourcesPair;
                     const maxLength = Math.max(
@@ -190,46 +203,56 @@ export function EventList({
                     <span key={index} className="text-sm text-gray-400">
                       {" "}
                       @ {e.location}
-                      {locationSources.map((s, i) => (
-                        <span
-                          key={s.source}
-                          className="text-[8px] align-super text-gray-500 attribution"
-                        >
-                          {i > 0 ? "," : ""}
-                          {uniqueSources.findIndex(
-                            (us) => us.source === s.source,
-                          ) + 1}
-                        </span>
-                      ))}
+                      {locationSources.map((s, i) => {
+                        let usedIndex = usedSources.findIndex(
+                          (us) => us.sourceId === s.sourceId,
+                        );
+                        if (usedIndex === -1) {
+                          usedIndex = usedSources.push(s) - 1;
+                        }
+
+                        return (
+                          <span
+                            key={s.sourceId}
+                            className="text-[8px] align-super text-gray-500 attribution"
+                          >
+                            {i > 0 ? "," : ""}
+                            {usedIndex + 1}
+                          </span>
+                        );
+                      })}
                     </span>
                   );
                 })}
               <span className="text-xs text-gray-600">
                 via{" "}
-                {uniqueSources.map((e, i, l) => (
-                  <Fragment key={i}>
-                    {l.length > 1 && i === l.length - 1
-                      ? " og "
-                      : i > 0
-                        ? ", "
-                        : ""}
-                    <span className="text-[6px] align-super text-gray-500 attribution -ml-1 font-bold">
-                      {i + 1}
-                    </span>
-                    {"calendarUrl" in e && typeof e.calendarUrl === "string" ? (
+                {[...usedSources, ...uniqueSources]
+                  .filter(
+                    (e, i, l) =>
+                      l.findIndex((x) => x.sourceId === e.sourceId) === i,
+                  )
+                  .map((e, i, l) => (
+                    <Fragment key={i}>
+                      {l.length > 1 && i === l.length - 1
+                        ? " og "
+                        : i > 0
+                          ? ", "
+                          : ""}
+                      {usedSources.includes(e) && (
+                        <span className="text-[6px] align-super text-gray-500 attribution font-bold">
+                          {i + 1}
+                        </span>
+                      )}
                       <a
-                        href={e.calendarUrl}
+                        href={e.sourceCalendarUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-red-500 hover:underline"
                       >
                         {e.source}
                       </a>
-                    ) : (
-                      e.source
-                    )}
-                  </Fragment>
-                ))}
+                    </Fragment>
+                  ))}
               </span>
             </li>
           );
