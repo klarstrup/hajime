@@ -149,7 +149,7 @@ export function EventList({
                       : i > 0
                         ? ", "
                         : ""}
-                    <span className="text-[8px] align-super text-gray-500 attribution -ml-1">
+                    <span className="text-[6px] align-super text-gray-500 attribution -ml-1 font-bold">
                       {i + 1}
                     </span>
                     {"calendarUrl" in e && typeof e.calendarUrl === "string" ? (
