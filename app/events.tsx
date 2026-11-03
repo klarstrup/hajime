@@ -539,7 +539,8 @@ export const getSortedEvents = async ({
           .replace(/, ,/g, ",")
           .replace(/ ,/g, ",")
           .replace("Denmark", "Danmark")
-          .replace("Copenhagen", "København") || undefined,
+          .replace("Copenhagen", "København")
+          .replace(/^Danmark$/, "") || undefined,
     }))
     .filter(
       (e) =>

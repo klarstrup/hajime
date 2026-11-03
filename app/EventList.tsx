@@ -135,16 +135,75 @@ export function EventList({
                             .includes(l!.toLowerCase().replaceAll(",", ""))),
                     ) === index,
                 )
-                .map((e, index) => (
-                  <span key={index} className="text-sm text-gray-400">
-                    {" "}
-                    @ {e.location}
-                    <span className="text-[8px] align-super text-gray-500 attribution -mr-1">
-                      {uniqueSources.findIndex((s) => s.source === e.source) +
-                        1}
+                .map(
+                  (e) =>
+                    [
+                      e,
+                      gEvents
+                        .filter(
+                          (ge) =>
+                            e.location &&
+                            ge.location &&
+                            (ge.location === e.location ||
+                              ge.location
+                                .toLowerCase()
+                                .replaceAll(",", "")
+                                .includes(
+                                  e.location.toLowerCase().replaceAll(",", ""),
+                                ) ||
+                              e.location
+                                .toLowerCase()
+                                .replaceAll(",", "")
+                                .includes(
+                                  ge.location.toLowerCase().replaceAll(",", ""),
+                                )),
+                        )
+                        .filter((ge) => ge.source)
+                        .filter(
+                          (ge, i, l) =>
+                            l.findIndex((x) => x.source === ge.source) === i,
+                        ),
+                    ] as const,
+                )
+                .sort(([, a], [, b]) => b.length - a.length)
+                .reduce(
+                  (
+                    memo: (typeof eventLocationSourcesPair)[],
+                    eventLocationSourcesPair,
+                    index,
+                    list,
+                  ) => {
+                    // If one location has clear consensus just keep that one
+                    const [, locationSources] = eventLocationSourcesPair;
+                    const maxLength = Math.max(
+                      ...list.map(([, ls]) => ls.length),
+                    );
+                    if (locationSources.length === maxLength) {
+                      memo.push(eventLocationSourcesPair);
+                    }
+                    return memo;
+                  },
+                  [],
+                )
+                .map(([e, locationSources], index) => {
+                  return (
+                    <span key={index} className="text-sm text-gray-400">
+                      {" "}
+                      @ {e.location}
+                      {locationSources.map((s, i) => (
+                        <span
+                          key={s.source}
+                          className="text-[8px] align-super text-gray-500 attribution"
+                        >
+                          {i > 0 ? "," : ""}
+                          {uniqueSources.findIndex(
+                            (us) => us.source === s.source,
+                          ) + 1}
+                        </span>
+                      ))}
                     </span>
-                  </span>
-                ))}
+                  );
+                })}
               <span className="text-xs text-gray-600">
                 via{" "}
                 {uniqueSources.map((e, i, l) => (
