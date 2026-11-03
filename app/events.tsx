@@ -584,7 +584,6 @@ export const getSortedEvents = async ({
         );
       },
     )
-    .sort((a, b) => b.title.length - a.title.length)
     .sort((a, b) =>
       cotemporality === "past"
         ? (b.start?.valueOf() ?? 0) - (a.start?.valueOf() ?? 0)
@@ -592,34 +591,17 @@ export const getSortedEvents = async ({
     )
     .sort((a, b) => {
       // sort by event hours
-      const aLength =
-        a.end && a.start ? a.end.valueOf() - a.start.valueOf() : 0;
-      const bLength =
-        b.end && b.start ? b.end.valueOf() - b.start.valueOf() : 0;
-      return aLength - bLength;
-    })
-    .sort((a, b) => {
-      // sort by event days
-      const aDays =
-        a.end && a.start
-          ? Math.ceil(
-              (endOfDay(a.end).valueOf() - startOfDay(a.start).valueOf()) /
-                (1000 * 60 * 60 * 24),
-            )
-          : 0;
-      const bDays =
-        b.end && b.start
-          ? Math.ceil(
-              (endOfDay(b.end).valueOf() - startOfDay(b.start).valueOf()) /
-                (1000 * 60 * 60 * 24),
-            )
-          : 0;
-
-      return bDays - aDays;
+      const aLength = a.start
+        ? (a.end || a.start).valueOf() - a.start.valueOf()
+        : 0;
+      const bLength = b.start
+        ? (b.end || b.start).valueOf() - b.start.valueOf()
+        : 0;
+      return bLength - aLength;
     });
 
   const fuse = new Fuse(sortedEvents, {
-    keys: ["title"],
+    keys: ["title", "location"],
     useExtendedSearch: true,
     includeScore: true,
     ignoreFieldNorm: true,
@@ -643,12 +625,13 @@ export const getSortedEvents = async ({
         event.title
           .replaceAll(/\d\d\d\d/g, "")
           .split(" - ")[0]
+          .replaceAll(/(\((.+)\))/g, "")
           .trim(),
       )
       .filter(
         (result) =>
           eventsAreCoinciding(result.item, event) &&
-          (result.score !== undefined ? result.score < 0.9 : true),
+          (result.score !== undefined ? result.score < 0.75 : true),
       );
 
     // if a similar event is already in groupedEvents, add this to the same group
