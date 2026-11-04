@@ -183,6 +183,7 @@ export function EventList({
                               (title.includes("graduering") ||
                                 title.includes("mesterskab") ||
                                 title.toLowerCase().includes("lejr") ||
+                                title.toLowerCase().includes("camp") ||
                                 title.toLowerCase().includes("gasshuku")) && (
                                 <span
                                   className={
