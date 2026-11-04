@@ -437,6 +437,30 @@ const eventsSources = [
     },
   },
   {
+    sourceId: "sportskarate-dk",
+    name: "Sportskarate.dk",
+    calendarUrl: "https://sportskarate.dk/cms/Activity.aspx",
+    load: async ({ cotemporality, now }: LoadParams) => {
+      const start = cotemporality === "past" ? farPast : now;
+      const end = cotemporality === "future" ? farFuture : now;
+      return fetchJson<KarateKlubbenKyokushinkai.Event[]>(
+        `https://sportskarate.dk/cms/include/api/calendarj.aspx?start=${start.toISOString()}&end=${end.toISOString()}`,
+      ).then((events) =>
+        events
+          .map((e) => ({
+            ...e,
+            location: [e.location, e.address].filter(Boolean).join(", "),
+            linkEvent: e.linkEvent
+              ? new URL(e.linkEvent, "https://sportskarate.dk/cms/").toString()
+              : undefined,
+            start: new Date(e.start),
+            end: new Date(e.end),
+          }))
+          .filter((e) => !e?.title.includes("Bestilling")),
+      );
+    },
+  },
+  {
     sourceId: "karateklubben-kyokushinkai-kobenhavn",
     name: "Karateklubben Kyokushinkai København",
     calendarUrl: "https://karateklub.com/cms/Activity.aspx",
@@ -988,6 +1012,7 @@ export const getSortedEvents = async ({
           !title.includes("ferie") &&
           !title.includes("frivillig fredag") &&
           !title.includes("aflyst") &&
+          !title.includes("klublejr") &&
           !title.includes("udskydes") &&
           !title.includes("placeholder") &&
           !title.includes("afslutning") &&
