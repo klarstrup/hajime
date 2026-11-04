@@ -43,8 +43,8 @@ export function EventList({
           href={cotemporality === "past" ? `/` : (`/fortid` as `/`)}
         >
           {cotemporality === "past"
-            ? "Se kommende karatebegivenheder"
-            : "Se tidligere karatebegivenheder"}
+            ? "Se kommende karate"
+            : "Se tidligere karate"}
         </Link>
       </div>
       <div className="flex flex-col gap-2">
