@@ -8,9 +8,8 @@ import {
   startOfDay,
 } from "date-fns";
 import { isEqual } from "date-fns/fp/isEqual";
-import Fuse from "fuse.js";
 import { convertIcsCalendar } from "ts-ics";
-import { stringsOverlap } from "./utils";
+import { fuseCompare } from "./utils";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 type HajimeMeta = {
@@ -26,7 +25,7 @@ namespace SquareSpace {
     fullUrl: string;
     assetUrl: string;
     excerpt: string;
-    location: Location;
+    location: Location | null;
     systemDataId?: string;
     originalSize?: string;
   }
@@ -570,6 +569,7 @@ const eventsSources = [
           shinryokudanEvents.push(
             ...events.map((e) => ({
               ...e,
+              location: null,
               fullUrl: new URL(
                 e.fullUrl,
                 "https://www.nansensgadekarate.dk",
@@ -1025,42 +1025,21 @@ export const getSortedEvents = async ({
     })
     .sort((a, b) => a.title.localeCompare(b.title));
 
-  const fuse = new Fuse(sortedEvents, {
-    keys: ["title", "location"],
-    useExtendedSearch: true,
-    includeScore: true,
-    ignoreFieldNorm: true,
-    threshold: 1,
-    findAllMatches: true,
-    ignoreLocation: true,
-    minMatchCharLength: 1,
-    location: 0,
-    distance: 100,
-    useTokenSearch: true,
-    tokenMatch: "all",
-  });
-
   const groupedEvents: [
     (typeof sortedEvents)[number],
     ...(typeof sortedEvents)[number][],
   ][] = [];
 
   for (const event of sortedEvents) {
-    const similarEvents = fuse
-      .search(event.title)
-      .filter(
-        (result) =>
-          eventsAreCoinciding(result.item, event) &&
-          (result.score !== undefined ? result.score < 0.5 : true),
-      );
-
     // if a similar event is already in groupedEvents, add this to the same group
     const existingGroup = groupedEvents.find((group) =>
       group.some(
         (e) =>
+          fuseCompare(e.title, event.title) < 0.25 &&
           eventsAreCoinciding(e, event) &&
-          (similarEvents.some((result) => result.item === e) ||
-            stringsOverlap(e.title, event.title)),
+          (e.location && event.location
+            ? fuseCompare(e.location, event.location) < 0.04
+            : true),
       ),
     );
 
