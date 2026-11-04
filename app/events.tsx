@@ -523,7 +523,12 @@ const eventsSources = [
         .map((e) => ({
           ...e,
           title: e.title.replace("GKC", "Gladsaxe Karate Cup"),
-          location: [e.location, e.address].filter(Boolean).join(", "),
+          location:
+            [e.location, e.address].filter(Boolean).join(", ") ||
+            (e.title.includes("Kalundborg")
+              ? "Kalundborg Gymnasium og HF, J. Hagemann-Petersens Allé 4, 4400 Kalundborg"
+              : "") ||
+            null,
           start: new Date(e.start),
           end: new Date(e.end),
           linkEvent: e.linkEvent
