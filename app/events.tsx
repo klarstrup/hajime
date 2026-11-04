@@ -612,6 +612,29 @@ const eventsSources = [
     },
   },
   {
+    sourceId: "gentofte-shotokan-karate-do-kai",
+    name: "Gentofte Shotokan Karate-Do Kai",
+    calendarUrl: "https://gentoftekarate.dk/cms/Activity.aspx",
+    load: async ({ cotemporality, now }: LoadParams) => {
+      const start = cotemporality === "past" ? farPast : now;
+      const end = cotemporality === "future" ? farFuture : now;
+      return []; // No public events on their calendar i think.
+      return fetchJson<KarateKlubbenKyokushinkai.Event[]>(
+        `https://gentoftekarate.dk/cms/include/api/calendarj.aspx?start=${start.toISOString()}&end=${end.toISOString()}`,
+      ).then((events) =>
+        events.map((e) => ({
+          ...e,
+          location: [e.location, e.address].filter(Boolean).join(", "),
+          linkEvent: e.linkEvent
+            ? new URL(e.linkEvent, "https://gentoftekarate.dk/cms/").toString()
+            : undefined,
+          start: new Date(e.start),
+          end: new Date(e.end),
+        })),
+      );
+    },
+  },
+  {
     sourceId: "niva-budoklub",
     name: "Nivå Budoklub",
     calendarUrl: "https://nbudo.klub-modul.dk/cms/Activity.aspx",
