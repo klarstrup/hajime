@@ -276,6 +276,15 @@ export function EventList({
                                   <span>
                                     {e.location}
                                     {locationSources
+                                      .map((s) => {
+                                        let usedIndex = usedSources.findIndex(
+                                          (us) => us.sourceId === s.sourceId,
+                                        );
+                                        if (usedIndex === -1) {
+                                          usedIndex = usedSources.push(s) - 1;
+                                        }
+                                        return s;
+                                      })
                                       .sort(
                                         (a, b) =>
                                           usedSources.findIndex(
@@ -308,7 +317,7 @@ export function EventList({
                               );
                             })}
                           <span className="text-xs text-gray-600">
-                            via{" "}
+                            info fra{" "}
                             {[...usedSources, ...uniqueSources]
                               .filter(
                                 (e, i, l) =>
