@@ -443,7 +443,8 @@ const eventsSources = [
             location: $el.find(".location").text().trim() || undefined,
           };
         })
-        .toArray();
+        .toArray()
+        .filter((e) => !e.title.includes("X-Mas Cup"));
 
       return events;
     },
