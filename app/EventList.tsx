@@ -35,8 +35,12 @@ export function EventList({
     <div className="flex flex-col max-w-xl">
       <div className="flex gap-2 mt-2 items-baseline justify-between">
         <header className="text-xl font-extrabold flex gap-1 items-baseline">
-          <span className="text-[1.75rem]">🥋</span>
-          <span>{title}</span>
+          <span className="text-[1.75rem] md:text-[2rem] lg:text-[2.5rem] xl:text-[3rem]">
+            🥋
+          </span>
+          <span className="text-lg md:text-xl lg:text-2xl xl:text-3xl">
+            {title}
+          </span>
         </header>
         <Link
           className="text-sm text-red-400 text-right"
@@ -55,7 +59,7 @@ export function EventList({
           <div key={yearIndex} className="flex gap-1">
             <div>
               <h2
-                className="text-xl font-bold sticky -top-0.5 -mt-0.5 -mr-0.5 opacity-60"
+                className="text-xl font-bold sticky -top-0.5 -mt-0.5 -mr-0.5 opacity-60 md:text-2xl lg:text-3xl xl:text-4xl"
                 style={{
                   writingMode: "vertical-rl",
                   textOrientation: "upright",
@@ -76,7 +80,7 @@ export function EventList({
                 <div key={yearIndex + "-" + monthIndex} className="flex">
                   <div>
                     <h2
-                      className="text-md font-bold sticky top-0"
+                      className="text-md font-bold sticky top-0 md:text-lg lg:text-xl xl:text-2xl"
                       style={{
                         writingMode: "vertical-rl",
                         textOrientation: "upright",
@@ -209,7 +213,10 @@ export function EventList({
                                 usedIndex = usedSources.push(e[0]) - 1;
                               }
                               return (
-                                <span key={index} className="leading-none opacity-90 font-medium">
+                                <span
+                                  key={index}
+                                  className="leading-none opacity-90 font-medium"
+                                >
                                   {e[1]}
                                   <span className="text-[8px] align-super text-gray-500 attribution -mr-1">
                                     {usedIndex + 1}
