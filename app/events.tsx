@@ -485,9 +485,11 @@ const eventsSources = [
     name: "Amager Karateskole",
     calendarUrl:
       "https://www.amagerkarateskole.dk/klub/jinzen-do/sider/h1-style-text-align-center-kalender-h1",
-    load: async () => {
+    load: async ({ cotemporality, now }: LoadParams) => {
+      const start = cotemporality === "past" ? farPast : now;
+      const end = cotemporality === "future" ? farFuture : now;
       const events = await fetchJson<FullCalendarEvent[]>(
-        "https://www.amagerkarateskole.dk/klub/jinzen-do/activities?club_id=27671&content_id=703630&activity_types=null&start=2006-10-26T00%3A00%3A00&end=2046-12-07T00%3A00%3A00&timeZone=Europe%2FBerlin",
+        `https://www.amagerkarateskole.dk/klub/jinzen-do/activities?club_id=27671&content_id=703630&activity_types=null&start=${start.toISOString()}&end=${end.toISOString()}&timeZone=Europe%2FBerlin`,
       );
       return events
         .filter((e) => e.event_type === 4)
@@ -513,9 +515,11 @@ const eventsSources = [
     name: "Ashihara Karate København",
     calendarUrl:
       "https://www.ak-kbh.dk/klub/ashihara-karate-kobenhavn/sider/aktiviteter",
-    load: async () => {
+    load: async ({ cotemporality, now }: LoadParams) => {
+      const start = cotemporality === "past" ? farPast : now;
+      const end = cotemporality === "future" ? farFuture : now;
       const events = await fetchJson<FullCalendarEvent[]>(
-        "https://www.ak-kbh.dk/klub/ashihara-karate-kobenhavn/activities?club_id=43859&content_id=3764362&activity_types=null&start=2006-09-28T00%3A00%3A00&end=2046-11-09T00%3A00%3A00&timeZone=Europe%2FCopenhagen",
+        `https://www.ak-kbh.dk/klub/ashihara-karate-kobenhavn/activities?club_id=43859&content_id=3764362&activity_types=null&start=${start.toISOString()}&end=${end.toISOString()}&timeZone=Europe%2FCopenhagen`,
       );
       return events
         .filter((e) => e.event_type === 4)
@@ -541,9 +545,11 @@ const eventsSources = [
     name: "Taifu Karate Dojo",
     calendarUrl:
       "https://www.taifu.dk/klub/taifu-karate-dojo/sider/aktiviteter",
-    load: () =>
-      fetchJson<FullCalendarEvent[]>(
-        "https://www.taifu.dk/klub/taifu-karate-dojo/activities?club_id=26219&content_id=3697598&activity_types=null&start=2006-10-26T00%3A00%3A00&end=2046-12-07T00%3A00%3A00&timeZone=Europe%2FBerlin",
+    load: async ({ cotemporality, now }: LoadParams) => {
+      const start = cotemporality === "past" ? farPast : now;
+      const end = cotemporality === "future" ? farFuture : now;
+      return fetchJson<FullCalendarEvent[]>(
+        `https://www.taifu.dk/klub/taifu-karate-dojo/activities?club_id=26219&content_id=3697598&activity_types=null&start=${start.toISOString()}&end=${end.toISOString()}&timeZone=Europe%2FCopenhagen`,
       ).then((events) =>
         events
           .filter((e) => e.event_type === 4)
@@ -562,7 +568,8 @@ const eventsSources = [
               .eq(1)
               .text(),
           })),
-      ),
+      );
+    },
   },
   {
     sourceId: "kumite-technology",
