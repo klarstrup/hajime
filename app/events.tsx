@@ -983,7 +983,8 @@ export const getSortedEvents = async ({
     minMatchCharLength: 1,
     location: 0,
     distance: 100,
-    tokenMatch: "any",
+    useTokenSearch: true,
+    tokenMatch: "all",
   });
 
   const groupedEvents: [

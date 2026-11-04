@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Fragment } from "react";
 import type { getSortedEvents } from "./events";
-import { stringsOverlap } from "./utils";
+import { fuzzyOverlap } from "./utils";
 
 const timeZone = "Europe/Copenhagen";
 
@@ -150,7 +150,7 @@ export function EventList({
                     list.findIndex(
                       ({ location: l }) =>
                         l &&
-                        stringsOverlap(
+                        fuzzyOverlap(
                           l.replaceAll(",", ""),
                           location.replaceAll(",", ""),
                         ),
@@ -165,7 +165,7 @@ export function EventList({
                           (ge) =>
                             e.location &&
                             ge.location &&
-                            stringsOverlap(
+                            fuzzyOverlap(
                               ge.location.replaceAll(",", ""),
                               e.location.replaceAll(",", ""),
                             ),

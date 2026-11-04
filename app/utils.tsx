@@ -1,3 +1,5 @@
+import Fuse from "fuse.js";
+
 export const normalizeString = (str: string) =>
   str
     .toLowerCase()
@@ -11,3 +13,21 @@ export const stringsOverlap = (aRaw: string, bRaw: string) => {
 
   return a.includes(b) || b.includes(a);
 };
+
+export const fuseCompare = (aRaw: string, bRaw: string) =>
+  new Fuse([normalizeString(aRaw)], {
+    includeScore: true,
+    useExtendedSearch: true,
+    ignoreFieldNorm: true,
+    threshold: 1,
+    findAllMatches: true,
+    ignoreLocation: true,
+    minMatchCharLength: 1,
+    location: 0,
+    distance: 100,
+    useTokenSearch: true,
+    tokenMatch: "all",
+  }).search(normalizeString(bRaw))[0].score || 1;
+
+export const fuzzyOverlap = (aRaw: string, bRaw: string) =>
+  stringsOverlap(aRaw, bRaw) || fuseCompare(aRaw, bRaw) <= 0.25;
