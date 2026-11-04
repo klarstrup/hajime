@@ -152,7 +152,7 @@ export function EventList({
                                 {title}
                               </a>
                             ) : (
-                              <span className="text-gray-600 text-xl font-medium">
+                              <span className="light:text-gray-600  text-xl font-medium">
                                 {title}
                               </span>
                             )}
@@ -209,7 +209,7 @@ export function EventList({
                                 usedIndex = usedSources.push(e[0]) - 1;
                               }
                               return (
-                                <span key={index} className="leading-none">
+                                <span key={index} className="leading-none opacity-90 font-medium">
                                   {e[1]}
                                   <span className="text-[8px] align-super text-gray-500 attribution -mr-1">
                                     {usedIndex + 1}
