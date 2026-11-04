@@ -317,7 +317,7 @@ export function EventList({
                               );
                             })}
                           <span className="text-xs text-gray-600">
-                            info fra{" "}
+                            via{" "}
                             {[...usedSources, ...uniqueSources]
                               .filter(
                                 (e, i, l) =>
