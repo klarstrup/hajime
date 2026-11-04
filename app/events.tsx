@@ -493,6 +493,7 @@ const eventsSources = [
       );
       return events.map((e) => ({
         ...e,
+        title: e.title.replace("GKC", "Gladsaxe Karate Cup"),
         location: [e.location, e.address].filter(Boolean).join(", "),
         start: new Date(e.start),
         end: new Date(e.end),
