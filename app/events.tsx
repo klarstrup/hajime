@@ -725,12 +725,17 @@ const eventsSources = [
           : "https://fight-collective-bot-production.up.railway.app/api/events/past",
       ).then((events) =>
         events.map((e) => {
-          const [hours, minutes] = e.time.split(":").map(Number);
+          const [startTime, endTime] = e.time
+            .split(" - ")
+            .map((s) => s.split(":").map(Number) as [number, number?]);
           const [year, month, day] = e.date.split("-").map(Number);
           return {
             ...e,
             title: e.name,
-            start: new Date(year, month - 1, day, hours, minutes),
+            start: new Date(year, month - 1, day, startTime[0], startTime[1]),
+            end: endTime
+              ? new Date(year, month - 1, day, endTime[0], endTime[1])
+              : undefined,
             url: `https://fightcollective.dk/events/${e.slug}`,
           };
         }),
@@ -893,11 +898,19 @@ export const getSortedEvents = async ({
           .replace(", Danmark", "") || undefined,
     }))
     .filter(
-      (e) =>
-        !e.start ||
-        (cotemporality === "past"
-          ? e.start <= new Date()
-          : e.start >= new Date()),
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      (e, i, l): e is (typeof l)[number] & { start: Date } => {
+        if (!e.start) {
+          console.warn("Event has no start date:", e);
+          return false;
+        }
+        return (
+          e.start &&
+          (cotemporality === "past"
+            ? e.start <= new Date()
+            : e.start >= new Date())
+        );
+      },
     )
     .filter(
       // roughly filter out training and internal club events for now
@@ -995,7 +1008,7 @@ export const getSortedEvents = async ({
 
   const groupedEvents: [
     (typeof sortedEvents)[number],
-    ...typeof sortedEvents,
+    ...(typeof sortedEvents)[number][],
   ][] = [];
 
   for (const event of sortedEvents) {
@@ -1016,7 +1029,6 @@ export const getSortedEvents = async ({
             stringsOverlap(e.title, event.title)),
       ),
     );
-    if (!event.start) console.warn("Event has no start date:", event);
 
     if (existingGroup) {
       existingGroup.push(event);
