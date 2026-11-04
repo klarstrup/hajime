@@ -743,7 +743,7 @@ export const getSortedEvents = async ({
           !title.includes("åben dojo") &&
           !title.includes("generalforsamling") &&
           !title.includes("chefinstruktørmøde") &&
-          !title.includes("aspirantsamling") &&
+          // !title.includes("aspirantsamling") &&
           !title.includes("julefrokost") &&
           !title.includes("juletræsfest") &&
           !title.includes("ferie") &&
