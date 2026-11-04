@@ -9,6 +9,7 @@ import {
 } from "date-fns";
 import Fuse from "fuse.js";
 import { convertIcsCalendar } from "ts-ics";
+import { stringsOverlap } from "./utils";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 type HajimeMeta = {
@@ -820,7 +821,8 @@ export const getSortedEvents = async ({
       )
         // Align dashes
         .replace(/–/g, "-")
-        .replace(/DAN GRADUERING/i, "Dangraduering")
+        .replace(/dan graduering/i, "Dangraduering")
+        .replace(/dan-graduering/i, "Dangraduering")
         .replace(/sortbæltegradueringen/i, "Dangraduering")
         .replace(/^Dansk/i, "")
         .replace(/^Børne/i, "")
@@ -991,13 +993,7 @@ export const getSortedEvents = async ({
 
   for (const event of sortedEvents) {
     const similarEvents = fuse
-      .search(
-        event.title
-          .replaceAll(/\d\d\d\d/g, "")
-          .split(" - ")[0]
-          .replaceAll(/(\((.+)\))/g, "")
-          .trim(),
-      )
+      .search(event.title)
       .filter(
         (result) =>
           eventsAreCoinciding(result.item, event) &&
@@ -1010,9 +1006,7 @@ export const getSortedEvents = async ({
         (e) =>
           eventsAreCoinciding(e, event) &&
           (similarEvents.some((result) => result.item === e) ||
-            e.title === event.title ||
-            e.title.toLowerCase().includes(event.title.toLowerCase()) ||
-            event.title.toLowerCase().includes(e.title.toLowerCase())),
+            stringsOverlap(e.title, event.title)),
       ),
     );
     if (!event.start) console.warn("Event has no start date:", event);

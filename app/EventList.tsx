@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Fragment } from "react";
 import type { getSortedEvents } from "./events";
+import { stringsOverlap } from "./utils";
 
 const timeZone = "Europe/Copenhagen";
 
@@ -149,16 +150,10 @@ export function EventList({
                     list.findIndex(
                       ({ location: l }) =>
                         l &&
-                        (l
-                          .toLowerCase()
-                          .replaceAll(",", "")
-                          .includes(
-                            location.toLocaleLowerCase().replaceAll(",", ""),
-                          ) ||
-                          location
-                            .toLowerCase()
-                            .replaceAll(",", "")
-                            .includes(l.toLowerCase().replaceAll(",", ""))),
+                        stringsOverlap(
+                          l.replaceAll(",", ""),
+                          location.replaceAll(",", ""),
+                        ),
                     ) === index,
                 )
                 .map(
@@ -170,18 +165,10 @@ export function EventList({
                           (ge) =>
                             e.location &&
                             ge.location &&
-                            (ge.location
-                              .toLowerCase()
-                              .replaceAll(",", "")
-                              .includes(
-                                e.location.toLowerCase().replaceAll(",", ""),
-                              ) ||
-                              e.location
-                                .toLowerCase()
-                                .replaceAll(",", "")
-                                .includes(
-                                  ge.location.toLowerCase().replaceAll(",", ""),
-                                )),
+                            stringsOverlap(
+                              ge.location.replaceAll(",", ""),
+                              e.location.replaceAll(",", ""),
+                            ),
                         )
                         .filter((ge) => ge.source)
                         .filter(
