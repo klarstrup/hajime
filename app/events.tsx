@@ -985,16 +985,29 @@ export const fetchEvents = async ({
   const now = new Date();
 
   return Promise.all(
-    eventsSources.map((source) =>
-      source.load({ cotemporality, now }).then((events) =>
+    eventsSources.map((source) => {
+      if (process.env.VERCEL) {
+        console.time(
+          `Loading events for source: ${source.name} ${source.calendarUrl}`,
+        );
+      }
+      const events = source.load({ cotemporality, now }).then((events) =>
         events.map((e) => ({
           ...e,
           source: source.name,
           sourceId: source.sourceId,
           sourceCalendarUrl: source.calendarUrl,
         })),
-      ),
-    ),
+      );
+
+      return events.finally(() => {
+        if (process.env.VERCEL) {
+          console.timeEnd(
+            `Loading events for source: ${source.name} ${source.calendarUrl}`,
+          );
+        }
+      });
+    }),
   ).then((events) => events.flat());
 };
 
