@@ -334,8 +334,8 @@ interface LoadParams {
 
 const eventsSources = [
   {
-    sourceId: "danish-karate-union-facebook",
-    name: "Danish Karate Union",
+    sourceId: "dansk-karate-union-facebook",
+    name: "Dansk Karate Union",
     calendarUrl:
       "https://www.facebook.com/profile.php?id=100064868797020&sk=events",
     load: ({ cotemporality }: LoadParams) =>
