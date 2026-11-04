@@ -348,9 +348,11 @@ const eventsSources = [
     sourceId: "karateklubben-kyokushinkai-kobenhavn",
     name: "Karateklubben Kyokushinkai København",
     calendarUrl: "https://karateklub.com/cms/Activity.aspx",
-    load: () =>
-      fetchJson<KarateKlubbenKyokushinkai.Event[]>(
-        "https://karateklub.com/cms/include/api/calendarj.aspx?start=2007-03-01T00%3A00%3A00%2B01%3A00&end=2047-04-05T00%3A00%3A00%2B02%3A00&tag=",
+    load: async ({ cotemporality, now }: LoadParams) => {
+      const start = cotemporality === "past" ? farPast : now;
+      const end = cotemporality === "future" ? farFuture : now;
+      return fetchJson<KarateKlubbenKyokushinkai.Event[]>(
+        `https://karateklub.com/cms/include/api/calendarj.aspx?start=${start.toISOString()}&end=${end.toISOString()}`,
       ).then((events) =>
         events.map((e) => ({
           ...e,
@@ -361,15 +363,18 @@ const eventsSources = [
           start: new Date(e.start),
           end: new Date(e.end),
         })),
-      ),
+      );
+    },
   },
   {
     sourceId: "karate-do-gentofte",
     name: "Karate-Do Gentofte",
     calendarUrl: "https://karate-do-gentofte.dk/cms/Activity.aspx",
-    load: () =>
-      fetchJson<KarateKlubbenKyokushinkai.Event[]>(
-        "https://karate-do-gentofte.dk/cms/include/api/calendarj.aspx?start=2006-10-26T00%3A00%3A00%2B01%3A00&end=2046-12-07T00%3A00%3A00%2B01%3A00&tag=",
+    load: async ({ cotemporality, now }: LoadParams) => {
+      const start = cotemporality === "past" ? farPast : now;
+      const end = cotemporality === "future" ? farFuture : now;
+      return fetchJson<KarateKlubbenKyokushinkai.Event[]>(
+        `https://karate-do-gentofte.dk/cms/include/api/calendarj.aspx?start=${start.toISOString()}&end=${end.toISOString()}`,
       ).then((events) =>
         events.map((e) => ({
           ...e,
@@ -383,15 +388,18 @@ const eventsSources = [
           start: new Date(e.start),
           end: new Date(e.end),
         })),
-      ),
+      );
+    },
   },
   {
     sourceId: "niva-budoklub",
     name: "Nivå Budoklub",
     calendarUrl: "https://nbudo.klub-modul.dk/cms/Activity.aspx",
-    load: () =>
-      fetchJson<KarateKlubbenKyokushinkai.Event[]>(
-        "https://nbudo.klub-modul.dk/cms/include/api/calendarj.aspx?start=2006-10-26T00%3A00%3A00%2B01%3A00&end=2046-12-07T00%3A00%3A00%2B01%3A00&tag=",
+    load: async ({ cotemporality, now }: LoadParams) => {
+      const start = cotemporality === "past" ? farPast : now;
+      const end = cotemporality === "future" ? farFuture : now;
+      return fetchJson<KarateKlubbenKyokushinkai.Event[]>(
+        `https://nbudo.klub-modul.dk/cms/include/api/calendarj.aspx?start=${start.toISOString()}&end=${end.toISOString()}`,
       ).then((events) =>
         events.map((e) => ({
           ...e,
@@ -405,7 +413,8 @@ const eventsSources = [
           start: new Date(e.start),
           end: new Date(e.end),
         })),
-      ),
+      );
+    },
   },
   {
     sourceId: "gladsaxe-karate-klub",
