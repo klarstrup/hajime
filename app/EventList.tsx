@@ -136,6 +136,39 @@ export function EventList({
                       // prevent orphaned words by replacing the last space with a non-breaking space
                       title = title.replace(/ (\S+)$/, "\u00A0$1");
 
+                      const federations = gEvents
+                        .filter((e): e is typeof e & { federation: string } =>
+                          Boolean("federation" in e && e.federation),
+                        )
+                        .map((e) => e.federation);
+                      const federationsWithCount = Object.entries(
+                        federations
+                          // Find the most common federation among the events
+                          .reduce((acc: Record<string, number>, fed) => {
+                            if (!acc[fed]) acc[fed] = 0;
+                            acc[fed] += 1;
+                            return acc;
+                          }, {}),
+                      ).sort((a, b) => b[1] - a[1]);
+
+                      let federation: string | undefined;
+                      if (
+                        federations.length > 0 &&
+                        federationsWithCount.length > 0
+                      ) {
+                        federation = federationsWithCount[0][0];
+                        if (
+                          // If the most common federation has the same count as the second most common, it's ambiguous, so unset it.
+                          federationsWithCount[0][1] ===
+                          federationsWithCount[1]?.[1]
+                        ) {
+                          // federation = undefined;
+                        }
+                      }
+                      if (federations.some((fed) => fed === "*")) {
+                        federation = "*";
+                      }
+
                       return (
                         <li
                           key={
@@ -146,6 +179,18 @@ export function EventList({
                           className="dark:bg-gray-900 bg-white p-2 pt-1 rounded flex flex-col attribution-container leading-tight"
                         >
                           <div>
+                            {federation &&
+                              (title.includes("graduering") ||
+                                title.includes("mesterskab")) && (
+                                <span
+                                  className={
+                                    "opacity-25 ml-2 float-right " +
+                                    (federation === "*" ? "text-lg" : "text-sm")
+                                  }
+                                >
+                                  {federation === "*" ? "✱" : federation}
+                                </span>
+                              )}
                             {url ? (
                               <a
                                 href={url}
