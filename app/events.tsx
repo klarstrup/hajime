@@ -362,7 +362,7 @@ const eventsSources = [
       fetchIcsEvents(`https://karatestævner.dk/eksport/alle-alle.ics`),
   },
   {
-    sourceId: "bushi-karate-gcal",
+    sourceId: "bushi-karate",
     name: "Bushi Karate & Combat Sport",
     calendarUrl: "https://www.bushi.dk/kalender--events/kalender",
     load: () =>
@@ -371,6 +371,82 @@ const eventsSources = [
       ).then((events) =>
         events.filter((e) => !e.summary.includes("X-Mas Cup")),
       ),
+  },
+  {
+    sourceId: "bushi-karate",
+    name: "Bushi Karate & Combat Sport",
+    calendarUrl: "https://www.bushi.dk/kalender--events/events",
+    load: async ({ cotemporality }: LoadParams) => {
+      if (cotemporality === "past") return [];
+
+      const bushi$ = await fetch$(
+        "https://www.bushi.dk/kalender--events/events",
+      );
+
+      const events = bushi$("[data-event-card]")
+        .map((_, el) => {
+          const $el = bushi$(el);
+
+          const startDateString =
+            $el.find("time[datetime]").attr("datetime") || "";
+          const startTimeString = $el.find(".time .from").text().trim() || "";
+
+          const startDate = new Date(`${startDateString}T${startTimeString}`);
+
+          const endTimeString = $el.find(".time .to").text().trim() || "";
+
+          const endDateDay = $el.find("time .to .day").text().trim() || "";
+          const endDateMonthText = $el.find("time .to .month").text().trim();
+          // map text month to number
+          const months = [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+          ];
+          const endDateMonth =
+            (endDateMonthText &&
+              (months.indexOf(endDateMonthText) + 1)
+                .toString()
+                .padStart(2, "0")) ||
+            (startDate.getMonth() + 1).toString().padStart(2, "0");
+
+          const endDateTimeString = `${startDateString
+            .split("-")
+            .map((part, index) =>
+              index === 0
+                ? part
+                : index === 1 && endDateMonth
+                  ? endDateMonth.padStart(2, "0")
+                  : index === 2 && endDateDay
+                    ? endDateDay.padStart(2, "0")
+                    : part,
+            )
+            .join("-")}T${endTimeString}`;
+
+          const endDate = new Date(endDateTimeString);
+
+          return {
+            title: $el.find("h2").text().trim(),
+            url:
+              `https://www.bushi.dk/${$el.find("a").attr("href")}` || undefined,
+            start: startDate,
+            end: endDate,
+            location: $el.find(".location").text().trim() || undefined,
+          };
+        })
+        .toArray();
+
+      return events;
+    },
   },
   {
     sourceId: "bs-karate",
@@ -943,7 +1019,9 @@ export const getSortedEvents = async ({
               ? e.id
               : "fullUrl" in e
                 ? e.fullUrl
-                : (e satisfies never)),
+                : "url" in e
+                  ? e.url
+                  : (e satisfies never)),
       ),
       url:
         "fullUrl" in e
@@ -1103,6 +1181,9 @@ export const getSortedEvents = async ({
           !title.includes("gæsteinstruktør") &&
           !title.includes("førstehjælpskursus") &&
           !title.includes("kristi himmelfartsdag") &&
+          !title.includes("latvia grand prix") &&
+          !title.includes("arawaza cup") &&
+          !title.includes("czech open") &&
           !(
             title.includes("graduering") &&
             !title.includes("dangraduering") &&
@@ -1119,6 +1200,7 @@ export const getSortedEvents = async ({
           !location.includes("sverige") &&
           !location.includes("sweden") &&
           !location.includes("barcelona") &&
+          !location.includes("slovakia") &&
           !location.includes("zoom")
         );
       },
