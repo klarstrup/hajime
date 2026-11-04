@@ -784,12 +784,12 @@ function eventsAreCoinciding(
   if (!event2.start) console.warn("Event 2 has no start date", event2);
   return areIntervalsOverlapping(
     {
-      start: event1.start!,
+      start: startOfDay(event1.start!, { in: tz("Europe/Copenhagen") }),
       end:
         event1.end ?? endOfDay(event1.start!, { in: tz("Europe/Copenhagen") }),
     },
     {
-      start: event2.start!,
+      start: startOfDay(event2.start!, { in: tz("Europe/Copenhagen") }),
       end:
         event2.end ?? endOfDay(event2.start!, { in: tz("Europe/Copenhagen") }),
     },
