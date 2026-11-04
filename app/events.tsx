@@ -1197,6 +1197,7 @@ export const getSortedEvents = async ({
           !title.includes("latvia grand prix") &&
           !title.includes("arawaza cup") &&
           !title.includes("czech open") &&
+          !title.includes("slovakia grand prix") &&
           !(
             title.includes("graduering") &&
             !title.includes("dangraduering") &&
