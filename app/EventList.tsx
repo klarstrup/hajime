@@ -39,7 +39,7 @@ export function EventList({
           <span>{title}</span>
         </header>
         <Link
-          className="text-sm text-red-300 text-right"
+          className="text-sm text-red-400 text-right"
           href={cotemporality === "past" ? `/` : (`/fortid` as `/`)}
         >
           {cotemporality === "past"
@@ -351,7 +351,7 @@ export function EventList({
                                     href={e.sourceCalendarUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-red-500 hover:underline"
+                                    className="text-red-400 hover:underline"
                                   >
                                     {e.source}
                                   </a>
