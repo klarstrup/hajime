@@ -755,7 +755,12 @@ export const getSortedEvents = async ({
               ? e.eventname_raw
               : (e satisfies never)
       )
-        .replace("DAN GRADUERING", "Dan Graduering")
+        // Align dashes
+        .replace(/–/g, "-")
+        .replace(/DAN GRADUERING/i, "Dangraduering")
+        .replace(/sortbæltegradueringen/i, "Dangraduering")
+        .replace(/^Dansk/i, "")
+        .replace(/^Børne/i, "")
         .replace("SAVE THE DATE", "")
         .trim()
         .replace(/^-/, "")
