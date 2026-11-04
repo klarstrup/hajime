@@ -317,6 +317,15 @@ const eventsSources = [
       ),
   },
   {
+    sourceId: "shobu-ippon-denmark",
+    name: "Shobu Ippon Denmark",
+    calendarUrl: "https://shobuippondanmark.dk/?post_type=tribe_events",
+    load: ({ cotemporality }: LoadParams) =>
+      fetchIcsEvents(
+        `https://shobuippondanmark.dk/?post_type=tribe_events&eventDisplay=list${cotemporality === "past" ? "&tribe_event_display=past" : ""}&ical=1`,
+      ),
+  },
+  {
     sourceId: "farum-kyokushin",
     name: "Farum Kyokushin",
     calendarUrl: "https://farumkyokushin.dk/kalenderliste/",
@@ -903,7 +912,7 @@ export const getSortedEvents = async ({
       .filter(
         (result) =>
           eventsAreCoinciding(result.item, event) &&
-          (result.score !== undefined ? result.score < 0.66 : true),
+          (result.score !== undefined ? result.score < 0.5 : true),
       );
 
     // if a similar event is already in groupedEvents, add this to the same group
@@ -912,7 +921,9 @@ export const getSortedEvents = async ({
         (e) =>
           eventsAreCoinciding(e, event) &&
           (similarEvents.some((result) => result.item === e) ||
-            e.title === event.title),
+            e.title === event.title ||
+            e.title.toLowerCase().includes(event.title.toLowerCase()) ||
+            event.title.toLowerCase().includes(e.title.toLowerCase())),
       ),
     );
     if (!event.start) console.warn("Event has no start date:", event);
