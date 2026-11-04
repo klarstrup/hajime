@@ -312,9 +312,15 @@ const fetchIcsEvents = async (url: string) =>
     ...e,
     end: e.end?.date
       ? isEqual(e.end?.date, e.start?.date)
-        ? { ...e.end, date: endOfDay(e.start.date) }
+        ? {
+            ...e.end,
+            date: endOfDay(e.start.date, { in: tz("Europe/Copenhagen") }),
+          }
         : e.end
-      : { ...e.start, date: endOfDay(e.start.date) },
+      : {
+          ...e.start,
+          date: endOfDay(e.start.date, { in: tz("Europe/Copenhagen") }),
+        },
   }));
 const fetch$ = async (url: string) => cheerio.load(await fetchText(url));
 
