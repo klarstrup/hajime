@@ -198,9 +198,9 @@ export function EventList({
                 )
                 .map(([e, locationSources], index) => {
                   return (
-                    <span key={index} className="text-sm text-gray-400">
-                      {" "}
-                      @ {e.location}
+                    <span key={index} className="text-sm text-gray-400 flex gap-1 items-center">
+                      <span className="text-gray-400 text-[11px]">@</span>
+                      {e.location}
                       {locationSources
                         .sort(
                           (a, b) =>
