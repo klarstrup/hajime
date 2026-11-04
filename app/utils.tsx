@@ -5,7 +5,10 @@ export const normalizeString = (str: string) =>
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
-    .replaceAll(/[^a-z0-9]/gi, " ");
+    .replaceAll(/[^a-z0-9]/gi, " ")
+    .split(" ")
+    .sort((a, b) => a.localeCompare(b))
+    .join(" ");
 
 export const stringsOverlap = (aRaw: string, bRaw: string) => {
   const a = normalizeString(aRaw);
@@ -14,25 +17,27 @@ export const stringsOverlap = (aRaw: string, bRaw: string) => {
   return a.includes(b) || b.includes(a);
 };
 
-export const fuseCompare = (aRaw: string, bRaw: string) =>
-  Math.min(
-    new Fuse([normalizeString(aRaw)], {
+export const fuseCompare = (aRaw: string, bRaw: string) => {
+  const a = normalizeString(aRaw);
+  const b = normalizeString(bRaw);
+  return Math.min(
+    new Fuse([a], {
       includeScore: true,
       isCaseSensitive: false,
       ignoreFieldNorm: true,
       ignoreLocation: true,
-      useTokenSearch: true,
       findAllMatches: true,
-    }).search(normalizeString(bRaw))[0]?.score || 1,
-    new Fuse([normalizeString(bRaw)], {
+    }).search(b)[0]?.score || 1,
+    new Fuse([b], {
       includeScore: true,
       isCaseSensitive: false,
       ignoreFieldNorm: true,
       ignoreLocation: true,
-      useTokenSearch: true,
       findAllMatches: true,
-    }).search(normalizeString(aRaw))[0]?.score || 1,
+    }).search(a)[0]?.score || 1,
+    a === b ? 0 : 1,
   );
+};
 
 export const fuzzyOverlap = (aRaw: string, bRaw: string, threshold = 0.25) =>
   stringsOverlap(aRaw, bRaw) || fuseCompare(aRaw, bRaw) <= threshold;

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Fragment } from "react";
 import type { getSortedEvents } from "./events";
-import { fuzzyOverlap } from "./utils";
+import { fuseCompare } from "./utils";
 
 const timeZone = "Europe/Copenhagen";
 
@@ -214,10 +214,10 @@ export function EventList({
                                 list.findIndex(
                                   ({ location: l }) =>
                                     l &&
-                                    fuzzyOverlap(
+                                    fuseCompare(
                                       l.replaceAll(",", ""),
                                       location.replaceAll(",", ""),
-                                    ),
+                                    ) < 0.42,
                                 ) === index,
                             )
                             .map(
@@ -229,10 +229,10 @@ export function EventList({
                                       (ge) =>
                                         e.location &&
                                         ge.location &&
-                                        fuzzyOverlap(
+                                        fuseCompare(
                                           ge.location.replaceAll(",", ""),
                                           e.location.replaceAll(",", ""),
-                                        ),
+                                        ) < 0.42,
                                     )
                                     .filter((ge) => ge.source)
                                     .filter(

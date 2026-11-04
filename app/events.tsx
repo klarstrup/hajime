@@ -355,6 +355,24 @@ const eventsSources = [
       ),
   },
   {
+    sourceId: "karatestævner",
+    name: "Karatestævner",
+    calendarUrl: "https://xn--karatestvner-edb.dk/",
+    load: () =>
+      fetchIcsEvents(`https://karatestævner.dk/eksport/alle-alle.ics`),
+  },
+  {
+    sourceId: "bushi-karate-gcal",
+    name: "Bushi Karate & Combat Sport",
+    calendarUrl: "https://www.bushi.dk/kalender--events/kalender",
+    load: () =>
+      fetchIcsEvents(
+        "https://calendar.google.com/calendar/ical/890f871f68c1185a2c3eb0c2f7ce3c52fd4724be39afae0c1f2f5f598e051548%40group.calendar.google.com/public/basic.ics",
+      ).then((events) =>
+        events.filter((e) => !e.summary.includes("X-Mas Cup")),
+      ),
+  },
+  {
     sourceId: "bs-karate",
     name: "BS Karate",
     calendarUrl: "https://bs-karate.dk/kalender",
@@ -406,6 +424,15 @@ const eventsSources = [
     load: ({ cotemporality }: LoadParams) =>
       fetchIcsEvents(
         `https://shobuippondanmark.dk/?post_type=tribe_events&eventDisplay=list${cotemporality === "past" ? "&tribe_event_display=past" : ""}&ical=1`,
+      ),
+  },
+  {
+    sourceId: "budokan-solrod",
+    name: "Budokan Karate Solrød",
+    calendarUrl: "https://www.budokan-solrod.dk/events/",
+    load: ({ cotemporality }: LoadParams) =>
+      fetchIcsEvents(
+        `https://www.budokan-solrod.dk/events/?post_type=tribe_events&eventDisplay=list${cotemporality === "past" ? "&tribe_event_display=past" : ""}&ical=1`,
       ),
   },
   {
@@ -641,6 +668,41 @@ const eventsSources = [
             .eq(1)
             .text(),
         }));
+    },
+  },
+  {
+    sourceId: "gilleleje-karate",
+    name: "Gilleleje Karate Klub",
+    calendarUrl:
+      "https://www.gilleleje-karate.dk/klub/gilleleje-karate-klub/sider/h1-style-text-align-center-kalender-h1",
+    load: async ({ cotemporality, now }: LoadParams) => {
+      const start = cotemporality === "past" ? farPast : now;
+      const end = cotemporality === "future" ? farFuture : now;
+      const events = await fetchJson<FullCalendarEvent[]>(
+        `https://www.gilleleje-karate.dk/klub/gilleleje-karate-klub/activities?club_id=34372&content_id=2921593&activity_types=null&start=${start.toISOString()}&end=${end.toISOString()}&timeZone=Europe%2FCopenhagen`,
+      );
+      return events
+        .filter((e) => e.event_type !== 148927)
+        .map((e) => ({
+          ...e,
+          title: cheerio
+            .load(e.title)(".inner_event_wrapper > div")
+            .eq(0)
+            .text()
+            .replace(cheerio.load(e.title)(".event_time").text(), ""),
+          description: cheerio.load(e.tooltip).text(),
+          start: new Date(e.start),
+          end: e.end
+            ? new Date(e.end)
+            : endOfDay(new Date(e.start), { in: tz("Europe/Copenhagen") }),
+          location: cheerio
+            .load(e.tooltip)(".activity_tooltip_subinfo")
+            .eq(1)
+            .text(),
+        }))
+        .filter(
+          (e) => !e.title.includes("HJÆLPER") && !e.title.includes("OPSÆTNING"),
+        );
     },
   },
   {
@@ -912,7 +974,9 @@ export const getSortedEvents = async ({
         .replace(/sortbæltegradueringen/i, "Dangraduering")
         .replace("DANMARKSMESTERSKABERNE", "Danmarksmesterskaberne")
         .replace(/ - Holbæk/g, "")
-        .replace(/^DM/, "Danmarksmesterskaberne")
+        .replace(/^DM$/, "Danmarksmesterskaberne")
+        .replace(/^DM /, "Danmarksmesterskaberne ")
+        .replace(/ DM$/, " Danmarksmesterskaberne")
         .replace(/^Dansk/i, "")
         .replace(/^Børne/i, "")
         .replace("SAVE THE DATE", "")
@@ -1027,6 +1091,7 @@ export const getSortedEvents = async ({
           !title.includes("arbejdsdag") &&
           !title.includes("bestyrelsen") &&
           !title.includes("fastelavn") &&
+          !title.includes("halloween") &&
           !title.includes("miniput") &&
           !title.includes("filmaften") &&
           !title.includes("klubmesterskab") &&
@@ -1085,10 +1150,10 @@ export const getSortedEvents = async ({
     const existingGroup = groupedEvents.find((group) =>
       group.some(
         (e) =>
-          fuseCompare(e.title, event.title) < 0.25 &&
+          fuseCompare(e.title, event.title) < 0.3 &&
           eventsAreCoinciding(e, event) &&
           (e.location && event.location
-            ? fuseCompare(e.location, event.location) < 0.4
+            ? fuseCompare(e.location, event.location) < 0.42
             : true),
       ),
     );
@@ -1149,6 +1214,15 @@ export const getSortedEvents = async ({
     );
 
   // console.log(groupedEvents2.map((group) => group.map((e) => e.title)));
+
+  console.log(fuseCompare("ASAI Cup", "Bushido Cup"));
+  console.log(fuseCompare("Toyama Seminar", "Toyama sensei"));
+  console.log(
+    fuseCompare(
+      "Sandra Sánchez Karate Seminar",
+      "Karate seminar Sandra Sanchez",
+    ),
+  );
 
   return groupedEvents2;
 };
