@@ -7,6 +7,7 @@ import {
   isDate,
   startOfDay,
 } from "date-fns";
+import { isEqual } from "date-fns/fp/isEqual";
 import Fuse from "fuse.js";
 import { convertIcsCalendar } from "ts-ics";
 import { stringsOverlap } from "./utils";
@@ -307,7 +308,14 @@ const fetchIcsCalendar = async (url: string) =>
       ),
   );
 const fetchIcsEvents = async (url: string) =>
-  (await fetchIcsCalendar(url))?.events || [];
+  ((await fetchIcsCalendar(url))?.events || []).map((e) => ({
+    ...e,
+    end: e.end?.date
+      ? isEqual(e.end?.date, e.start?.date)
+        ? { ...e.end, date: endOfDay(e.start.date) }
+        : e.end
+      : { ...e.start, date: endOfDay(e.start.date) },
+  }));
 const fetch$ = async (url: string) => cheerio.load(await fetchText(url));
 
 const farPast = new Date(0);
@@ -339,6 +347,20 @@ const eventsSources = [
     load: ({ cotemporality }: { cotemporality: "past" | "future" }) =>
       fetchIcsEvents(
         `https://kyokushin.dk/kalender/?ical=1${cotemporality === "past" ? "&eventDisplay=past" : ""}`,
+      ),
+  },
+  {
+    sourceId: "bs-karate",
+    name: "BS Karate",
+    calendarUrl: "https://bs-karate.dk/kalender",
+    load: ({ cotemporality }: LoadParams) =>
+      fetchIcsEvents(
+        `https://www.bskarate.dk/events/liste/?ical=1${cotemporality === "past" ? "&eventDisplay=past" : ""}`,
+      ).then((events) =>
+        events.map((e) => ({
+          ...e,
+          summary: e.summary.replace("Stævne i Helsingør", "Bushido Cup"),
+        })),
       ),
   },
   {
@@ -989,7 +1011,8 @@ export const getSortedEvents = async ({
         ? (b.end || b.start).valueOf() - b.start.valueOf()
         : 0;
       return bLength - aLength;
-    });
+    })
+    .sort((a, b) => a.title.localeCompare(b.title));
 
   const fuse = new Fuse(sortedEvents, {
     keys: ["title", "location"],
