@@ -1214,6 +1214,7 @@ export const getSortedEvents = async ({
           !location.includes("sverige") &&
           !location.includes("sweden") &&
           !location.includes("barcelona") &&
+          !location.includes("united kingdom") &&
           !location.includes("slovakia") &&
           !location.includes("zoom")
         );
