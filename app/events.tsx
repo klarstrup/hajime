@@ -248,6 +248,47 @@ export enum Type {
   Tournament = "TOURNAMENT",
 }
 
+export interface FightCollectiveEvent {
+  id: string;
+  name: string;
+  subtitle: string;
+  venue: string;
+  date: string;
+  time: string;
+  address: string;
+  registered_count: number;
+  max_capacity: number;
+  telegram_bot_link: null;
+  telegram_community_link: null;
+  is_active: boolean;
+  created_at: Date;
+  announcement_message_id: null | string;
+  media_notification_message_id: null | string;
+  event_type: string;
+  price_dkk: number;
+  description: string;
+  format_bullets: string[];
+  hero_photos: string[] | null;
+  cta_label: null | string;
+  cta_url: null | string;
+  end_date: null;
+  reserved_count: number;
+  instructor: null | string;
+  featured: boolean;
+  post_signup_message: null;
+  pay_mobilepay: null;
+  pay_bank: null | string;
+  recap_notes: null;
+  content_thread_id: null | string;
+  content_topic_link: null | string;
+  content_file_count: number;
+  content_announced_at: Date | null;
+  slug: string;
+  confirmed_count: number;
+  waitlist_count: number;
+  is_full?: boolean;
+}
+
 const fetchText = async (url: string) => (await fetch(url)).text();
 const fetchJson = async <T,>(url: string) =>
   (await fetch(url)).json() as Promise<T>;
@@ -666,6 +707,28 @@ const eventsSources = [
       return events;
     },
   },
+  {
+    sourceId: "fight-collective",
+    name: "Fight Collective",
+    calendarUrl: "https://fightcollective.dk/events",
+    load: async ({ cotemporality }: LoadParams) =>
+      fetchJson<FightCollectiveEvent[]>(
+        cotemporality === "future"
+          ? "https://fight-collective-bot-production.up.railway.app/api/events"
+          : "https://fight-collective-bot-production.up.railway.app/api/events/past",
+      ).then((events) =>
+        events.map((e) => {
+          const [hours, minutes] = e.time.split(":").map(Number);
+          const [year, month, day] = e.date.split("-").map(Number);
+          return {
+            ...e,
+            title: e.name,
+            start: new Date(year, month - 1, day, hours, minutes),
+            url: `https://fightcollective.dk/events/${e.slug}`,
+          };
+        }),
+      ),
+  },
 ] as const;
 
 function eventsAreCoinciding(
@@ -805,7 +868,11 @@ export const getSortedEvents = async ({
                 .join(", ")
             : "location" in e && typeof e.location === "string"
               ? e.location
-              : ""
+              : "venue" in e
+                ? typeof e.venue === "string"
+                  ? e.venue
+                  : e.venue.full_address
+                : ""
         )
           .trim()
           .replace(/\s+/g, " ")
