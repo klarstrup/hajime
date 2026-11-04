@@ -903,7 +903,7 @@ export const getSortedEvents = async ({
       location:
         ("address" in e && typeof e.address === "object"
           ? e.address.fullAddress
-          : "location" in e && typeof e.location === "object"
+          : "location" in e && typeof e.location === "object" && e.location
             ? [
                 e.location.addressTitle,
                 e.location.addressLine1,
