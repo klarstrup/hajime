@@ -32,7 +32,7 @@ export function EventList({
     {} as Record<number, Record<number, typeof events>>,
   );
   return (
-    <div className="flex flex-col max-w-2xl">
+    <div className="flex flex-col max-w-xl">
       <div className="flex gap-2 mt-2 items-baseline justify-between">
         <header className="text-xl font-extrabold flex gap-1 items-baseline">
           <span className="text-[1.75rem]">🥋</span>
