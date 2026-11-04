@@ -1205,7 +1205,10 @@ export const getSortedEvents = async ({
           !title.includes("latvia grand prix") &&
           !title.includes("arawaza cup") &&
           !title.includes("czech open") &&
+          !title.includes("polish open") &&
           !title.includes("slovakia grand prix") &&
+          !title.match(/^test$/i) &&
+          !title.match(/^test /i) &&
           !title.includes("swedish karate open") &&
           !(
             title.includes("graduering") &&
@@ -1226,6 +1229,9 @@ export const getSortedEvents = async ({
           !location.includes("united kingdom") &&
           !location.includes("slovakia") &&
           !location.includes("helsingborg") &&
+          !location.includes("norway") &&
+          !location.includes("malmø") &&
+          !location.includes("tyskland") &&
           !location.includes("zoom")
         );
       },
