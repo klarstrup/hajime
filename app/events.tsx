@@ -268,12 +268,20 @@ const fetchIcsEvents = async (url: string) =>
   (await fetchIcsCalendar(url))?.events || [];
 const fetch$ = async (url: string) => cheerio.load(await fetchText(url));
 
+const farPast = new Date(0);
+const farFuture = new Date(3333333333333);
+
+interface LoadParams {
+  cotemporality: "past" | "future";
+  now: Date;
+}
+
 const eventsSources = [
   {
     sourceId: "danish-karate-union-facebook",
     name: "Danish Karate Union",
     calendarUrl: "https://www.facebook.com/profile.php?id=100064868797020",
-    load: ({ cotemporality }: { cotemporality: "past" | "future" }) =>
+    load: ({ cotemporality }: LoadParams) =>
       fetch("https://allevents.in/api/index.php/organizer/web/get_events", {
         body: `{"organizer_id":"20980280","past":${cotemporality === "future" ? 0 : 1},"count":99,"city":0,"past_events_filter":0}`,
         method: "POST",
@@ -346,10 +354,10 @@ const eventsSources = [
       ).then((events) =>
         events.map((e) => ({
           ...e,
-          linkEvent: new URL(
-            e.linkEvent,
-            "https://karateklub.com/cms/",
-          ).toString(),
+          location: [e.location, e.address].filter(Boolean).join(", "),
+          linkEvent: e.linkEvent
+            ? new URL(e.linkEvent, "https://karateklub.com/cms/").toString()
+            : undefined,
           start: new Date(e.start),
           end: new Date(e.end),
         })),
@@ -365,10 +373,13 @@ const eventsSources = [
       ).then((events) =>
         events.map((e) => ({
           ...e,
-          linkEvent: new URL(
-            e.linkEvent,
-            "https://karate-do-gentofte.dk/cms/",
-          ).toString(),
+          location: [e.location, e.address].filter(Boolean).join(", "),
+          linkEvent: e.linkEvent
+            ? new URL(
+                e.linkEvent,
+                "https://karate-do-gentofte.dk/cms/",
+              ).toString()
+            : undefined,
           start: new Date(e.start),
           end: new Date(e.end),
         })),
@@ -384,14 +395,41 @@ const eventsSources = [
       ).then((events) =>
         events.map((e) => ({
           ...e,
-          linkEvent: new URL(
-            e.linkEvent,
-            "https://nbudo.klub-modul.dk/cms/",
-          ).toString(),
+          location: [e.location, e.address].filter(Boolean).join(", "),
+          linkEvent: e.linkEvent
+            ? new URL(
+                e.linkEvent,
+                "https://nbudo.klub-modul.dk/cms/",
+              ).toString()
+            : undefined,
           start: new Date(e.start),
           end: new Date(e.end),
         })),
       ),
+  },
+  {
+    sourceId: "gladsaxe-karate-klub",
+    name: "Gladsaxe Karate Klub",
+    calendarUrl: "https://gladsaxekarateklub.dk/cms/Activity.aspx",
+    load: async ({ cotemporality, now }: LoadParams) => {
+      const start = cotemporality === "past" ? farPast : now;
+      const end = cotemporality === "future" ? farFuture : now;
+      const events = await fetchJson<KarateKlubbenKyokushinkai.Event[]>(
+        `https://gladsaxekarateklub.dk/cms/include/api/calendarj.aspx?start=${start.toISOString()}&end=${end.toISOString()}`,
+      );
+      return events.map((e) => ({
+        ...e,
+        location: [e.location, e.address].filter(Boolean).join(", "),
+        start: new Date(e.start),
+        end: new Date(e.end),
+        linkEvent: e.linkEvent
+          ? new URL(
+              e.linkEvent,
+              "https://gladsaxekarateklub.dk/cms/",
+            ).toString()
+          : undefined,
+      }));
+    },
   },
   {
     sourceId: "shinryokudan-nansensgade-karate",
@@ -612,10 +650,11 @@ export const fetchEvents = async ({
   cotemporality: "past" | "future";
 }) => {
   "use cache";
+  const now = new Date();
 
   return Promise.all(
     eventsSources.map((source) =>
-      source.load({ cotemporality }).then((events) =>
+      source.load({ cotemporality, now }).then((events) =>
         events.map((e) => ({
           ...e,
           source: source.name,
@@ -640,13 +679,15 @@ export const getSortedEvents = async ({
     .map((e) => ({
       ...e,
       id: String(
-        "uid" in e
-          ? e.uid
-          : "id" in e
-            ? e.id
-            : "fullUrl" in e
-              ? e.fullUrl
-              : (e satisfies never),
+        e.sourceId +
+          "-" +
+          ("uid" in e
+            ? e.uid
+            : "id" in e
+              ? e.id
+              : "fullUrl" in e
+                ? e.fullUrl
+                : (e satisfies never)),
       ),
       url:
         "fullUrl" in e
@@ -669,7 +710,9 @@ export const getSortedEvents = async ({
             : "eventname_raw" in e
               ? e.eventname_raw
               : (e satisfies never)
-      ).trim(),
+      )
+        .replace("DAN GRADUERING", "Dan Graduering")
+        .trim(),
       start:
         "structuredContent" in e
           ? new Date(e.structuredContent.startDate)
@@ -719,7 +762,8 @@ export const getSortedEvents = async ({
           .replace("Denmark", "Danmark")
           .replace("Copenhagen", "København")
           .replace("Roskilde Karateklub", "Roskilde Karate Klub")
-          .replace(/^Danmark$/, "") || undefined,
+          .replace(/^Danmark$/, "")
+          .replace(", Danmark", "") || undefined,
     }))
     .filter(
       (e) =>
@@ -735,6 +779,7 @@ export const getSortedEvents = async ({
         const location = (e.location || "").toLowerCase();
         return (
           !title.includes("træning") &&
+          !title.includes("prøvetimer") &&
           !title.includes("lukket") &&
           !title.includes("bestyrelsesmøde") &&
           !title.includes("bestyrelsemøde") &&
@@ -756,6 +801,7 @@ export const getSortedEvents = async ({
           !title.includes("juleklip") &&
           !title.includes("fællesmøde") &&
           !title.includes("kagami biraki") &&
+          !title.includes("opstart") &&
           !title.includes("arbejdsdag") &&
           !title.includes("bestyrelsen") &&
           !title.includes("fastelavn") &&
@@ -777,6 +823,8 @@ export const getSortedEvents = async ({
             !title.includes("dan graduering")
           ) &&
           !location.includes("spanien") &&
+          !location.includes("ungarn") &&
+          !location.includes("finland") &&
           !location.includes("montesilvano") &&
           !location.includes("letland") &&
           !location.includes("tokyo") &&
@@ -834,7 +882,7 @@ export const getSortedEvents = async ({
       .filter(
         (result) =>
           eventsAreCoinciding(result.item, event) &&
-          (result.score !== undefined ? result.score < 0.75 : true),
+          (result.score !== undefined ? result.score < 0.66 : true),
       );
 
     // if a similar event is already in groupedEvents, add this to the same group
@@ -855,7 +903,7 @@ export const getSortedEvents = async ({
     }
   }
 
-  return groupedEvents
+  const groupedEvents2 = groupedEvents
     .map((events) =>
       events
         .sort((a, b) =>
@@ -902,4 +950,8 @@ export const getSortedEvents = async ({
         ? (b.start?.valueOf() ?? 0) - (a.start?.valueOf() ?? 0)
         : (a.start?.valueOf() ?? 0) - (b.start?.valueOf() ?? 0),
     );
+
+  // console.log(groupedEvents2.map((group) => group.map((e) => e.title)));
+
+  return groupedEvents2;
 };

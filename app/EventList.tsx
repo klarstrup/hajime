@@ -70,7 +70,21 @@ export function EventList({
                   rel="noopener noreferrer"
                   className="text-red-500 hover:underline text-lg font-medium"
                 >
-                  {event.title.replaceAll(/\d\d\d\d/g, "").trim()}
+                  {event.title
+                    .replaceAll(/\d\d\d\d/g, "")
+                    .trim()
+                    .replace(/ Efterår$/gi, "")
+                    .trim()
+                    .replace(/ Forår$/gi, "")
+                    .trim()
+                    .replace(/ Vinter$/gi, "")
+                    .trim()
+                    .replace(/ Sommer$/gi, "")
+                    .trim()
+                    .replace(/ –$/g, "")
+                    .trim()
+                    .replace(/-$/g, "")
+                    .trim()}
                 </a>
                 <span className="text-[8px] align-super text-gray-500 attribution -mr-1">
                   {usedIndex + 1}
@@ -198,37 +212,42 @@ export function EventList({
                 )
                 .map(([e, locationSources], index) => {
                   return (
-                    <span key={index} className="text-sm text-gray-400 flex gap-1 items-center">
+                    <span
+                      key={index}
+                      className="text-sm text-gray-400 flex gap-0.5 items-baseline"
+                    >
                       <span className="text-gray-400 text-[11px]">@</span>
-                      {e.location}
-                      {locationSources
-                        .sort(
-                          (a, b) =>
-                            usedSources.findIndex(
-                              (us) => us.sourceId === a.sourceId,
-                            ) -
-                            usedSources.findIndex(
-                              (us) => us.sourceId === b.sourceId,
-                            ),
-                        )
-                        .map((s, i) => {
-                          let usedIndex = usedSources.findIndex(
-                            (us) => us.sourceId === s.sourceId,
-                          );
-                          if (usedIndex === -1) {
-                            usedIndex = usedSources.push(s) - 1;
-                          }
+                      <span>
+                        {e.location}
+                        {locationSources
+                          .sort(
+                            (a, b) =>
+                              usedSources.findIndex(
+                                (us) => us.sourceId === a.sourceId,
+                              ) -
+                              usedSources.findIndex(
+                                (us) => us.sourceId === b.sourceId,
+                              ),
+                          )
+                          .map((s, i) => {
+                            let usedIndex = usedSources.findIndex(
+                              (us) => us.sourceId === s.sourceId,
+                            );
+                            if (usedIndex === -1) {
+                              usedIndex = usedSources.push(s) - 1;
+                            }
 
-                          return (
-                            <span
-                              key={s.sourceId}
-                              className="text-[8px] align-super text-gray-500 attribution"
-                            >
-                              {i > 0 ? "," : ""}
-                              {usedIndex + 1}
-                            </span>
-                          );
-                        })}
+                            return (
+                              <span
+                                key={s.sourceId}
+                                className="text-[8px] align-super text-gray-500 attribution"
+                              >
+                                {i > 0 ? "," : ""}
+                                {usedIndex + 1}
+                              </span>
+                            );
+                          })}
+                      </span>
                     </span>
                   );
                 })}
