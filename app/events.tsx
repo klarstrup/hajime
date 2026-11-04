@@ -1215,14 +1215,5 @@ export const getSortedEvents = async ({
 
   // console.log(groupedEvents2.map((group) => group.map((e) => e.title)));
 
-  console.log(fuseCompare("ASAI Cup", "Bushido Cup"));
-  console.log(fuseCompare("Toyama Seminar", "Toyama sensei"));
-  console.log(
-    fuseCompare(
-      "Sandra Sánchez Karate Seminar",
-      "Karate seminar Sandra Sanchez",
-    ),
-  );
-
   return groupedEvents2;
 };
