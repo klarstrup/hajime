@@ -1053,7 +1053,7 @@ export const fetchEvents = async ({
     eventsSources.map((source) => {
       if (process.env.VERCEL) {
         console.time(
-          `Loading events for source: ${source.name} ${source.calendarUrl}`,
+          `Loading events for source: ${source.name} ${source.calendarUrl} ${cotemporality}`,
         );
       }
       const events = source.load({ cotemporality, now }).then((events) =>
