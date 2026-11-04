@@ -1187,6 +1187,7 @@ export const getSortedEvents = async ({
           !title.includes("miniput") &&
           !title.includes("filmaften") &&
           !title.includes("klubmesterskab") &&
+          !title.includes("bjj") &&
           !title.includes("kr. himmelfartsdag") &&
           !title.includes("pizza og hygge") &&
           !title.includes("erstatningslokaler") &&
