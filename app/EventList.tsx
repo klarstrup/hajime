@@ -147,12 +147,12 @@ export function EventList({
                                 href={url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-red-500 hover:underline text-xl font-medium"
+                                className="text-red-500 hover:underline text-xl font-bold"
                               >
                                 {title}
                               </a>
                             ) : (
-                              <span className="light:text-gray-600  text-xl font-medium">
+                              <span className="light:text-gray-600  text-xl font-bold">
                                 {title}
                               </span>
                             )}
