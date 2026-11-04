@@ -491,19 +491,24 @@ const eventsSources = [
       const events = await fetchJson<KarateKlubbenKyokushinkai.Event[]>(
         `https://gladsaxekarateklub.dk/cms/include/api/calendarj.aspx?start=${start.toISOString()}&end=${end.toISOString()}`,
       );
-      return events.map((e) => ({
-        ...e,
-        title: e.title.replace("GKC", "Gladsaxe Karate Cup"),
-        location: [e.location, e.address].filter(Boolean).join(", "),
-        start: new Date(e.start),
-        end: new Date(e.end),
-        linkEvent: e.linkEvent
-          ? new URL(
-              e.linkEvent,
-              "https://gladsaxekarateklub.dk/cms/",
-            ).toString()
-          : undefined,
-      }));
+      return events
+        .map((e) => ({
+          ...e,
+          title: e.title.replace("GKC", "Gladsaxe Karate Cup"),
+          location: [e.location, e.address].filter(Boolean).join(", "),
+          start: new Date(e.start),
+          end: new Date(e.end),
+          linkEvent: e.linkEvent
+            ? new URL(
+                e.linkEvent,
+                "https://gladsaxekarateklub.dk/cms/",
+              ).toString()
+            : undefined,
+        }))
+        .filter(
+          (e) =>
+            !e.title.includes("Weekendlejr") && !e.title.includes("Team GKK"),
+        );
     },
   },
   {
