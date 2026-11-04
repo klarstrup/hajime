@@ -774,6 +774,24 @@ const eventsSources = [
         }),
       ),
   },
+  {
+    sourceId: "set-online-karate",
+    name: "SET Online Karate",
+    calendarUrl:
+      "https://www.sportdata.org/karate/set-online/calendar_main.php",
+    load: () =>
+      fetchIcsEvents(
+        "https://www.google.com/calendar/ical/office@sportdata.org/public/basic.ics",
+      ).then((events) =>
+        events
+          .filter((event) => event.location?.includes("DENMARK"))
+          .map((e) => ({
+            ...e,
+            summary: e.summary?.replace(/, DENMARK$/, ""),
+            url: e.description?.match(/https?:\/\/\S+/)?.[0] ?? undefined,
+          })),
+      ),
+  },
 ] as const;
 
 function eventsAreCoinciding(
@@ -868,6 +886,8 @@ export const getSortedEvents = async ({
         .replace(/dan graduering/i, "Dangraduering")
         .replace(/dan-graduering/i, "Dangraduering")
         .replace(/sortbæltegradueringen/i, "Dangraduering")
+        .replace("DANMARKSMESTERSKABERNE", "DM")
+        .replace(/ - Holbæk/g, " -")
         .replace(/^Dansk/i, "")
         .replace(/^Børne/i, "")
         .replace("SAVE THE DATE", "")
@@ -924,11 +944,12 @@ export const getSortedEvents = async ({
           .replace(/\s+/g, " ")
           .replace(/, ,/g, ",")
           .replace(/ ,/g, ",")
-          .replace("Denmark", "Danmark")
+          .replace(/Denmark/gi, "Danmark")
           .replace("Copenhagen", "København")
           .replace("Roskilde Karateklub", "Roskilde Karate Klub")
           .replace(/^Danmark$/, "")
-          .replace(", Danmark", "") || undefined,
+          .replace(/, Danmark/gi, "")
+          .trim() || undefined,
     }))
     .filter(
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -1038,7 +1059,7 @@ export const getSortedEvents = async ({
           fuseCompare(e.title, event.title) < 0.25 &&
           eventsAreCoinciding(e, event) &&
           (e.location && event.location
-            ? fuseCompare(e.location, event.location) < 0.04
+            ? fuseCompare(e.location, event.location) < 0.4
             : true),
       ),
     );
