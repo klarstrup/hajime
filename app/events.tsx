@@ -375,7 +375,7 @@ const eventsSources = [
   {
     sourceId: "bs-karate",
     name: "BS Karate",
-    calendarUrl: "https://bs-karate.dk/kalender",
+    calendarUrl: "https://bskarate.dk/events/",
     load: ({ cotemporality }: LoadParams) =>
       fetchIcsEvents(
         `https://www.bskarate.dk/events/liste/?ical=1${cotemporality === "past" ? "&eventDisplay=past" : ""}`,
