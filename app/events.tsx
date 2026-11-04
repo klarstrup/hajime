@@ -1001,13 +1001,19 @@ export const fetchEvents = async ({
         })),
       );
 
-      return events.finally(() => {
-        if (process.env.VERCEL) {
-          console.timeEnd(
-            `Loading events for source: ${source.name} ${source.calendarUrl}`,
-          );
-        }
-      });
+      return events
+        .catch((err) => {
+          console.error(`Error loading events for source: ${source.name}`, err);
+
+          return [];
+        })
+        .finally(() => {
+          if (process.env.VERCEL) {
+            console.timeEnd(
+              `Loading events for source: ${source.name} ${source.calendarUrl}`,
+            );
+          }
+        });
     }),
   ).then((events) => events.flat());
 };
