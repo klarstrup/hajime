@@ -280,7 +280,8 @@ const eventsSources = [
   {
     sourceId: "danish-karate-union-facebook",
     name: "Danish Karate Union",
-    calendarUrl: "https://www.facebook.com/profile.php?id=100064868797020",
+    calendarUrl:
+      "https://www.facebook.com/profile.php?id=100064868797020&sk=events",
     load: ({ cotemporality }: LoadParams) =>
       fetch("https://allevents.in/api/index.php/organizer/web/get_events", {
         body: `{"organizer_id":"20980280","past":${cotemporality === "future" ? 0 : 1},"count":99,"city":0,"past_events_filter":0}`,
@@ -306,6 +307,19 @@ const eventsSources = [
       fetchIcsEvents(
         "https://calendar.google.com/calendar/ical/b418b06beb19586d457e0914c5faa192e5823a33120645206a58c61c8bac1565%40group.calendar.google.com/public/basic.ics",
       ),
+  },
+  {
+    sourceId: "roskilde-karate-klub-facebook",
+    name: "Roskilde Karate Klub",
+    calendarUrl:
+      "https://www.facebook.com/profile.php?id=100063654665814&sk=events",
+    load: ({ cotemporality }: LoadParams) =>
+      fetch("https://allevents.in/api/index.php/organizer/web/get_events", {
+        body: `{"organizer_id":"20470410","past":${cotemporality === "future" ? 0 : 1},"count":99,"city":0,"past_events_filter":0}`,
+        method: "POST",
+      })
+        .then((r) => r.json() as Promise<AllEventsResponse>)
+        .then((data) => data.data),
   },
   {
     sourceId: "roskilde-karate-klub",
@@ -742,6 +756,9 @@ export const getSortedEvents = async ({
               : (e satisfies never)
       )
         .replace("DAN GRADUERING", "Dan Graduering")
+        .replace("SAVE THE DATE", "")
+        .trim()
+        .replace(/^-/, "")
         .trim(),
       start:
         "structuredContent" in e
@@ -818,7 +835,7 @@ export const getSortedEvents = async ({
           !title.includes("åben dojo") &&
           !title.includes("generalforsamling") &&
           !title.includes("chefinstruktørmøde") &&
-          // !title.includes("aspirantsamling") &&
+          !title.includes("aspirantsamling") &&
           !title.includes("julefrokost") &&
           !title.includes("juletræsfest") &&
           !title.includes("ferie") &&
