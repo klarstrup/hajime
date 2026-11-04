@@ -444,11 +444,14 @@ const eventsSources = [
     sourceId: "shinryokudan-nansensgade-karate",
     name: "Shinryokudan - Nansensgade Karate",
     calendarUrl: "https://www.nansensgadekarate.dk/klubkalender",
-    load: async () => {
+    load: async ({ cotemporality, now }: LoadParams) => {
       const shinryokudanSquarespaceCalendarStartDate = new Date(2022, 5);
       // iterate over every month from shinryokudanSquarespaceCalendarStartDate until three empty months are encountered
       let emptyMonths = 0;
-      const currentMonth = new Date(shinryokudanSquarespaceCalendarStartDate);
+      const currentMonth =
+        cotemporality === "past"
+          ? new Date(shinryokudanSquarespaceCalendarStartDate)
+          : new Date(now);
       const shinryokudanEvents: SquareSpace.GetItemsByMonthEvent[] = [];
       while (emptyMonths < 3) {
         // fetch events for the current month
@@ -476,6 +479,8 @@ const eventsSources = [
           );
         }
         currentMonth.setMonth(currentMonth.getMonth() + 1);
+
+        if (cotemporality === "past" && currentMonth < now) break;
       }
       return shinryokudanEvents;
     },
