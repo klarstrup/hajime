@@ -181,7 +181,9 @@ export function EventList({
                           <div>
                             {federation &&
                               (title.includes("graduering") ||
-                                title.includes("mesterskab")) && (
+                                title.includes("mesterskab") ||
+                                title.toLowerCase().includes("lejr") ||
+                                title.toLowerCase().includes("gasshuku")) && (
                                 <span
                                   className={
                                     "opacity-25 ml-2 float-right " +
