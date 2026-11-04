@@ -111,6 +111,27 @@ export function EventList({
                         usedIndex = usedSources.push(event) - 1;
                       }
 
+                      const url =
+                        event.url ||
+                        gEvents.find((e) => e.url?.trim().length)?.url;
+                      let title = event.title
+                        .replaceAll(/\d\d\d\d/g, "")
+                        .trim()
+                        .replace(/ Efterår$/gi, "")
+                        .trim()
+                        .replace(/ Forår$/gi, "")
+                        .trim()
+                        .replace(/ Vinter$/gi, "")
+                        .trim()
+                        .replace(/ Sommer$/gi, "")
+                        .trim()
+                        .replace(/ –$/g, "")
+                        .trim()
+                        .replace(/-$/g, "")
+                        .trim();
+                      // prevent orphaned words by replacing the last space with a non-breaking space
+                      title = title.replace(/ (\S+)$/, "\u00A0$1");
+
                       return (
                         <li
                           key={
@@ -118,34 +139,23 @@ export function EventList({
                             event.start?.toISOString() +
                             event.end?.toISOString()
                           }
-                          className="dark:bg-gray-900 bg-white p-2 pt-1 rounded flex flex-col attribution-container"
+                          className="dark:bg-gray-900 bg-white p-2 pt-1 rounded flex flex-col attribution-container leading-tight"
                         >
                           <div>
-                            <a
-                              href={
-                                event.url ||
-                                gEvents.find((e) => e.url?.trim().length)?.url
-                              }
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-red-500 hover:underline text-lg font-medium"
-                            >
-                              {event.title
-                                .replaceAll(/\d\d\d\d/g, "")
-                                .trim()
-                                .replace(/ Efterår$/gi, "")
-                                .trim()
-                                .replace(/ Forår$/gi, "")
-                                .trim()
-                                .replace(/ Vinter$/gi, "")
-                                .trim()
-                                .replace(/ Sommer$/gi, "")
-                                .trim()
-                                .replace(/ –$/g, "")
-                                .trim()
-                                .replace(/-$/g, "")
-                                .trim()}
-                            </a>
+                            {url ? (
+                              <a
+                                href={url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-red-500 hover:underline text-xl font-medium"
+                              >
+                                {title}
+                              </a>
+                            ) : (
+                              <span className="text-gray-600 text-xl font-medium">
+                                {title}
+                              </span>
+                            )}
                             <span className="text-[8px] align-super text-gray-500 attribution -mr-1">
                               {usedIndex + 1}
                             </span>
@@ -199,7 +209,7 @@ export function EventList({
                                 usedIndex = usedSources.push(e[0]) - 1;
                               }
                               return (
-                                <span key={index}>
+                                <span key={index} className="leading-none">
                                   {e[1]}
                                   <span className="text-[8px] align-super text-gray-500 attribution -mr-1">
                                     {usedIndex + 1}
