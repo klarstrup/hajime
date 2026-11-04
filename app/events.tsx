@@ -685,7 +685,7 @@ const eventsSources = [
         `https://www.taifu.dk/klub/taifu-karate-dojo/activities?club_id=26219&content_id=3697598&activity_types=null&start=${start.toISOString()}&end=${end.toISOString()}&timeZone=Europe%2FCopenhagen`,
       ).then((events) =>
         events
-          .filter((e) => e.event_type === 4)
+          .filter((e) => e.event_type !== 2)
           .map((e) => ({
             ...e,
             title: cheerio
@@ -910,8 +910,9 @@ export const getSortedEvents = async ({
         .replace(/dan graduering/i, "Dangraduering")
         .replace(/dan-graduering/i, "Dangraduering")
         .replace(/sortbæltegradueringen/i, "Dangraduering")
-        .replace("DANMARKSMESTERSKABERNE", "DM")
-        .replace(/ - Holbæk/g, " -")
+        .replace("DANMARKSMESTERSKABERNE", "Danmarksmesterskaberne")
+        .replace(/ - Holbæk/g, "")
+        .replace(/^DM/, "Danmarksmesterskaberne")
         .replace(/^Dansk/i, "")
         .replace(/^Børne/i, "")
         .replace("SAVE THE DATE", "")
@@ -973,6 +974,7 @@ export const getSortedEvents = async ({
           .replace("Roskilde Karateklub", "Roskilde Karate Klub")
           .replace(/^Danmark$/, "")
           .replace(/, Danmark/gi, "")
+          .replace(/, DK/gi, "")
           .trim() || undefined,
     }))
     .filter(
@@ -997,6 +999,7 @@ export const getSortedEvents = async ({
         const location = (e.location || "").toLowerCase();
         return (
           !title.includes("træning") &&
+          !title.includes("tekken") &&
           !title.includes("prøvetimer") &&
           !title.includes("lukket") &&
           !title.includes("bestyrelsesmøde") &&
@@ -1049,6 +1052,7 @@ export const getSortedEvents = async ({
           !location.includes("tokyo") &&
           !location.includes("georgia") &&
           !location.includes("sverige") &&
+          !location.includes("sweden") &&
           !location.includes("barcelona") &&
           !location.includes("zoom")
         );
