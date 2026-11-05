@@ -119,7 +119,7 @@ export function EventList({
                         event.url ||
                         gEvents.find((e) => e.url?.trim().length)?.url;
                       let title = event.title
-                        .replace(/\s+/g, " ")
+                        .replaceAll(/\s+/g, " ")
                         .replaceAll(/\d\d\d\d/g, "")
                         .trim()
                         .replace(/ Efterår$/gi, "")
@@ -133,7 +133,7 @@ export function EventList({
                         .replace(/ –$/g, "")
                         .trim()
                         .replace(/-$/g, "")
-                        .replace(/\s+/g, " ")
+                        .replaceAll(/\s+/g, " ")
                         .trim();
                       // if there are more than two words, prevent orphaned words by replacing the last space with a non-breaking space
                       if (title.split(" ").length > 2) {
