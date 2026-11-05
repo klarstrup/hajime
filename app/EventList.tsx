@@ -133,8 +133,10 @@ export function EventList({
                         .trim()
                         .replace(/-$/g, "")
                         .trim();
-                      // prevent orphaned words by replacing the last space with a non-breaking space
-                      title = title.replace(/ (\S+)$/, "\u00A0$1");
+                      // if there are more than two words, prevent orphaned words by replacing the last space with a non-breaking space
+                      if (title.split(" ").length > 2) {
+                        title = title.replace(/ (\S+)$/, "\u00A0$1");
+                      }
 
                       const federations = gEvents
                         .filter((e): e is typeof e & { federation: string } =>
