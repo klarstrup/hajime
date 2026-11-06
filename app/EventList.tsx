@@ -35,7 +35,7 @@ export function EventList({
     <div className="flex flex-col max-w-160">
       <div className="flex gap-2 items-end justify-between">
         <header className="text-xl font-extrabold flex gap-2 mt-2 items-end">
-          <span className="text-[1.75rem] md:text-[2rem] lg:text-[2.5rem] xl:text-[3rem] leading-none">
+          <span className="text-[1.75rem] md:text-[2rem] lg:text-[2.5rem] xl:text-[3rem] leading-tight">
             🥋
           </span>
           <span className="text-sm 2xs:text-xl xs:text-4xl">{title}</span>
