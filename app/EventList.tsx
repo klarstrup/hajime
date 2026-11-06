@@ -191,7 +191,7 @@ export function EventList({
                                 title.toLowerCase().includes("gasshuku")) && (
                                 <span
                                   className={
-                                    "opacity-25 ml-2 float-right " +
+                                    "opacity-25 w-[calc(6*min(10px,2vw))] text-center absolute right-0 " +
                                     (federation === "*" ? "text-lg" : "text-sm")
                                   }
                                 >
