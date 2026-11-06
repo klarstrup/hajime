@@ -92,7 +92,10 @@ export function EventList({
                         .split("")
                         .map((char, index) =>
                           char === "J" ? (
-                            <span key={index} style={{letterSpacing: "-0.0125em"}}>
+                            <span
+                              key={index}
+                              style={{ letterSpacing: "-0.0125em" }}
+                            >
                               {char}
                             </span>
                           ) : (
@@ -190,7 +193,9 @@ export function EventList({
                           }
                           className="dark:bg-gray-900 bg-white p-2 pt-1 flex flex-col attribution-container leading-tight nafuda"
                         >
-                          <div>
+                          <div
+                            style={{ paddingRight: "calc(5*min(10px,2vw))" }}
+                          >
                             {federation &&
                               (title.includes("graduering") ||
                                 title.includes("mesterskab") ||
