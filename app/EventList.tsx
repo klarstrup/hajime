@@ -34,13 +34,11 @@ export function EventList({
   return (
     <div className="flex flex-col max-w-160">
       <div className="flex gap-2 items-end justify-between">
-        <header className="text-xl font-extrabold flex gap-1 items-end">
-          <span className="text-[1.75rem] md:text-[2rem] lg:text-[2.5rem] xl:text-[3rem] sticky top-0">
+        <header className="text-xl font-extrabold flex gap-2 mt-2 items-end">
+          <span className="text-[1.75rem] md:text-[2rem] lg:text-[2.5rem] xl:text-[3rem] leading-none">
             🥋
           </span>
-          <span className="text-sm 2xs:text-xl  xs:text-4xl leading-none">
-            {title}
-          </span>
+          <span className="text-sm 2xs:text-xl xs:text-4xl">{title}</span>
         </header>
         <Link
           className="text-sm text-red-400 text-right"
@@ -59,7 +57,7 @@ export function EventList({
           <div key={yearIndex} className="flex gap-1">
             <div>
               <h2
-                className="text-xl font-bold sticky -top-0.5 -mt-0.5 -mr-0.5 opacity-60 md:text-2xl lg:text-3xl xl:text-4xl"
+                className="text-xl font-bold sticky top-1 -mt-0.5 -mr-0.5 opacity-60 md:text-2xl lg:text-3xl xl:text-4xl"
                 style={{
                   writingMode: "vertical-rl",
                   textOrientation: "upright",
@@ -80,7 +78,7 @@ export function EventList({
                 <div key={yearIndex + "-" + monthIndex} className="flex">
                   <div>
                     <h2
-                      className="text-md font-bold sticky top-0 md:text-lg lg:text-xl xl:text-2xl"
+                      className="text-md font-bold sticky top-1.5 md:text-lg lg:text-xl xl:text-2xl"
                       style={{
                         writingMode: "vertical-rl",
                         textOrientation: "upright",
@@ -90,7 +88,17 @@ export function EventList({
                     >
                       {new Date(Number(yearIndex), Number(monthIndex), 1)
                         .toLocaleString("da-DK", { month: "long" })
-                        .toUpperCase()}
+                        .toUpperCase()
+                        .split("")
+                        .map((char, index) =>
+                          char === "J" ? (
+                            <span key={index} style={{letterSpacing: "-0.0125em"}}>
+                              {char}
+                            </span>
+                          ) : (
+                            <span key={index}>{char}</span>
+                          ),
+                        )}
                     </h2>
                   </div>
                   <ul className="flex flex-col gap-2 flex-1">

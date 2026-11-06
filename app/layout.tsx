@@ -1,15 +1,26 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const radianceSemibold = localFont({
+  display: "block",
+  src: [
+    {
+      path: "../fonts/radiance.ttf",
+      style: "normal",
+      weight: "400",
+    },
+    {
+      path: "../fonts/radiance-semibold.ttf",
+      style: "normal",
+      weight: "600",
+    },
+    {
+      path: "../fonts/radiance-bold.ttf",
+      style: "normal",
+      weight: "700",
+    },
+  ],
 });
 
 export const metadata: Metadata = {
@@ -25,12 +36,14 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased bg-[#f6ebda]`}
+      className={`${radianceSemibold.className} h-full antialiased bg-[#f6ebda]`}
     >
       <body className="min-h-full flex flex-col items-center bg-[#f6ebda] px-1">
         {children}
 
-        <span className="text-3xl text-gray-500 self-center mt-4 font-extralight">af io</span>
+        <span className="text-3xl text-gray-500 self-center mt-4 font-extralight">
+          af io
+        </span>
         <a
           href="https://github.com/klarstrup/hajime"
           className="text-xs text-red-500 self-center mb-4"
