@@ -52,7 +52,7 @@ body {
   opacity: 1;
 }
 
-.hafuda {
+.nafuda {
   --r: 0px; /* radius */
   --s: min(10px, 2vw); /* size of the inner curve */
   mask: radial-gradient(var(--s) at calc(100% - calc(3 * var(--s))) 50%, #0000 99%, #000 calc(100%))

@@ -180,7 +180,7 @@ export function EventList({
                             event.start?.toISOString() +
                             event.end?.toISOString()
                           }
-                          className="dark:bg-gray-900 bg-white p-2 pt-1 flex flex-col attribution-container leading-tight hafuda"
+                          className="dark:bg-gray-900 bg-white p-2 pt-1 flex flex-col attribution-container leading-tight nafuda"
                         >
                           <div>
                             {federation &&
