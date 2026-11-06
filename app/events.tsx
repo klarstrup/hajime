@@ -394,9 +394,13 @@ const eventsSources = [
 
           const startDateString =
             $el.find("time[datetime]").attr("datetime") || "";
-          const startTimeString = $el.find(".time .from").text().trim() || "";
+          const startTimeString =
+            $el.find(".time .from").text().trim() ||
+            $el.find(".time").text().trim() ||
+            "";
 
-          const isAllDay = startTimeString === "All day";
+          const isAllDay =
+            startTimeString === "All day" || startTimeString === "Hele dagen";
 
           const startDate = isAllDay
             ? new Date(`${startDateString}T00:00`)

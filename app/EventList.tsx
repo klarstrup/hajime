@@ -35,7 +35,7 @@ export function EventList({
     <div className="flex flex-col max-w-xl">
       <div className="flex gap-2 mt-2 items-baseline justify-between">
         <header className="text-xl font-extrabold flex gap-1 items-baseline">
-          <span className="text-[1.75rem] md:text-[2rem] lg:text-[2.5rem] xl:text-[3rem]">
+          <span className="text-[1.75rem] md:text-[2rem] lg:text-[2.5rem] xl:text-[3rem] sticky top-0">
             🥋
           </span>
           <span className="text-lg md:text-xl lg:text-2xl xl:text-3xl">
@@ -180,7 +180,7 @@ export function EventList({
                             event.start?.toISOString() +
                             event.end?.toISOString()
                           }
-                          className="dark:bg-gray-900 bg-white p-2 pt-1 rounded flex flex-col attribution-container leading-tight"
+                          className="dark:bg-gray-900 bg-white p-2 pt-1 flex flex-col attribution-container leading-tight hafuda"
                         >
                           <div>
                             {federation &&
