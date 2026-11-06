@@ -6,6 +6,8 @@
 }
 
 @theme inline {
+  --breakpoint-2xs: 24rem;
+  --breakpoint-xs: 30rem;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -52,9 +54,7 @@ body {
 
 .hafuda {
   --r: 0px; /* radius */
-  --s: 8px; /* size of the inner curve */
-  --_m: /calc(2 * var(--r)) calc(2 * var(--r))
-    radial-gradient(#000 70%, #0000 72%) no-repeat;
-  mask: radial-gradient(var(--s) at 95% 50%, #0000 99%, #000 calc(100% + 1px))
+  --s: min(10px, 2vw); /* size of the inner curve */
+  mask: radial-gradient(var(--s) at calc(100% - calc(3 * var(--s))) 50%, #0000 99%, #000 calc(100%))
     calc(-1 * var(--r)) var(--r) no-repeat;
 }

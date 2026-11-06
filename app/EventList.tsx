@@ -32,13 +32,13 @@ export function EventList({
     {} as Record<number, Record<number, typeof events>>,
   );
   return (
-    <div className="flex flex-col max-w-xl">
-      <div className="flex gap-2 mt-2 items-baseline justify-between">
+    <div className="flex flex-col max-w-160">
+      <div className="flex gap-2 items-baseline justify-between">
         <header className="text-xl font-extrabold flex gap-1 items-baseline">
           <span className="text-[1.75rem] md:text-[2rem] lg:text-[2.5rem] xl:text-[3rem] sticky top-0">
             🥋
           </span>
-          <span className="text-lg md:text-xl lg:text-2xl xl:text-3xl">
+          <span className="text-sm 2xs:text-xl  xs:text-4xl">
             {title}
           </span>
         </header>
@@ -268,6 +268,9 @@ export function EventList({
                                 <span
                                   key={index}
                                   className="leading-none opacity-90 font-medium"
+                                  style={{
+                                    paddingRight: "calc(3 * min(10px, 2vw))",
+                                  }}
                                 >
                                   {e[1]}
                                   <span className="text-[8px] align-super text-gray-500 attribution -mr-1">
@@ -338,6 +341,9 @@ export function EventList({
                                 <span
                                   key={index}
                                   className="text-sm text-gray-400 flex gap-0.5 items-baseline"
+                                  style={{
+                                    paddingRight: "calc(3 * min(10px, 2vw))",
+                                  }}
                                 >
                                   <span className="text-gray-400 text-[11px]">
                                     @
