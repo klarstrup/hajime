@@ -396,7 +396,11 @@ const eventsSources = [
             $el.find("time[datetime]").attr("datetime") || "";
           const startTimeString = $el.find(".time .from").text().trim() || "";
 
-          const startDate = new Date(`${startDateString}T${startTimeString}`);
+          const isAllDay = startTimeString === "All Day";
+
+          const startDate = isAllDay
+            ? new Date(`${startDateString}T00:00`)
+            : new Date(`${startDateString}T${startTimeString}`);
 
           const endTimeString = $el.find(".time .to").text().trim() || "";
 
@@ -437,7 +441,9 @@ const eventsSources = [
             )
             .join("-")}T${endTimeString}`;
 
-          const endDate = new Date(endDateTimeString);
+          const endDate = isAllDay
+            ? endOfDay(startDate, { in: tz("Europe/Copenhagen") })
+            : new Date(endDateTimeString);
 
           return {
             title: $el.find("h2").text().trim(),
