@@ -33,12 +33,12 @@ export function EventList({
   );
   return (
     <div className="flex flex-col max-w-160">
-      <div className="flex gap-2 items-baseline justify-between">
-        <header className="text-xl font-extrabold flex gap-1 items-baseline">
+      <div className="flex gap-2 items-end justify-between">
+        <header className="text-xl font-extrabold flex gap-1 items-end">
           <span className="text-[1.75rem] md:text-[2rem] lg:text-[2.5rem] xl:text-[3rem] sticky top-0">
             🥋
           </span>
-          <span className="text-sm 2xs:text-xl  xs:text-4xl">
+          <span className="text-sm 2xs:text-xl  xs:text-4xl leading-none">
             {title}
           </span>
         </header>
