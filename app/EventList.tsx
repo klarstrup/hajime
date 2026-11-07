@@ -41,7 +41,7 @@ export function EventList({
           <span className="text-sm 2xs:text-xl xs:text-4xl">{title}</span>
         </header>
         <Link
-          className="text-sm text-red-400 text-right"
+          className="text-xs 2xs:text-sm text-red-400 text-right"
           href={cotemporality === "past" ? `/` : (`/fortid` as `/`)}
         >
           {cotemporality === "past"
