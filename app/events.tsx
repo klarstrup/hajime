@@ -6,6 +6,7 @@ import {
   endOfDay,
   isDate,
   startOfDay,
+  startOfToday,
 } from "date-fns";
 import { isEqual } from "date-fns/fp/isEqual";
 import { convertIcsCalendar } from "ts-ics";
@@ -1057,7 +1058,7 @@ export const fetchEvents = async ({
   cotemporality: "past" | "future";
 }) => {
   "use cache";
-  const now = new Date();
+  const now = startOfToday({ in: tz("Europe/Copenhagen") });
 
   return Promise.all(
     eventsSources.map((source) => {
@@ -1104,6 +1105,7 @@ export const getSortedEvents = async ({
   cotemporality: "past" | "future";
 }) => {
   "use cache";
+  const now = startOfToday({ in: tz("Europe/Copenhagen") });
 
   const allEvents = await fetchEvents({ cotemporality });
 
@@ -1228,9 +1230,7 @@ export const getSortedEvents = async ({
         }
         return (
           e.start &&
-          (cotemporality === "past"
-            ? e.start <= new Date()
-            : e.start >= new Date())
+          (cotemporality === "past" ? e.start <= now : e.start >= now)
         );
       },
     )
