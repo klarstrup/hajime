@@ -1065,6 +1065,8 @@ export const fetchEvents = async ({
   cotemporality: "past" | "future";
 }) => {
   "use cache";
+  // a TZDate will stringify with its local time zone representation, which parsers can
+  // fail to parse, so we convert it to a standard Date object which always toISOString()'s in Z(UTC)
   const now = new Date(startOfToday({ in: tz("Europe/Copenhagen") }));
 
   // For debugging
