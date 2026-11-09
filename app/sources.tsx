@@ -591,6 +591,145 @@ const eventsSources = [
       })
         .then((r) => r.json() as Promise<AllEventsResponse>)
         .then((data) => data.data),
+    async *loadClasses() {
+      const $res = await fetch$("https://roskildekarateklub.dk/hold-priser");
+
+      let times = $res("p")
+        .filter((_, el) => {
+          const text = $res(el).text();
+          return (
+            text.includes("Mandag") ||
+            text.includes("Tirsdag") ||
+            text.includes("Onsdag") ||
+            text.includes("Torsdag") ||
+            text.includes("Fredag") ||
+            text.includes("Lørdag") ||
+            text.includes("Søndag")
+          );
+        })
+        .parent()
+        .parent()
+        .parent();
+
+      times.find("br").replaceWith("\n");
+
+      times = times.filter((i, e) => {
+        const text = $res(e).text();
+        for (let j = 0; j < i; j++)
+          if ($res(times[j]).text() === text) return false;
+
+        return true;
+      });
+
+      const holdLines = times
+        .map(
+          (_, el) =>
+            [
+              $res(el).parent().find("h2").text(),
+              nlp
+                .readDoc(render($res(el)).replace(/(\d+)\./g, "$1[DOT]"))
+                .sentences()
+                .out()
+                .flatMap((s) => s.replace(/\[DOT\]/g, ".").split(/\.?\n/))
+                .flatMap((line) => {
+                  const lineHasWeekday = [
+                    "Mandag",
+                    "Tirsdag",
+                    "Onsdag",
+                    "Torsdag",
+                    "Fredag",
+                    "Lørdag",
+                    "Søndag",
+                  ].find((weekday) => line.includes(weekday));
+                  if (!lineHasWeekday) return line;
+
+                  return line
+                    .split(new RegExp(lineHasWeekday + ":?"))
+                    .flatMap((part, i, l) =>
+                      i === 0 && l.length > 1 ? [lineHasWeekday, part] : part,
+                    );
+                })
+                .filter((line) => line.trim())
+                .map((line) => line.trim()),
+            ] as const,
+        )
+        .toArray()
+        .filter(Boolean)
+        .reduce(
+          (acc, item) => {
+            if (typeof item === "string") {
+              acc.push([item, []]);
+            } else {
+              acc[acc.length - 1][1].push(...item);
+            }
+            return acc;
+          },
+          [] as [string, string[]][],
+        );
+
+      console.log(holdLines);
+
+      let weekday: Weekday | undefined = undefined;
+      let timeRange: string | undefined = undefined;
+      let className: string | undefined = undefined;
+
+      // The lines are class name, weekday names and time range of day. In that order. Assemble them into structured data.
+      for (const [superHold, lines] of holdLines) {
+        weekday = undefined;
+        timeRange = undefined;
+        className = undefined;
+        for (const line of lines) {
+          const newWeekday = getRRuleWeekdayByFullDanishName(line);
+          const timeRangeMatch = line.match(
+            /\d{1,2}:\d{2} ?[–-] ?\d{1,2}:\d{2}/,
+          );
+          // if it's not a time range or a weekday, it must be a class
+          if (!timeRangeMatch && !newWeekday) {
+            weekday = undefined;
+            timeRange = undefined;
+            className = superHold + " " + line;
+          }
+          if (newWeekday) weekday = newWeekday;
+          if (timeRangeMatch) timeRange = timeRangeMatch[0];
+
+          if (weekday && timeRange && className) {
+            const start = new Date();
+            start.setHours(parseInt(timeRange.split(":")[0], 10));
+            start.setMinutes(
+              parseInt(timeRange.split(":")[1].split(" ")[0], 10),
+            );
+            start.setSeconds(0);
+            start.setMilliseconds(0);
+            const end = new Date();
+            end.setHours(
+              parseInt(timeRange.split(/[–-]/)[1].split(":")[0], 10),
+            );
+            end.setMinutes(
+              parseInt(
+                timeRange.split(/[–-]/)[1].split(":")[1].split(" ")[0],
+                10,
+              ),
+            );
+            end.setSeconds(0);
+            end.setMilliseconds(0);
+
+            const nextStart = new RRule({
+              byweekday: weekday,
+              freq: RRule.WEEKLY,
+              dtstart: start,
+            }).after(new Date());
+
+            if (!nextStart) continue;
+
+            const nextEnd = new Date(
+              nextStart.getTime() + end.getTime() - start.getTime(),
+            );
+
+            yield { className, nextStart, nextEnd };
+          }
+        }
+      }
+    },
   },
   {
     sourceId: "roskilde-karate-klub",
