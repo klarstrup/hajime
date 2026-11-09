@@ -185,7 +185,7 @@ namespace KarateKlubbenKyokushinkai {
   }
 }
 
-export interface FullCalendarEvent {
+export interface HoldsportActivity {
   id: number;
   start: Date;
   title: string;
@@ -324,6 +324,48 @@ const fetchIcsEvents = async (url: string | URL) =>
         },
   }));
 const fetch$ = async (url: string) => cheerio.load(await fetchText(url));
+
+const fetchHoldsportEvents = async (
+  {
+    activitiesEndpointUrl,
+    clubId,
+    contentId,
+  }: {
+    activitiesEndpointUrl: string | URL;
+    clubId: number;
+    contentId: number;
+  },
+  { cotemporality, now }: LoadParams,
+) => {
+  const start = cotemporality === "past" ? farPast : now;
+  const end = cotemporality === "future" ? farFuture : now;
+  const eventsUrl = new URL(activitiesEndpointUrl);
+  eventsUrl.searchParams.set("club_id", String(clubId));
+  eventsUrl.searchParams.set("content_id", String(contentId));
+  eventsUrl.searchParams.set("activity_types", "null");
+  eventsUrl.searchParams.set("start", start.toISOString());
+  eventsUrl.searchParams.set("end", end.toISOString());
+  eventsUrl.searchParams.set("timeZone", "Europe/Copenhagen");
+
+  const events = await fetchJson<HoldsportActivity[]>(eventsUrl);
+  return events
+    .filter((e) => e.event_type === 4)
+    .map((e) => ({
+      ...e,
+      title: cheerio
+        .load(e.title)(".inner_event_wrapper > div")
+        .eq(0)
+        .text()
+        .replace(cheerio.load(e.title)(".event_time").text(), ""),
+      description: cheerio.load(e.tooltip).text(),
+      start: new Date(e.start),
+      end: e.end ? new Date(e.end) : null,
+      location: cheerio
+        .load(e.tooltip)(".activity_tooltip_subinfo")
+        .eq(1)
+        .text(),
+    }));
+};
 
 const farPast = new Date(2010, 0, 1);
 const farFuture = new Date(2030, 0, 1);
@@ -776,30 +818,18 @@ const eventsSources = [
     federation: "kwo-smo",
     calendarUrl:
       "https://www.amagerkarateskole.dk/klub/jinzen-do/sider/h1-style-text-align-center-kalender-h1",
-    loadEvents: async ({ cotemporality, now }: LoadParams) => {
-      const start = cotemporality === "past" ? farPast : now;
-      const end = cotemporality === "future" ? farFuture : now;
-      const events = await fetchJson<FullCalendarEvent[]>(
-        `https://www.amagerkarateskole.dk/klub/jinzen-do/activities?club_id=27671&content_id=703630&activity_types=null&start=${start.toISOString()}&end=${end.toISOString()}&timeZone=Europe%2FBerlin`,
-      );
-      return events
-        .filter((e) => e.event_type === 4)
-        .map((e) => ({
-          ...e,
-          title: cheerio
-            .load(e.title)(".inner_event_wrapper > div")
-            .eq(0)
-            .text()
-            .replace(cheerio.load(e.title)(".event_time").text(), ""),
-          description: cheerio.load(e.tooltip).text(),
-          start: new Date(e.start),
-          end: e.end ? new Date(e.end) : null,
-          location: cheerio
-            .load(e.tooltip)(".activity_tooltip_subinfo")
-            .eq(1)
-            .text(),
-        }));
-    },
+    loadEvents: (loadParams: LoadParams) =>
+      fetchHoldsportEvents(
+        {
+          activitiesEndpointUrl:
+            "https://www.amagerkarateskole.dk/klub/jinzen-do/activities",
+          clubId: 27671,
+          contentId: 703630,
+        },
+        loadParams,
+      ).then((events) =>
+        events.filter((e) => e.event_type !== 2 && e.event_type !== 3),
+      ),
   },
   {
     sourceId: "gilleleje-karate",
@@ -807,38 +837,16 @@ const eventsSources = [
     federation: "jks",
     calendarUrl:
       "https://www.gilleleje-karate.dk/klub/gilleleje-karate-klub/sider/h1-style-text-align-center-kalender-h1",
-    loadEvents: async ({ cotemporality, now }: LoadParams) => {
-      const start = cotemporality === "past" ? farPast : now;
-      const end = cotemporality === "future" ? farFuture : now;
-      const eventsUrl = new URL(
-        `https://www.gilleleje-karate.dk/klub/gilleleje-karate-klub/activities?club_id=34372&content_id=2921593&activity_types=null&timeZone=Europe%2FCopenhagen`,
-      );
-      eventsUrl.searchParams.set("start", start.toISOString());
-      eventsUrl.searchParams.set("end", end.toISOString());
-      const events = await fetchJson<FullCalendarEvent[]>(eventsUrl);
-      return events
-        .filter((e) => e.event_type !== 148927)
-        .map((e) => ({
-          ...e,
-          title: cheerio
-            .load(e.title)(".inner_event_wrapper > div")
-            .eq(0)
-            .text()
-            .replace(cheerio.load(e.title)(".event_time").text(), ""),
-          description: cheerio.load(e.tooltip).text(),
-          start: new Date(e.start),
-          end: e.end
-            ? new Date(e.end)
-            : endOfDay(new Date(e.start), { in: tz("Europe/Copenhagen") }),
-          location: cheerio
-            .load(e.tooltip)(".activity_tooltip_subinfo")
-            .eq(1)
-            .text(),
-        }))
-        .filter(
-          (e) => !e.title.includes("HJÆLPER") && !e.title.includes("OPSÆTNING"),
-        );
-    },
+    loadEvents: (loadParams: LoadParams) =>
+      fetchHoldsportEvents(
+        {
+          activitiesEndpointUrl:
+            "https://www.gilleleje-karate.dk/klub/gilleleje-karate-klub/activities",
+          clubId: 34372,
+          contentId: 2921593,
+        },
+        loadParams,
+      ).then((events) => events.filter((e) => e.event_type !== 148927)),
   },
   {
     sourceId: "ashihara-karate-kobenhavn",
@@ -846,30 +854,16 @@ const eventsSources = [
     federation: "dao",
     calendarUrl:
       "https://www.ak-kbh.dk/klub/ashihara-karate-kobenhavn/sider/aktiviteter",
-    loadEvents: async ({ cotemporality, now }: LoadParams) => {
-      const start = cotemporality === "past" ? farPast : now;
-      const end = cotemporality === "future" ? farFuture : now;
-      const events = await fetchJson<FullCalendarEvent[]>(
-        `https://www.ak-kbh.dk/klub/ashihara-karate-kobenhavn/activities?club_id=43859&content_id=3764362&activity_types=null&start=${start.toISOString()}&end=${end.toISOString()}&timeZone=Europe%2FCopenhagen`,
-      );
-      return events
-        .filter((e) => e.event_type === 4)
-        .map((e) => ({
-          ...e,
-          title: cheerio
-            .load(e.title)(".inner_event_wrapper > div")
-            .eq(0)
-            .text()
-            .replace(cheerio.load(e.title)(".event_time").text(), ""),
-          description: cheerio.load(e.tooltip).text(),
-          start: new Date(e.start),
-          end: e.end ? new Date(e.end) : null,
-          location: cheerio
-            .load(e.tooltip)(".activity_tooltip_subinfo")
-            .eq(1)
-            .text(),
-        }));
-    },
+    loadEvents: (loadParams: LoadParams) =>
+      fetchHoldsportEvents(
+        {
+          activitiesEndpointUrl:
+            "https://www.ak-kbh.dk/klub/ashihara-karate-kobenhavn/activities",
+          clubId: 43859,
+          contentId: 3764362,
+        },
+        loadParams,
+      ).then((events) => events.filter((e) => e.event_type !== 9)),
   },
   {
     sourceId: "taifu-karate-dojo",
@@ -877,31 +871,16 @@ const eventsSources = [
     calendarUrl:
       "https://www.taifu.dk/klub/taifu-karate-dojo/sider/aktiviteter",
     federation: "dkarf",
-    loadEvents: async ({ cotemporality, now }: LoadParams) => {
-      const start = cotemporality === "past" ? farPast : now;
-      const end = cotemporality === "future" ? farFuture : now;
-      return fetchJson<FullCalendarEvent[]>(
-        `https://www.taifu.dk/klub/taifu-karate-dojo/activities?club_id=26219&content_id=3697598&activity_types=null&start=${start.toISOString()}&end=${end.toISOString()}&timeZone=Europe%2FCopenhagen`,
-      ).then((events) =>
-        events
-          .filter((e) => e.event_type !== 2)
-          .map((e) => ({
-            ...e,
-            title: cheerio
-              .load(e.title)(".inner_event_wrapper > div")
-              .eq(0)
-              .text()
-              .replace(cheerio.load(e.title)(".event_time").text(), ""),
-            description: cheerio.load(e.tooltip).text(),
-            start: new Date(e.start),
-            end: e.end ? new Date(e.end) : null,
-            location: cheerio
-              .load(e.tooltip)(".activity_tooltip_subinfo")
-              .eq(1)
-              .text(),
-          })),
-      );
-    },
+    loadEvents: (loadParams: LoadParams) =>
+      fetchHoldsportEvents(
+        {
+          activitiesEndpointUrl:
+            "https://www.taifu.dk/klub/taifu-karate-dojo/activities",
+          clubId: 26219,
+          contentId: 3697598,
+        },
+        loadParams,
+      ).then((events) => events.filter((e) => e.event_type !== 2)),
   },
   {
     sourceId: "kumite-technology",
