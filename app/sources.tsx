@@ -348,23 +348,21 @@ const fetchHoldsportEvents = async (
   eventsUrl.searchParams.set("timeZone", "Europe/Copenhagen");
 
   const events = await fetchJson<HoldsportActivity[]>(eventsUrl);
-  return events
-    .filter((e) => e.event_type === 4)
-    .map((e) => ({
-      ...e,
-      title: cheerio
-        .load(e.title)(".inner_event_wrapper > div")
-        .eq(0)
-        .text()
-        .replace(cheerio.load(e.title)(".event_time").text(), ""),
-      description: cheerio.load(e.tooltip).text(),
-      start: new Date(e.start),
-      end: e.end ? new Date(e.end) : null,
-      location: cheerio
-        .load(e.tooltip)(".activity_tooltip_subinfo")
-        .eq(1)
-        .text(),
-    }));
+  return events.map((e) => ({
+    ...e,
+    title: cheerio
+      .load(e.title)(".inner_event_wrapper > div")
+      .eq(0)
+      .text()
+      .replace(cheerio.load(e.title)(".event_time").text(), ""),
+    description: cheerio.load(e.tooltip).text(),
+    start: new Date(e.start),
+    end: e.end ? new Date(e.end) : null,
+    location: cheerio
+      .load(e.tooltip)(".activity_tooltip_subinfo")
+      .has(".fa-location-pin")
+      .text(),
+  }));
 };
 
 const farPast = new Date(2010, 0, 1);
