@@ -803,7 +803,11 @@ const eventsSources = [
       times.find("br").replaceWith("\n");
 
       const holdLines = nlp
-        .readDoc(render(times).replace(/(\d+)\./g, "$1[DOT]"))
+        .readDoc(
+          render(times)
+            .replace(/(\d+)\./g, "$1[DOT]")
+            .replace(/(min)\. (\d+)/g, "$1[DOT] $2"),
+        )
         .sentences()
         .out()
         .flatMap((s) => s.replace(/\[DOT\]/g, ".").split(/\.?\n/))
