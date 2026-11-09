@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Fragment } from "react";
-import type { getSortedEvents } from "./events";
+import type { getSortedEvents } from "./sources";
 import { fuseCompare } from "./utils";
 
 const timeZone = "Europe/Copenhagen";

@@ -340,7 +340,7 @@ const eventsSources = [
     federation: "dku",
     calendarUrl:
       "https://www.facebook.com/profile.php?id=100064868797020&sk=events",
-    load: ({ cotemporality }: LoadParams) =>
+    loadEvents: ({ cotemporality }: LoadParams) =>
       fetch("https://allevents.in/api/index.php/organizer/web/get_events", {
         body: `{"organizer_id":"20980280","past":${cotemporality === "future" ? 0 : 1},"count":99,"city":0,"past_events_filter":0}`,
         method: "POST",
@@ -353,7 +353,7 @@ const eventsSources = [
     name: "Dansk Karate Union",
     federation: "dku",
     calendarUrl: "https://kyokushin.dk/kalender/",
-    load: ({ cotemporality }: { cotemporality: "past" | "future" }) =>
+    loadEvents: ({ cotemporality }: { cotemporality: "past" | "future" }) =>
       fetchIcsEvents(
         `https://kyokushin.dk/kalender/?ical=1${cotemporality === "past" ? "&eventDisplay=past" : ""}`,
       ),
@@ -362,7 +362,7 @@ const eventsSources = [
     sourceId: "karatestævner",
     name: "Karatestævner",
     calendarUrl: "https://xn--karatestvner-edb.dk/",
-    load: () =>
+    loadEvents: () =>
       fetchIcsEvents(`https://karatestævner.dk/eksport/alle-alle.ics`),
   },
   {
@@ -370,7 +370,7 @@ const eventsSources = [
     name: "Bushi Karate & Combat Sport",
     federation: "dkarf",
     calendarUrl: "https://www.bushi.dk/kalender--events/kalender",
-    load: () =>
+    loadEvents: () =>
       fetchIcsEvents(
         "https://calendar.google.com/calendar/ical/890f871f68c1185a2c3eb0c2f7ce3c52fd4724be39afae0c1f2f5f598e051548%40group.calendar.google.com/public/basic.ics",
       ).then((events) =>
@@ -382,7 +382,7 @@ const eventsSources = [
     name: "Bushi Karate & Combat Sport",
     federation: "dkarf",
     calendarUrl: "https://www.bushi.dk/kalender--events/events",
-    load: async ({ cotemporality }: LoadParams) => {
+    loadEvents: async ({ cotemporality }: LoadParams) => {
       if (cotemporality === "past") return [];
 
       const bushi$ = await fetch$(
@@ -470,7 +470,7 @@ const eventsSources = [
     name: "BS Karate",
     federation: "wkb",
     calendarUrl: "https://bskarate.dk/events/",
-    load: ({ cotemporality }: LoadParams) =>
+    loadEvents: ({ cotemporality }: LoadParams) =>
       fetchIcsEvents(
         `https://www.bskarate.dk/events/liste/?ical=1${cotemporality === "past" ? "&eventDisplay=past" : ""}`,
       ).then((events) =>
@@ -485,7 +485,7 @@ const eventsSources = [
     name: "Karateklubben Kenzoku",
     federation: "dku",
     calendarUrl: "https://kenzoku-karate.dk/kalender",
-    load: () =>
+    loadEvents: () =>
       fetchIcsEvents(
         "https://calendar.google.com/calendar/ical/b418b06beb19586d457e0914c5faa192e5823a33120645206a58c61c8bac1565%40group.calendar.google.com/public/basic.ics",
       ),
@@ -496,7 +496,7 @@ const eventsSources = [
     federation: "dku",
     calendarUrl:
       "https://www.facebook.com/profile.php?id=100063654665814&sk=events",
-    load: ({ cotemporality }: LoadParams) =>
+    loadEvents: ({ cotemporality }: LoadParams) =>
       fetch("https://allevents.in/api/index.php/organizer/web/get_events", {
         body: `{"organizer_id":"20470410","past":${cotemporality === "future" ? 0 : 1},"count":99,"city":0,"past_events_filter":0}`,
         method: "POST",
@@ -509,7 +509,7 @@ const eventsSources = [
     name: "Roskilde Karate Klub",
     federation: "dku",
     calendarUrl: "https://roskildekarateklub.dk/events",
-    load: () =>
+    loadEvents: () =>
       fetchIcsEvents(
         "https://calendar.google.com/calendar/ical/ph0n9gra71t3a81ksfjkhts7mc%40group.calendar.google.com/public/basic.ics",
       ),
@@ -519,7 +519,7 @@ const eventsSources = [
     name: "Shobu Ippon Denmark",
     federation: "dkarf",
     calendarUrl: "https://shobuippondanmark.dk/?post_type=tribe_events",
-    load: ({ cotemporality }: LoadParams) =>
+    loadEvents: ({ cotemporality }: LoadParams) =>
       fetchIcsEvents(
         `https://shobuippondanmark.dk/?post_type=tribe_events&eventDisplay=list${cotemporality === "past" ? "&tribe_event_display=past" : ""}&ical=1`,
       ),
@@ -529,7 +529,7 @@ const eventsSources = [
     name: "Budokan Karate Solrød",
     federation: "dkarf",
     calendarUrl: "https://www.budokan-solrod.dk/events/",
-    load: ({ cotemporality }: LoadParams) =>
+    loadEvents: ({ cotemporality }: LoadParams) =>
       fetchIcsEvents(
         `https://www.budokan-solrod.dk/events/?post_type=tribe_events&eventDisplay=list${cotemporality === "past" ? "&tribe_event_display=past" : ""}&ical=1`,
       ),
@@ -539,7 +539,7 @@ const eventsSources = [
     name: "Farum Kyokushin",
     federation: "dku",
     calendarUrl: "https://farumkyokushin.dk/kalenderliste/",
-    load: async () => {
+    loadEvents: async () => {
       const farumKyokushin$ = await fetch$(
         "https://farumkyokushin.dk/kalenderliste/",
       );
@@ -568,7 +568,7 @@ const eventsSources = [
     name: "Sportskarate.dk",
     federation: "dkarf",
     calendarUrl: "https://sportskarate.dk/cms/Activity.aspx",
-    load: async ({ cotemporality, now }: LoadParams) => {
+    loadEvents: async ({ cotemporality, now }: LoadParams) => {
       const start = cotemporality === "past" ? farPast : now;
       const end = cotemporality === "future" ? farFuture : now;
       return fetchJson<KarateKlubbenKyokushinkai.Event[]>(
@@ -593,7 +593,7 @@ const eventsSources = [
     name: "Karateklubben Kyokushinkai København",
     federation: "dku",
     calendarUrl: "https://karateklub.com/cms/Activity.aspx",
-    load: async ({ cotemporality, now }: LoadParams) => {
+    loadEvents: async ({ cotemporality, now }: LoadParams) => {
       const start = cotemporality === "past" ? farPast : now;
       const end = cotemporality === "future" ? farFuture : now;
       return fetchJson<KarateKlubbenKyokushinkai.Event[]>(
@@ -616,7 +616,7 @@ const eventsSources = [
     name: "Karate-Do Gentofte",
     federation: "dkarf",
     calendarUrl: "https://karate-do-gentofte.dk/cms/Activity.aspx",
-    load: async ({ cotemporality, now }: LoadParams) => {
+    loadEvents: async ({ cotemporality, now }: LoadParams) => {
       const start = cotemporality === "past" ? farPast : now;
       const end = cotemporality === "future" ? farFuture : now;
       return fetchJson<KarateKlubbenKyokushinkai.Event[]>(
@@ -642,7 +642,7 @@ const eventsSources = [
     name: "Gentofte Shotokan Karate-Do Kai",
     federation: "hdki",
     calendarUrl: "https://gentoftekarate.dk/cms/Activity.aspx",
-    load: async ({ cotemporality, now }: LoadParams) => {
+    loadEvents: async ({ cotemporality, now }: LoadParams) => {
       const start = cotemporality === "past" ? farPast : now;
       const end = cotemporality === "future" ? farFuture : now;
       return []; // No public events on their calendar i think.
@@ -666,7 +666,7 @@ const eventsSources = [
     name: "Nivå Budoklub",
     federation: "wkb",
     calendarUrl: "https://nbudo.klub-modul.dk/cms/Activity.aspx",
-    load: async ({ cotemporality, now }: LoadParams) => {
+    loadEvents: async ({ cotemporality, now }: LoadParams) => {
       const start = cotemporality === "past" ? farPast : now;
       const end = cotemporality === "future" ? farFuture : now;
       return fetchJson<KarateKlubbenKyokushinkai.Event[]>(
@@ -692,7 +692,7 @@ const eventsSources = [
     name: "Gladsaxe Karate Klub",
     federation: "dkarf",
     calendarUrl: "https://gladsaxekarateklub.dk/cms/Activity.aspx",
-    load: async ({ cotemporality, now }: LoadParams) => {
+    loadEvents: async ({ cotemporality, now }: LoadParams) => {
       const start = cotemporality === "past" ? farPast : now;
       const end = cotemporality === "future" ? farFuture : now;
       const events = await fetchJson<KarateKlubbenKyokushinkai.Event[]>(
@@ -728,7 +728,7 @@ const eventsSources = [
     name: "Shinryokudan - Nansensgade Karate",
     federation: "dku",
     calendarUrl: "https://www.nansensgadekarate.dk/klubkalender",
-    load: async ({ cotemporality, now }: LoadParams) => {
+    loadEvents: async ({ cotemporality, now }: LoadParams) => {
       const shinryokudanSquarespaceCalendarStartDate = new Date(2022, 5);
       // iterate over every month from shinryokudanSquarespaceCalendarStartDate until three empty months are encountered
       let emptyMonths = 0;
@@ -776,7 +776,7 @@ const eventsSources = [
     federation: "kwo-smo",
     calendarUrl:
       "https://www.amagerkarateskole.dk/klub/jinzen-do/sider/h1-style-text-align-center-kalender-h1",
-    load: async ({ cotemporality, now }: LoadParams) => {
+    loadEvents: async ({ cotemporality, now }: LoadParams) => {
       const start = cotemporality === "past" ? farPast : now;
       const end = cotemporality === "future" ? farFuture : now;
       const events = await fetchJson<FullCalendarEvent[]>(
@@ -807,7 +807,7 @@ const eventsSources = [
     federation: "jks",
     calendarUrl:
       "https://www.gilleleje-karate.dk/klub/gilleleje-karate-klub/sider/h1-style-text-align-center-kalender-h1",
-    load: async ({ cotemporality, now }: LoadParams) => {
+    loadEvents: async ({ cotemporality, now }: LoadParams) => {
       const start = cotemporality === "past" ? farPast : now;
       const end = cotemporality === "future" ? farFuture : now;
       const events = await fetchJson<FullCalendarEvent[]>(
@@ -843,7 +843,7 @@ const eventsSources = [
     federation: "dao",
     calendarUrl:
       "https://www.ak-kbh.dk/klub/ashihara-karate-kobenhavn/sider/aktiviteter",
-    load: async ({ cotemporality, now }: LoadParams) => {
+    loadEvents: async ({ cotemporality, now }: LoadParams) => {
       const start = cotemporality === "past" ? farPast : now;
       const end = cotemporality === "future" ? farFuture : now;
       const events = await fetchJson<FullCalendarEvent[]>(
@@ -874,7 +874,7 @@ const eventsSources = [
     calendarUrl:
       "https://www.taifu.dk/klub/taifu-karate-dojo/sider/aktiviteter",
     federation: "dkarf",
-    load: async ({ cotemporality, now }: LoadParams) => {
+    loadEvents: async ({ cotemporality, now }: LoadParams) => {
       const start = cotemporality === "past" ? farPast : now;
       const end = cotemporality === "future" ? farFuture : now;
       return fetchJson<FullCalendarEvent[]>(
@@ -904,7 +904,11 @@ const eventsSources = [
     sourceId: "kumite-technology",
     name: "Kumite Technology",
     calendarUrl: "https://kumitetechnology.com/en/tournament/?countryCode=DK",
-    load: async ({ cotemporality }: { cotemporality: "past" | "future" }) => {
+    loadEvents: async ({
+      cotemporality,
+    }: {
+      cotemporality: "past" | "future";
+    }) => {
       const response = await fetch("https://kumitetechnology.com/api/graphql", {
         headers: { "content-type": "application/json" },
         body: `{"query":"query Events {\\n  events(filter: {address: {countryCode: {_eq: \\"DK\\"}}}, futureEvents: ${cotemporality === "future" ? "true" : "false"} ) {\\n    edges {\\n      node {\\n        id\\n        entityId\\n info        name\\n        website\\n        date\\n        type\\n        cover\\n        isActivated\\n        discipline\\n#        categories {          id          name        }\\n#        registration {          registrationStartDate          registrationEndDate        }\\n        address {\\n          fullAddress\\n          countryCode\\n          region\\n          city\\n          country {\\n            name\\n            code\\n          }\\n        }\\n      }\\n    }\\n  }\\n}","operationName":"Events"}`,
@@ -950,7 +954,7 @@ const eventsSources = [
     name: "International Okinawan Goju Ryu Karate-do Federation – Danmark",
     federation: "iogkf",
     calendarUrl: "https://www.iogkf.dk/iogkf-events/",
-    load: async () => {
+    loadEvents: async () => {
       const $ = await fetch$("https://www.iogkf.dk/iogkf-events/");
 
       const events = $(".event_listing")
@@ -988,7 +992,7 @@ const eventsSources = [
     name: "Fight Collective",
     federation: "*",
     calendarUrl: "https://fightcollective.dk/events",
-    load: async ({ cotemporality }: LoadParams) =>
+    loadEvents: async ({ cotemporality }: LoadParams) =>
       fetchJson<FightCollectiveEvent[]>(
         cotemporality === "future"
           ? "https://fight-collective-bot-production.up.railway.app/api/events"
@@ -1017,7 +1021,7 @@ const eventsSources = [
     federation: "dkarf", // wkf really
     calendarUrl:
       "https://www.sportdata.org/karate/set-online/calendar_main.php",
-    load: () =>
+    loadEvents: () =>
       fetchIcsEvents(
         "https://www.google.com/calendar/ical/office@sportdata.org/public/basic.ics",
       ).then((events) =>
@@ -1067,7 +1071,7 @@ export const fetchEvents = async ({
           `Loading events for source: ${source.name} ${source.calendarUrl} ${cotemporality}`,
         );
       }
-      const events = source.load({ cotemporality, now }).then((events) =>
+      const events = source.loadEvents({ cotemporality, now }).then((events) =>
         events.map((e) => ({
           federation:
             "federation" in source
