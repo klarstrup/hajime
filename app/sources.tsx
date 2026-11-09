@@ -406,6 +406,16 @@ const eventsSources = [
       fetchIcsEvents(`https://karatestævner.dk/eksport/alle-alle.ics`),
   },
   {
+    sourceId: "ashihara-karate-sonderborg",
+    name: "Ashihara Karate Sønderborg",
+    federation: "dao",
+    calendarUrl: "https://www.ashihara-sonderborg.dk/",
+    loadEvents: () =>
+      fetchIcsEvents(
+        `https://calendar.google.com/calendar/ical/ashihara.karate.sonderborg%40gmail.com/public/basic.ics`,
+      ),
+  },
+  {
     sourceId: "bushi-karate",
     name: "Bushi Karate & Combat Sport",
     federation: "dkarf",
