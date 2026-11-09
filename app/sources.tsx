@@ -406,6 +406,16 @@ const eventsSources = [
       fetchIcsEvents(`https://karatestævner.dk/eksport/alle-alle.ics`),
   },
   {
+    sourceId: "hadsund-karate-skole",
+    name: "Hadsund Karate Skole",
+    federation: "dao",
+    calendarUrl: "https://ashiharahadsund.dk/kalender/",
+    loadEvents: () =>
+      fetchIcsEvents(
+        `https://calendar.google.com/calendar/ical/ashiharakaratehadsund@gmail.com/public/basic.ics`,
+      ),
+  },
+  {
     sourceId: "ashihara-karate-sonderborg",
     name: "Ashihara Karate Sønderborg",
     federation: "dao",
@@ -1133,118 +1143,127 @@ export const getSortedEvents = async ({
   const allEvents = await fetchEvents({ cotemporality });
 
   const sortedEvents = allEvents
-    .map((e) => ({
-      ...e,
-      id: String(
-        e.sourceId +
-          "-" +
-          ("uid" in e
-            ? e.uid
-            : "id" in e
-              ? e.id
-              : "fullUrl" in e
-                ? e.fullUrl
-                : "url" in e
-                  ? e.url
-                  : (e satisfies never)),
-      ),
-      url:
-        "fullUrl" in e
-          ? e.fullUrl
-          : "url" in e
-            ? e.url
-            : "linkEvent" in e
-              ? e.linkEvent
-              : "entityId" in e && e.entityId
-                ? `https://kumitetechnology.com/en/tournament/${e.entityId}/`
-                : /*"origin_url" in e
+    .map((e) => {
+      let title =
+        "summary" in e
+          ? e.summary || null
+          : "title" in e
+            ? e.title
+            : "name" in e
+              ? e.name
+              : "eventname_raw" in e
+                ? e.eventname_raw
+                : // ical events can actually omit the summary field, so we fall back to null if no title is found
+                  (e satisfies never) && null;
+
+      if (title) {
+        title = title
+          .replace(/–/g, "-")
+          .replace(/DAO Graduering/i, "Dangraduering")
+          .replace(/dan graduering/i, "Dangraduering")
+          .replace(/dan-graduering/i, "Dangraduering")
+          .replace(/sortbæltegradueringen/i, "Dangraduering")
+          .replace("DANMARKSMESTERSKABERNE", "Danmarksmesterskaberne")
+          .replace(/ - Holbæk/g, "")
+          .replace(/^DM$/, "Danmarksmesterskaberne")
+          .replace(/^DM /, "Danmarksmesterskaberne ")
+          .replace(/ DM$/, " Danmarksmesterskaberne")
+          .replace(/^Dansk/i, "")
+          .replace(/^Børne/i, "")
+          .replace("SAVE THE DATE", "")
+          .trim()
+          .replace(/^-/, "")
+          .trim();
+      }
+
+      return {
+        ...e,
+        id: String(
+          e.sourceId +
+            "-" +
+            ("uid" in e
+              ? e.uid
+              : "id" in e
+                ? e.id
+                : "fullUrl" in e
+                  ? e.fullUrl
+                  : "url" in e
+                    ? e.url
+                    : (e satisfies never)),
+        ),
+        url:
+          "fullUrl" in e
+            ? e.fullUrl
+            : "url" in e
+              ? e.url
+              : "linkEvent" in e
+                ? e.linkEvent
+                : "entityId" in e && e.entityId
+                  ? `https://kumitetechnology.com/en/tournament/${e.entityId}/`
+                  : /*"origin_url" in e
                   ? e.origin_url
                   :*/ undefined,
-      title: ("summary" in e
-        ? e.summary
-        : "title" in e
-          ? e.title
-          : "name" in e
-            ? e.name
-            : "eventname_raw" in e
-              ? e.eventname_raw
-              : (e satisfies never)
-      )
-        // Align dashes
-        .replace(/–/g, "-")
-        .replace(/DAO Graduering/i, "Dangraduering")
-        .replace(/dan graduering/i, "Dangraduering")
-        .replace(/dan-graduering/i, "Dangraduering")
-        .replace(/sortbæltegradueringen/i, "Dangraduering")
-        .replace("DANMARKSMESTERSKABERNE", "Danmarksmesterskaberne")
-        .replace(/ - Holbæk/g, "")
-        .replace(/^DM$/, "Danmarksmesterskaberne")
-        .replace(/^DM /, "Danmarksmesterskaberne ")
-        .replace(/ DM$/, " Danmarksmesterskaberne")
-        .replace(/^Dansk/i, "")
-        .replace(/^Børne/i, "")
-        .replace("SAVE THE DATE", "")
-        .trim()
-        .replace(/^-/, "")
-        .trim(),
-      start:
-        "structuredContent" in e
-          ? new Date(e.structuredContent.startDate)
-          : "start" in e
-            ? isDate(e.start)
-              ? e.start
-              : isDate(e.start?.date)
-                ? e.start.date
-                : undefined
-            : "date" in e
-              ? new Date(e.date)
-              : "start_time" in e
-                ? new Date(e.start_time * 1000)
-                : (e satisfies never),
-      end:
-        "structuredContent" in e
-          ? new Date(e.structuredContent.endDate)
-          : "end" in e
-            ? isDate(e.end)
-              ? e.end
-              : e.end?.date
-                ? new Date(e.end.date)
-                : undefined
-            : "end_time" in e
-              ? new Date(e.end_time * 1000)
-              : undefined,
-      location:
-        ("address" in e && typeof e.address === "object"
-          ? e.address.fullAddress
-          : "location" in e && typeof e.location === "object" && e.location
-            ? [
-                e.location.addressTitle,
-                e.location.addressLine1,
-                e.location.addressLine2,
-                e.location.addressCountry,
-              ]
-                .filter((s) => s.trim())
-                .join(", ")
-            : "location" in e && typeof e.location === "string"
-              ? e.location
-              : "venue" in e
-                ? typeof e.venue === "string"
-                  ? e.venue
-                  : e.venue.full_address
-                : ""
-        )
-          .trim()
-          .replace(/\s+/g, " ")
-          .replace(/, ,/g, ",")
-          .replace(/ ,/g, ",")
-          .replace(/Denmark/gi, "Danmark")
-          .replace("Copenhagen", "København")
-          .replace("Roskilde Karateklub", "Roskilde Karate Klub")
-          .replace(/^Danmark$/, "")
-          .replace(/, Danmark/gi, "")
-          .replace(/, DK/gi, "")
-          .trim() || undefined,
-    }))
+        title,
+        start:
+          "structuredContent" in e
+            ? new Date(e.structuredContent.startDate)
+            : "start" in e
+              ? isDate(e.start)
+                ? e.start
+                : isDate(e.start?.date)
+                  ? e.start.date
+                  : undefined
+              : "date" in e
+                ? new Date(e.date)
+                : "start_time" in e
+                  ? new Date(e.start_time * 1000)
+                  : (e satisfies never),
+        end:
+          "structuredContent" in e
+            ? new Date(e.structuredContent.endDate)
+            : "end" in e
+              ? isDate(e.end)
+                ? e.end
+                : e.end?.date
+                  ? new Date(e.end.date)
+                  : undefined
+              : "end_time" in e
+                ? new Date(e.end_time * 1000)
+                : undefined,
+        location:
+          ("address" in e && typeof e.address === "object"
+            ? e.address.fullAddress
+            : "location" in e && typeof e.location === "object" && e.location
+              ? [
+                  e.location.addressTitle,
+                  e.location.addressLine1,
+                  e.location.addressLine2,
+                  e.location.addressCountry,
+                ]
+                  .filter((s) => s.trim())
+                  .join(", ")
+              : "location" in e && typeof e.location === "string"
+                ? e.location
+                : "venue" in e
+                  ? typeof e.venue === "string"
+                    ? e.venue
+                    : e.venue.full_address
+                  : ""
+          )
+            .trim()
+            .replace(/\s+/g, " ")
+            .replace(/, ,/g, ",")
+            .replace(/ ,/g, ",")
+            .replace(/Denmark/gi, "Danmark")
+            .replace("Copenhagen", "København")
+            .replace("Roskilde Karateklub", "Roskilde Karate Klub")
+            .replace(/^Danmark$/, "")
+            .replace(/, Danmark/gi, "")
+            .replace(/, DK/gi, "")
+            .trim() || undefined,
+      };
+    })
+    .filter((e): e is typeof e & { title: string } => Boolean(e.title))
     .filter(
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       (e, i, l): e is (typeof l)[number] & { start: Date } => {
