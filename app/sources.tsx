@@ -292,10 +292,10 @@ export interface FightCollectiveEvent {
   is_full?: boolean;
 }
 
-const fetchText = async (url: string) => (await fetch(url)).text();
-const fetchJson = async <T,>(url: string) =>
+const fetchText = async (url: string | URL) => (await fetch(url)).text();
+const fetchJson = async <T,>(url: string | URL) =>
   (await fetch(url)).json() as Promise<T>;
-const fetchIcsCalendar = async (url: string) =>
+const fetchIcsCalendar = async (url: string | URL) =>
   convertIcsCalendar(
     undefined,
     (await fetchText(url))
@@ -308,7 +308,7 @@ const fetchIcsCalendar = async (url: string) =>
         (_, p1) => `DTEND;VALUE=DATE:${p1.slice(6)}`,
       ),
   );
-const fetchIcsEvents = async (url: string) =>
+const fetchIcsEvents = async (url: string | URL) =>
   ((await fetchIcsCalendar(url))?.events || []).map((e) => ({
     ...e,
     end: e.end?.date
@@ -325,12 +325,12 @@ const fetchIcsEvents = async (url: string) =>
   }));
 const fetch$ = async (url: string) => cheerio.load(await fetchText(url));
 
-const farPast = new Date(0);
-const farFuture = new Date(3333333333333);
+const farPast = new Date(2010, 0, 1);
+const farFuture = new Date(2030, 0, 1);
 
 interface LoadParams {
   cotemporality: "past" | "future";
-  now: Date;
+  now: Date | TZDate;
 }
 
 const eventsSources = [
@@ -810,9 +810,12 @@ const eventsSources = [
     loadEvents: async ({ cotemporality, now }: LoadParams) => {
       const start = cotemporality === "past" ? farPast : now;
       const end = cotemporality === "future" ? farFuture : now;
-      const events = await fetchJson<FullCalendarEvent[]>(
-        `https://www.gilleleje-karate.dk/klub/gilleleje-karate-klub/activities?club_id=34372&content_id=2921593&activity_types=null&start=${start.toISOString()}&end=${end.toISOString()}&timeZone=Europe%2FCopenhagen`,
+      const eventsUrl = new URL(
+        `https://www.gilleleje-karate.dk/klub/gilleleje-karate-klub/activities?club_id=34372&content_id=2921593&activity_types=null&timeZone=Europe%2FCopenhagen`,
       );
+      eventsUrl.searchParams.set("start", start.toISOString());
+      eventsUrl.searchParams.set("end", end.toISOString());
+      const events = await fetchJson<FullCalendarEvent[]>(eventsUrl);
       return events
         .filter((e) => e.event_type !== 148927)
         .map((e) => ({
@@ -1062,44 +1065,58 @@ export const fetchEvents = async ({
   cotemporality: "past" | "future";
 }) => {
   "use cache";
-  const now = startOfToday({ in: tz("Europe/Copenhagen") });
+  const now = new Date(startOfToday({ in: tz("Europe/Copenhagen") }));
+
+  // For debugging
+  const anySourceHasOnly = eventsSources.some(
+    (source) => "only" in source && source.only,
+  );
 
   return Promise.all(
-    eventsSources.map((source) => {
-      if (process.env.VERCEL) {
-        console.time(
-          `Loading events for source: ${source.name} ${source.calendarUrl} ${cotemporality}`,
-        );
-      }
-      const events = source.loadEvents({ cotemporality, now }).then((events) =>
-        events.map((e) => ({
-          federation:
-            "federation" in source
-              ? source.federation
-              : "federation" in e
-                ? e.federation
-                : undefined,
-          ...e,
-          source: source.name,
-          sourceId: source.sourceId,
-          sourceCalendarUrl: source.calendarUrl,
-        })),
-      );
+    eventsSources
+      .filter((source) =>
+        anySourceHasOnly ? "only" in source && source.only : true,
+      )
+      .map((source) => {
+        if (process.env.VERCEL) {
+          console.time(
+            `Loading events for source: ${source.name} ${source.calendarUrl} ${cotemporality}`,
+          );
+        }
+        const events = source
+          .loadEvents({ cotemporality, now })
+          .then((events) =>
+            events.map((e) => ({
+              federation:
+                "federation" in source
+                  ? source.federation
+                  : "federation" in e
+                    ? e.federation
+                    : undefined,
+              ...e,
+              source: source.name,
+              sourceId: source.sourceId,
+              sourceCalendarUrl: source.calendarUrl,
+            })),
+          );
 
-      return events
-        .catch((err) => {
-          console.error(`Error loading events for source: ${source.name}`, err);
-
-          return [];
-        })
-        .finally(() => {
-          if (process.env.VERCEL) {
-            console.timeEnd(
-              `Loading events for source: ${source.name} ${source.calendarUrl}`,
+        return events
+          .catch((err) => {
+            console.error(
+              `Error loading events for source: ${source.name}`,
+              err,
             );
-          }
-        });
-    }),
+
+            return [];
+          })
+          .finally(() => {
+            if (process.env.VERCEL) {
+              console.timeEnd(
+                `Loading events for source: ${source.name} ${source.calendarUrl}`,
+              );
+            }
+          });
+      }),
   ).then((events) => events.flat());
 };
 
@@ -1109,7 +1126,7 @@ export const getSortedEvents = async ({
   cotemporality: "past" | "future";
 }) => {
   "use cache";
-  const now = startOfToday({ in: tz("Europe/Copenhagen") });
+  const now = new Date(startOfToday({ in: tz("Europe/Copenhagen") }));
 
   const allEvents = await fetchEvents({ cotemporality });
 
