@@ -5,7 +5,7 @@ export default async function TræningPage() {
   const nextWeekOfClasses = await getClasses();
 
   return (
-    <div className="max-w-full flex flex-row flex-wrap">
+    <div className="max-w-full flex flex-row flex-wrap gap-2 p-2">
       {nextWeekOfClasses
         .sort(
           (a, b) =>
@@ -14,7 +14,7 @@ export default async function TræningPage() {
         .map((c) => (
           <pre
             key={c.nextStart.toISOString()}
-            className="flex-1 m-2 p-2 border border-gray-300"
+            className="dark:bg-gray-900 bg-white p-2 pt-1 flex flex-col attribution-container leading-tight nafuda"
             dangerouslySetInnerHTML={{
               __html: JSON.stringify(c, null, 2),
             }}
