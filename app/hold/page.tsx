@@ -5,20 +5,40 @@ export default async function TræningPage() {
   const nextWeekOfClasses = await getClasses();
 
   return (
-    <div className="max-w-full flex flex-row flex-wrap gap-2 p-2">
+    <div className="max-w-full flex flex-col flex-wrap gap-2 p-2">
       {nextWeekOfClasses
         .sort(
           (a, b) =>
             new Date(a.nextStart).getTime() - new Date(b.nextStart).getTime(),
         )
         .map((c) => (
-          <pre
-            key={c.nextStart.toISOString()}
+          <div
+            key={c.source + c.nextStart.toISOString()}
             className="dark:bg-gray-900 bg-white p-2 pt-1 flex flex-col attribution-container leading-tight nafuda"
-            dangerouslySetInnerHTML={{
-              __html: JSON.stringify(c, null, 2),
-            }}
-          />
+          >
+            <div className="font-lighter text-xs flex flex-row gap-1">
+              {c.federation}, {c.source}
+              {"instructors" in c &&
+                Array.isArray(c.instructors) &&
+                c.instructors.length > 0 && (
+                  <>
+                    ,{" "}
+                    <div className="font-lighter italic">
+                      v. {new Intl.ListFormat("da-DK").format(c.instructors)}
+                    </div>
+                  </>
+                )}
+            </div>
+            <div className="flex flex-row gap-1 items-baseline">
+              <div className="font-bold text-xl">{c.className}</div>
+            </div>
+            <div>
+              {new Intl.DateTimeFormat("da-DK", {
+                dateStyle: "full",
+                timeStyle: "short",
+              }).formatRange(c.nextStart, c.nextEnd)}
+            </div>
+          </div>
         ))}
     </div>
   );

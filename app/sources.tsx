@@ -650,6 +650,79 @@ const eventsSources = [
         })
         .toArray();
     },
+    async *loadClasses() {
+      const $res = await fetch$("https://farumkyokushin.dk/traeningstider/");
+
+      $res(".av_one_half")
+        .parent()
+        .children()
+        .each((_, el) => {
+          if (!$res(el).hasClass("av_one_half")) $res(el).remove();
+        });
+
+      const times = $res(".av_one_half").parent();
+      times.find("br").replaceWith("\n");
+
+      const holdLines = nlp
+        .readDoc(render(times).replace(/(\d+)\./g, "$1[DOT]"))
+        .sentences()
+        .out()
+        .flatMap((s) => s.replace(/\[DOT\]/g, ".").split(/\.?\n/))
+        .flatMap((line) => line.split(/:/))
+        .map((line) => line.trim());
+
+      let weekday: Weekday | undefined = undefined;
+      let timeRange: string | undefined = undefined;
+      let className: string | undefined = undefined;
+
+      // The lines can be weekday names, time range of day, class name and instructors. In that order. Assemble them into structured data.
+      for (const line of holdLines) {
+        const newWeekday = getRRuleWeekdayByFullDanishName(line);
+        if (newWeekday) {
+          weekday = newWeekday;
+          continue;
+        }
+        const timeRangeMatch = line.match(
+          /\d{1,2}\.\d{2}\s* – \s*\d{1,2}\.\d{2}/,
+        );
+        // a new time range indicates the start of a new class session
+        if (timeRangeMatch) {
+          className = undefined;
+          timeRange = timeRangeMatch[0];
+          // Do something with the time range, e.g., store it in a variable or object
+          continue;
+        }
+
+        if (weekday && timeRange && !className) {
+          className = line;
+          const start = new Date();
+          start.setHours(parseInt(timeRange.split(".")[0], 10));
+          start.setMinutes(parseInt(timeRange.split(".")[1].split(" ")[0], 10));
+          start.setSeconds(0);
+          start.setMilliseconds(0);
+          const end = new Date();
+          end.setHours(parseInt(timeRange.split("–")[1].split(".")[0], 10));
+          end.setMinutes(
+            parseInt(timeRange.split("–")[1].split(".")[1].split(" ")[0], 10),
+          );
+          end.setSeconds(0);
+          end.setMilliseconds(0);
+          const duration = end.getTime() - start.getTime();
+          const rrule = new RRule({
+            byweekday: weekday,
+            freq: RRule.WEEKLY,
+            dtstart: start,
+          });
+          const nextOccurrence = rrule.after(new Date());
+          if (!nextOccurrence) continue;
+          yield {
+            nextStart: nextOccurrence,
+            nextEnd: new Date(nextOccurrence.getTime() + duration),
+            className,
+          };
+        }
+      }
+    },
   },
   {
     sourceId: "sportskarate-dk",
@@ -1246,20 +1319,33 @@ export const fetchEvents = async ({
   ).then((events) => events.flat());
 };
 
-export const getClasses = async () =>
-  Promise.all(
+export const getClasses = async () => {
+  const anySourceHasOnly = eventsSources.some(
+    (source) => "only" in source && source.only,
+  );
+
+  return Promise.all(
     eventsSources
-      .filter((source) => "loadClasses" in source)
-      .flatMap((source) =>
-        Array.fromAsync(source.loadClasses()).then((classes) =>
-          classes.map((c) => ({
-            ...c,
-            source: source.name,
-            federation: "federation" in source ? source.federation : undefined,
-          })),
-        ),
+      .filter(
+        (source) =>
+          "loadClasses" in source &&
+          (anySourceHasOnly ? "only" in source && source.only : true),
+      )
+      .flatMap(
+        (source) =>
+          "loadClasses" in source &&
+          source.loadClasses &&
+          Array.fromAsync(source.loadClasses()).then((classes) =>
+            classes.map((c) => ({
+              ...c,
+              source: source.name,
+              federation:
+                "federation" in source ? source.federation : undefined,
+            })),
+          ),
       ),
-  ).then((classes) => classes.flat());
+  ).then((classes) => classes.flat().filter(Boolean));
+};
 
 export const getSortedEvents = async ({
   cotemporality,
