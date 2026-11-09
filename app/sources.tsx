@@ -413,6 +413,17 @@ const eventsSources = [
     loadEvents: () =>
       fetchIcsEvents(
         `https://calendar.google.com/calendar/ical/ashiharakaratehadsund@gmail.com/public/basic.ics`,
+      ).then((events) =>
+        events.map((e) => {
+          let summary = e.summary;
+          let location = e.location;
+          if (!location && e.summary?.includes("i Randers")) {
+            location = "Randers Karate Skole";
+            summary = summary.replace("i Randers", "").trim();
+          }
+
+          return { ...e, summary, location };
+        }),
       ),
   },
   {
@@ -423,6 +434,17 @@ const eventsSources = [
     loadEvents: () =>
       fetchIcsEvents(
         `https://calendar.google.com/calendar/ical/ashihara.karate.sonderborg%40gmail.com/public/basic.ics`,
+      ).then((events) =>
+        events.map((e) => {
+          let summary = e.summary;
+          let location = e.location;
+          if (!location && e.summary?.includes("i Randers")) {
+            location = "Randers Karate Skole";
+            summary = summary.replace("i Randers", "").trim();
+          }
+
+          return { ...e, summary, location };
+        }),
       ),
   },
   {
@@ -888,8 +910,12 @@ const eventsSources = [
             let title = e.title;
             let location = e.location;
             if (!location && e.title.includes("Randers karateskole")) {
-              location = "Randers karateskole";
+              location = "Randers Karate Skole";
               title = title.replace("Randers karateskole", "").trim();
+            }
+            if (!location && e.title.includes("i Randers")) {
+              location = "Randers Karate Skole";
+              title = title.replace("i Randers", "").trim();
             }
 
             return { ...e, title, location };
