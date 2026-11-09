@@ -9,8 +9,14 @@ import {
   startOfToday,
 } from "date-fns";
 import { isEqual } from "date-fns/fp/isEqual";
+import { RRule, Weekday } from "rrule";
 import { convertIcsCalendar } from "ts-ics";
-import { fuseCompare } from "./utils";
+import {
+  fuseCompare,
+  getRRuleWeekdayByFullDanishName,
+  nlp,
+  render,
+} from "./utils";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 type HajimeMeta = {
@@ -323,7 +329,7 @@ const fetchIcsEvents = async (url: string | URL) =>
           date: endOfDay(e.start.date, { in: tz("Europe/Copenhagen") }),
         },
   }));
-const fetch$ = async (url: string) => cheerio.load(await fetchText(url));
+export const fetch$ = async (url: string) => cheerio.load(await fetchText(url));
 
 const fetchHoldsportEvents = async (
   {
@@ -851,6 +857,98 @@ const eventsSources = [
       }
       return shinryokudanEvents;
     },
+    loadClasses: async function* () {
+      const $res = await fetch$(
+        "https://www.nansensgadekarate.dk/traeningstider",
+      );
+
+      $res("style").remove();
+      const times = $res(".page-section")
+        .filter((_, el) => $res(el).text().includes("Kamphold"))
+        .eq(0);
+
+      times.find("br").replaceWith("\n");
+      const text3 = render($res.html(times));
+      const maskedText = text3.replace(/(\d+)\./g, "$1[DOT]");
+
+      const doc = nlp.readDoc(maskedText);
+
+      const holdLines = doc
+        .sentences()
+        .out()
+        .flatMap((s) =>
+          s
+            .replace(/\[DOT\]/g, ".")
+            .replace(/\.$/g, "")
+            .split(/\.?\n/),
+        )
+        .flatMap((line) => {
+          const parts = line.split(/:/);
+          if (parts.length == 4) {
+            return [
+              parts[0].trim() + ":" + parts[1].trim() + ":" + parts[2].trim(),
+              parts[3]?.trim(),
+            ];
+          }
+          return [line.trim()];
+        })
+        .map((line) => line.trim());
+
+      let weekday: Weekday | undefined = undefined;
+      let timeRange: string | undefined = undefined;
+      let className: string | undefined = undefined;
+      let instructors: string[] | undefined = undefined;
+
+      // The lines can be weekday names, time range of day, class name and instructors. In that order. Assemble them into structured data.
+      for (const line of holdLines) {
+        const newWeekday = getRRuleWeekdayByFullDanishName(line);
+        if (newWeekday) {
+          weekday = newWeekday;
+          continue;
+        }
+        const timeRangeMatch = line.match(/\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}/);
+        // a new time range indicates the start of a new class session
+        if (timeRangeMatch) {
+          className = undefined;
+          instructors = undefined;
+          timeRange = timeRangeMatch[0];
+          // Do something with the time range, e.g., store it in a variable or object
+          continue;
+        }
+
+        if (weekday && timeRange && !className) {
+          className = line;
+        } else if (weekday && timeRange && className && !instructors) {
+          instructors = line.split(",").flatMap((s) => s.trim().split(" og "));
+          const start = new Date();
+          start.setHours(parseInt(timeRange.split(":")[0], 10));
+          start.setMinutes(parseInt(timeRange.split(":")[1].split(" ")[0], 10));
+          start.setSeconds(0);
+          start.setMilliseconds(0);
+          const end = new Date();
+          end.setHours(parseInt(timeRange.split("-")[1].split(":")[0], 10));
+          end.setMinutes(
+            parseInt(timeRange.split("-")[1].split(":")[1].split(" ")[0], 10),
+          );
+          end.setSeconds(0);
+          end.setMilliseconds(0);
+          const duration = end.getTime() - start.getTime();
+          const rrule = new RRule({
+            byweekday: weekday,
+            freq: RRule.WEEKLY,
+            dtstart: start,
+          });
+          const nextOccurrence = rrule.after(new Date());
+          if (!nextOccurrence) continue;
+          yield {
+            nextStart: nextOccurrence,
+            nextEnd: new Date(nextOccurrence.getTime() + duration),
+            className,
+            instructors,
+          };
+        }
+      }
+    },
   },
   {
     sourceId: "amager-karateskole",
@@ -1157,6 +1255,21 @@ export const fetchEvents = async ({
       }),
   ).then((events) => events.flat());
 };
+
+export const getClasses = async () =>
+  Promise.all(
+    eventsSources
+      .filter((source) => "loadClasses" in source)
+      .flatMap((source) =>
+        Array.fromAsync(source.loadClasses()).then((classes) =>
+          classes.map((c) => ({
+            ...c,
+            source: source.name,
+            federation: "federation" in source ? source.federation : undefined,
+          })),
+        ),
+      ),
+  ).then((classes) => classes.flat());
 
 export const getSortedEvents = async ({
   cotemporality,
