@@ -861,7 +861,20 @@ const eventsSources = [
           contentId: 3764362,
         },
         loadParams,
-      ).then((events) => events.filter((e) => e.event_type !== 9)),
+      ).then((events) =>
+        events
+          .filter((e) => e.event_type !== 9)
+          .map((e) => {
+            let title = e.title;
+            let location = e.location;
+            if (!location && e.title.includes("Randers karateskole")) {
+              location = "Randers karateskole";
+              title = title.replace("Randers karateskole", "").trim();
+            }
+
+            return { ...e, title, location };
+          }),
+      ),
   },
   {
     sourceId: "taifu-karate-dojo",
@@ -1149,6 +1162,7 @@ export const getSortedEvents = async ({
       )
         // Align dashes
         .replace(/–/g, "-")
+        .replace(/DAO Graduering/i, "Dangraduering")
         .replace(/dan graduering/i, "Dangraduering")
         .replace(/dan-graduering/i, "Dangraduering")
         .replace(/sortbæltegradueringen/i, "Dangraduering")
