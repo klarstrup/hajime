@@ -857,31 +857,21 @@ const eventsSources = [
       }
       return shinryokudanEvents;
     },
-    loadClasses: async function* () {
+    async *loadClasses() {
       const $res = await fetch$(
         "https://www.nansensgadekarate.dk/traeningstider",
       );
 
-      $res("style").remove();
       const times = $res(".page-section")
         .filter((_, el) => $res(el).text().includes("Kamphold"))
         .eq(0);
-
       times.find("br").replaceWith("\n");
-      const text3 = render($res.html(times));
-      const maskedText = text3.replace(/(\d+)\./g, "$1[DOT]");
 
-      const doc = nlp.readDoc(maskedText);
-
-      const holdLines = doc
+      const holdLines = nlp
+        .readDoc(render(times).replace(/(\d+)\./g, "$1[DOT]"))
         .sentences()
         .out()
-        .flatMap((s) =>
-          s
-            .replace(/\[DOT\]/g, ".")
-            .replace(/\.$/g, "")
-            .split(/\.?\n/),
-        )
+        .flatMap((s) => s.replace(/\[DOT\]/g, ".").split(/\.?\n/))
         .flatMap((line) => {
           const parts = line.split(/:/);
           if (parts.length == 4) {
@@ -890,7 +880,7 @@ const eventsSources = [
               parts[3]?.trim(),
             ];
           }
-          return [line.trim()];
+          return line;
         })
         .map((line) => line.trim());
 
