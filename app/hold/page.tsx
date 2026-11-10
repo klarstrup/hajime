@@ -4,9 +4,10 @@ import { getClasses } from "../sources";
 
 const dkuRanks = [
   {
-    index: -Infinity,
+    index: -20.5,
     name: "white belt",
     primaryColor: "#fff",
+    secondaryColor: "#fff",
   },
   {
     index: -20,
@@ -67,6 +68,11 @@ const dkuRanks = [
     name: "1. mon",
     primaryColor: "#fff",
     secondaryColor: "#784421",
+  },
+  {
+    index: -10.5,
+    name: "white belt",
+    primaryColor: "#fff",
   },
   {
     index: -10,
@@ -274,7 +280,7 @@ export default async function TræningPage() {
                               >
                                 <pre hidden>{JSON.stringify(c, null, 2)}</pre>
                                 <div className="flex flex-row gap-2 items-baseline">
-                                  <div className="whitespace-nowrap self-start">
+                                  <div className="whitespace-nowrap">
                                     {new Intl.DateTimeFormat("da-DK", {
                                       timeStyle: "short",
                                     }).formatRange(c.nextStart, c.nextEnd)}
@@ -312,7 +318,7 @@ export default async function TræningPage() {
                                 ("min" in c.rankRange ||
                                   "max" in c.rankRange) ? (
                                   <div
-                                    className="flex flex-row gap-1 -mx-2 -mb-2"
+                                    className="flex flex-row gap-[1%] -mx-2 -mb-2"
                                     style={{
                                       background: "var(--color-background)",
                                     }}
@@ -329,28 +335,40 @@ export default async function TræningPage() {
                                             (rr) =>
                                               rr.primaryColor ===
                                                 r.primaryColor &&
-                                              ("secondaryColor" in rr &&
-                                              "secondaryColor" in r
-                                                ? rr.secondaryColor ===
-                                                  r.secondaryColor
+                                              ("secondaryColor" in rr
+                                                ? "secondaryColor" in r &&
+                                                  rr.secondaryColor ===
+                                                    r.secondaryColor
                                                 : true),
                                           ) === i,
                                       )
+                                      .reverse()
                                       .map((r) => (
                                         <div
                                           key={r.index}
-                                          style={{ background: r.primaryColor }}
-                                          className="flex-1 h-2"
+                                          className="w-[6.77%]"
                                         >
-                                          {"secondaryColor" in r &&
-                                          r.secondaryColor ? (
-                                            <div
-                                              style={{
-                                                background: r.secondaryColor,
-                                              }}
-                                              className="flex-1 h-1"
-                                            ></div>
-                                          ) : null}
+                                          <div
+                                            style={{
+                                              background: r.primaryColor,
+                                            }}
+                                            className="h-1"
+                                          />
+                                          <div
+                                            style={{
+                                              background:
+                                                "secondaryColor" in r
+                                                  ? r.secondaryColor
+                                                  : r.primaryColor,
+                                            }}
+                                            className="h-1"
+                                          />
+                                          <div
+                                            style={{
+                                              background: r.primaryColor,
+                                            }}
+                                            className="h-1"
+                                          />
                                         </div>
                                       ))}
                                   </div>
