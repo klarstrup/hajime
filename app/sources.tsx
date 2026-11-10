@@ -11,12 +11,12 @@ import {
 import { isEqual } from "date-fns/fp/isEqual";
 import { RRule, Weekday } from "rrule";
 import { convertIcsCalendar } from "ts-ics";
+import { nlp } from "./nlp";
 import {
   danishFullWeekdays,
   fuseCompare,
   getAgeAndRankFromClassName,
   getRRuleWeekdayByFullDanishName,
-  nlp,
   render,
 } from "./utils";
 

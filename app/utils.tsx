@@ -3,15 +3,6 @@ import { CheerioAPI } from "cheerio";
 import { AnyNode } from "domhandler";
 import Fuse from "fuse.js";
 import { RRule, Weekday } from "rrule";
-import model from "wink-eng-lite-web-model";
-import winkNLP from "wink-nlp";
-
-export const nlp = winkNLP(model);
-// Obtain "its" helper to extract item properties.
-export const its = nlp.its;
-// Obtain "as" reducer helper to reduce a collection.
-export const as = nlp.as;
-
 export const normalizeString = (str: string) =>
   str
     .toLowerCase()
@@ -179,11 +170,6 @@ export function getAgeAndRankFromClassName(className: string): {
     rankRange.max = -11;
   }
 
-  if (lClassName.includes("kidzz")) {
-    ageRange.min = 5;
-    ageRange.max = 9;
-    rankRange.max = -20.5;
-  }
   if (lClassName.includes("børn")) {
     rankRange.min = null;
     rankRange.max = -11;
@@ -196,7 +182,7 @@ export function getAgeAndRankFromClassName(className: string): {
   if (lClassName.includes("forældre/børn")) {
     ageRange.min = 5;
     ageRange.max = 9;
-    rankRange.max = -20.5;
+    rankRange.max = -21;
   }
 
   if (lClassName.includes("kids")) {
@@ -309,6 +295,11 @@ export function getAgeAndRankFromClassName(className: string): {
   }
   if (lClassName.includes("børn") && lClassName.includes("begyndere")) {
     rankRange.min = -20.5;
+  }
+  if (lClassName.includes("kidzz")) {
+    ageRange.min = 5;
+    ageRange.max = 9;
+    rankRange.max = -21.5;
   }
 
   return { rankRange, ageRange };
