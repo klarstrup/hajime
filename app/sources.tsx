@@ -691,23 +691,20 @@ const eventsSources = [
           if (timeRangeMatch) timeRange = timeRangeMatch[0];
 
           if (weekday && timeRange && className) {
+            const [
+              [startTimeHour, startTimeMinute],
+              [endTimeHour, endTimeMinute],
+            ] = timeRange
+              .split(/ ?[–-] ?/)
+              .map((time) => time.trim().split(":"));
             const start = new Date();
-            start.setHours(parseInt(timeRange.split(":")[0], 10));
-            start.setMinutes(
-              parseInt(timeRange.split(":")[1].split(" ")[0], 10),
-            );
+            start.setHours(parseInt(startTimeHour, 10));
+            start.setMinutes(parseInt(startTimeMinute, 10));
             start.setSeconds(0);
             start.setMilliseconds(0);
             const end = new Date();
-            end.setHours(
-              parseInt(timeRange.split(/[–-]/)[1].split(":")[0], 10),
-            );
-            end.setMinutes(
-              parseInt(
-                timeRange.split(/[–-]/)[1].split(":")[1].split(" ")[0],
-                10,
-              ),
-            );
+            end.setHours(parseInt(endTimeHour, 10));
+            end.setMinutes(parseInt(endTimeMinute, 10));
             end.setSeconds(0);
             end.setMilliseconds(0);
 
