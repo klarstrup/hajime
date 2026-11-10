@@ -149,7 +149,7 @@ export function getAgeAndRankFromClassName(className: string): {
   ageRange: { min: number | null; max: number | null };
   rankRange: { min: number | null; max: number | null };
 } {
-  className = className.trim().replace("kyu junior", "mon")
+  className = className.trim().replace("kyu junior", "mon");
   const lClassName = className.toLowerCase();
 
   const ageRange: { min: number | null; max: number | null } = {
@@ -170,30 +170,10 @@ export function getAgeAndRankFromClassName(className: string): {
   if (minAgeMatch) ageRange.min = parseInt(minAgeMatch[1], 10);
   const minAgeMatch22 = /([1-9][0-9])\+/i.exec(lClassName);
   if (minAgeMatch22) ageRange.min = parseInt(minAgeMatch22[1], 10);
-  const minAgeMatch2 = /fra ([0-9]+) år/i.exec(lClassName);
-  if (minAgeMatch2) ageRange.min = parseInt(minAgeMatch2[1], 10);
-  const maxAgeMatch = /maksimum (\d+) år/i.exec(lClassName);
-  if (maxAgeMatch) ageRange.max = parseInt(maxAgeMatch[1], 10);
-  const maxAgeMatch2 = /til og med (\d+) år/i.exec(lClassName);
-  if (maxAgeMatch2) ageRange.max = parseInt(maxAgeMatch2[1], 10);
-  const minAgeMatch1 = /minimum (\d+) år/i.exec(lClassName);
-  if (minAgeMatch1) ageRange.min = parseInt(minAgeMatch1[1], 10);
   const minAgeMatch12 = /fra ([0-9]+) år/i.exec(lClassName);
   if (minAgeMatch12) ageRange.min = parseInt(minAgeMatch12[1], 10);
-  const maxAgeMatch1 = /maksimum (\d+) år/i.exec(lClassName);
-  if (maxAgeMatch1) ageRange.max = parseInt(maxAgeMatch1[1], 10);
-  const maxAgeMatch12 = /til og med (\d+) år/i.exec(lClassName);
-  if (maxAgeMatch12) ageRange.max = parseInt(maxAgeMatch12[1], 10);
-  const minAgeMatch3 = /minimum (\d+) år/i.exec(lClassName);
-  if (minAgeMatch3) ageRange.min = parseInt(minAgeMatch3[1], 10);
-  const minAgeMatch32 = /fra ([0-9]+) år/i.exec(lClassName);
-  if (minAgeMatch32) ageRange.min = parseInt(minAgeMatch32[1], 10);
   const minAgeMatch33 = /\+([0-9]+) år/i.exec(lClassName);
   if (minAgeMatch33) ageRange.min = parseInt(minAgeMatch33[1], 10);
-  const maxAgeMatch3 = /maksimum (\d+) år/i.exec(lClassName);
-  if (maxAgeMatch3) ageRange.max = parseInt(maxAgeMatch3[1], 10);
-  const maxAgeMatch32 = /til og med (\d+) år/i.exec(lClassName);
-  if (maxAgeMatch32) ageRange.max = parseInt(maxAgeMatch32[1], 10);
 
   if (lClassName.includes("alle aldre")) {
     ageRange.min = null;
@@ -215,11 +195,6 @@ export function getAgeAndRankFromClassName(className: string): {
     max: null,
   };
 
-  if (lClassName.includes("voksne") || lClassName.includes("kamphold")) {
-    rankRange.min = -10.5;
-    rankRange.max = null;
-  }
-
   if (lClassName.includes("børn")) {
     rankRange.min = null;
     rankRange.max = -11;
@@ -230,25 +205,10 @@ export function getAgeAndRankFromClassName(className: string): {
     rankRange.max = -11;
   }
 
-  if (lClassName.includes("voksne") || lClassName.includes("kamphold")) {
-    rankRange.min = -10.5;
-    rankRange.max = null;
-  }
   if (lClassName.includes("forældre")) {
     rankRange.max = -21;
   }
 
-  const minKyuMatch = /(minimum|min\.)(.*) (10|[1-9])\. kyu/i.exec(lClassName);
-  if (minKyuMatch) rankRange.min = -parseInt(minKyuMatch[3], 10);
-  const minKyuMatch2 = /(\d+)\. kyu og højere/i.exec(lClassName);
-  if (minKyuMatch2) rankRange.min = -parseInt(minKyuMatch2[1], 10);
-  const minKyuMatch3 = /(\d+)\. kyu \+/i.exec(lClassName);
-  if (minKyuMatch3) rankRange.min = -parseInt(minKyuMatch3[1], 10);
-
-  const minKyuMatch1 = /(minimum|min\.)(.*) (10|[0-9])\. kyu/i.exec(lClassName);
-  if (minKyuMatch1) rankRange.min = -parseInt(minKyuMatch1[3], 10);
-  const minKyuMatch12 = /(\d+)\. kyu og højere/i.exec(lClassName);
-  if (minKyuMatch12) rankRange.min = -parseInt(minKyuMatch12[1], 10);
   const minKyuMatch123 = /^(\d+)\. kyu/i.exec(lClassName);
   if (minKyuMatch123) rankRange.min = -parseInt(minKyuMatch123[1], 10);
 
@@ -268,8 +228,6 @@ export function getAgeAndRankFromClassName(className: string): {
     lClassName,
   );
   if (minKyuMatch33) rankRange.min = -parseInt(minKyuMatch33[3], 10);
-  const minKyuMatch32 = /(\d+)\. kyu og højere/i.exec(lClassName);
-  if (minKyuMatch32) rankRange.min = -parseInt(minKyuMatch32[1], 10);
   const minKyuMatch332 = /(\d+) kyu-/i.exec(lClassName);
   if (minKyuMatch332) rankRange.min = -parseInt(minKyuMatch332[1], 10);
   const minKyuMatch34 = /fra (\d+)\. kyu/i.exec(lClassName);
