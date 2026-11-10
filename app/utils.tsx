@@ -179,6 +179,9 @@ export function getAgeAndRankFromClassName(className: string): {
     rankRange.min = -10.5;
     rankRange.max = null;
   }
+  if (lClassName.includes("forældre")) {
+    rankRange.max = -21;
+  }
   if (lClassName.includes("forældre/børn")) {
     ageRange.min = 5;
     ageRange.max = 9;
@@ -234,6 +237,8 @@ export function getAgeAndRankFromClassName(className: string): {
   if (minKyuMatch1) rankRange.min = -parseInt(minKyuMatch1[3], 10);
   const minKyuMatch12 = /(\d+)\. kyu og højere/i.exec(lClassName);
   if (minKyuMatch12) rankRange.min = -parseInt(minKyuMatch12[1], 10);
+  const minKyuMatch123 = /^(\d+)\. kyu/i.exec(lClassName);
+  if (minKyuMatch123) rankRange.min = -parseInt(minKyuMatch123[1], 10);
   const minAgeMatch1 = /minimum (\d+) år/i.exec(lClassName);
   if (minAgeMatch1) ageRange.min = parseInt(minAgeMatch1[1], 10);
   const minAgeMatch12 = /fra ([0-9]+) år/i.exec(lClassName);
@@ -264,16 +269,22 @@ export function getAgeAndRankFromClassName(className: string): {
   if (minKyuMatch33) rankRange.min = -parseInt(minKyuMatch33[3], 10);
   const minKyuMatch32 = /(\d+)\. kyu og højere/i.exec(lClassName);
   if (minKyuMatch32) rankRange.min = -parseInt(minKyuMatch32[1], 10);
+  const minKyuMatch34 = /fra (\d+)\. kyu/i.exec(lClassName);
+  if (minKyuMatch34) rankRange.min = -parseInt(minKyuMatch34[1], 10);
+  const maxKyuMatch32 = /til og med (\d+)\. kyu/i.exec(lClassName);
+  if (maxKyuMatch32) rankRange.max = -parseInt(maxKyuMatch32[1], 10);
   const minAgeMatch3 = /minimum (\d+) år/i.exec(lClassName);
   if (minAgeMatch3) ageRange.min = parseInt(minAgeMatch3[1], 10);
   const minAgeMatch32 = /fra ([0-9]+) år/i.exec(lClassName);
   if (minAgeMatch32) ageRange.min = parseInt(minAgeMatch32[1], 10);
+  const minAgeMatch33 = /\+([0-9]+) år/i.exec(lClassName);
+  if (minAgeMatch33) ageRange.min = parseInt(minAgeMatch33[1], 10);
   const maxAgeMatch3 = /maksimum (\d+) år/i.exec(lClassName);
   if (maxAgeMatch3) ageRange.max = parseInt(maxAgeMatch3[1], 10);
   const maxAgeMatch32 = /til og med (\d+) år/i.exec(lClassName);
   if (maxAgeMatch32) ageRange.max = parseInt(maxAgeMatch32[1], 10);
 
-  const gradesAndTier = /(10|[1-9])\.-(10|[1-9]). (kyu|mon)/gi.exec(className);
+  const gradesAndTier = /(10|[1-9])\.?-(10|[1-9]). (kyu|mon)/gi.exec(className);
 
   const gradez = gradesAndTier?.slice(1, 3).map((m) => parseInt(m, 10));
   const tier = gradesAndTier?.[3] === "kyu" ? "kyu" : "mon";
@@ -281,6 +292,12 @@ export function getAgeAndRankFromClassName(className: string): {
   if (gradez && gradez?.length > 1) {
     rankRange.min = -Math.max(...gradez) - (tier === "mon" ? 10 : 0);
     rankRange.max = -Math.min(...gradez) - (tier === "mon" ? 10 : 0);
+  }
+
+  const ages = /(\d+)-(\d+)[ -]år(ige)?/i.exec(lClassName);
+  if (ages) {
+    ageRange.min = parseInt(ages[1], 10);
+    ageRange.max = parseInt(ages[2], 10);
   }
 
   const monMaxMatch = /til.*(10|[1-9])\. mon/i.exec(lClassName);
@@ -299,8 +316,107 @@ export function getAgeAndRankFromClassName(className: string): {
   if (lClassName.includes("kidzz")) {
     ageRange.min = 5;
     ageRange.max = 9;
-    rankRange.max = -21.5;
+    rankRange.max = -21;
   }
 
   return { rankRange, ageRange };
+}
+
+if (import.meta.vitest) {
+  const { describe, it, expect } = import.meta.vitest;
+  describe("getAgeAndRankFromClassName", () => {
+    const cases = {
+      "minimum 3. kyu": {
+        rankRange: { min: -3, max: null },
+        ageRange: { min: null, max: null },
+      },
+      "minimum 3. Kyu": {
+        rankRange: { min: -3, max: null },
+        ageRange: { min: null, max: null },
+      },
+      "minimum 1. Kyu": {
+        rankRange: { min: -1, max: null },
+        ageRange: { min: null, max: null },
+      },
+      "2. kyu og højere (fra 15 år og op)": {
+        rankRange: { min: -2, max: null },
+        ageRange: { min: 15, max: null },
+      },
+      "til og med 7. kyu": {
+        rankRange: { min: -10.5, max: -7 },
+        ageRange: { min: null, max: null },
+      },
+      "Kobudo (minimum 15 år og 6. kyu)": {
+        rankRange: { min: -6, max: null },
+        ageRange: { min: 15, max: null },
+      },
+      "Gradueringstræning 10.-5. kyu": {
+        rankRange: { min: -10, max: -5 },
+        ageRange: { min: null, max: null },
+      },
+      "Børn - Begynder til orange med streg (9. mon)": {
+        rankRange: { min: null, max: -19 },
+        // TODO: Let the caller say what a børn is
+        ageRange: { min: null, max: null },
+      },
+      "Børn - Fra blåt bælte (8. mon) og op": {
+        rankRange: { min: -18, max: -11 },
+        // TODO: Let the caller say what a børn is
+        ageRange: { min: null, max: null },
+      },
+      "Voksne, +14 år, Begyndere, 10.-9. kyu": {
+        rankRange: { min: -10.5, max: -9 },
+        ageRange: { min: 14, max: null },
+      },
+      "6., 5., 4. og 3. kyu": {
+        rankRange: { min: -6, max: -3 },
+        ageRange: { min: null, max: null },
+      },
+      "Voksenhold fra 4. kyu": {
+        rankRange: { min: -4, max: null },
+        ageRange: { min: null, max: null },
+      },
+      "Åbent katahold (fra 15 år og op)": {
+        rankRange: { min: -10.5, max: null },
+        ageRange: { min: 15, max: null },
+      },
+      "5-9-årige - Forældre- og børnehold": {
+        rankRange: { min: null, max: -21 },
+        ageRange: { min: 5, max: 9 },
+      },
+      "8-13-årige - Børnehold": {
+        rankRange: { min: null, max: -11 },
+        ageRange: { min: 8, max: 13 },
+      },
+      "13-18-årige - Juniorhold": {
+        rankRange: { min: -10.5, max: null },
+        ageRange: { min: 13, max: 18 },
+      },
+      "Børn, 8-14 år, Begyndere, 10.-9. mon": {
+        rankRange: { min: -20.5, max: -19 },
+        ageRange: { min: 8, max: 14 },
+      },
+      "6-3. kyu": {
+        rankRange: { min: -6, max: -3 },
+        ageRange: { min: null, max: null },
+      },
+      "10-7. kyu": {
+        rankRange: { min: -10, max: -7 },
+        ageRange: { min: null, max: null },
+      },
+      "2. kyu/sort": {
+        rankRange: { min: -2, max: null },
+        ageRange: { min: null, max: null },
+      },
+      "Kumite (alle grader)": {
+        rankRange: { min: -10.5, max: null },
+        ageRange: { min: null, max: null },
+      },
+    };
+    for (const [input, expected] of Object.entries(cases)) {
+      it(input, () =>
+        expect(getAgeAndRankFromClassName(input)).toEqual(expected),
+      );
+    }
+  });
 }

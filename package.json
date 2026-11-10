@@ -3,12 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "bunx npm-run-all --parallel dev:next dev:test",
+    "dev:next": "next dev",
+    "dev:test": "vitest",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
     "ts": "bun check",
-    "ci": "bunx npm-run-all --parallel ts build lint"
+    "test": "vitest",
+    "ci": "bunx npm-run-all --parallel ts build lint test"
   },
   "dependencies": {
     "@date-fns/tz": "^1.5.0",
@@ -24,6 +27,7 @@
     "react-dom": "19.3.1",
     "rrule": "^2.8.1",
     "ts-ics": "^2.4.8",
+    "vitest": "^5.1.0",
     "wink-eng-lite-web-model": "^1.8.1",
     "wink-nlp": "^2.4.0"
   },
