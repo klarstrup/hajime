@@ -686,12 +686,96 @@ const eventsSources = [
           if (!timeRangeMatch && !newWeekday) {
             weekday = undefined;
             timeRange = undefined;
-            className = superHold + " " + line;
+            className = superHold + ", " + line;
           }
           if (newWeekday) weekday = newWeekday;
           if (timeRangeMatch) timeRange = timeRangeMatch[0];
 
           if (weekday && timeRange && className) {
+            const lClassName = className.toLowerCase();
+
+            const ageRange: { min: number | null; max: number | null } = {
+              min: null,
+              max: null,
+            };
+            const rankRange: { min: number | null; max: number | null } = {
+              min: null,
+              max: null,
+            };
+
+            if (
+              lClassName.includes("voksne") ||
+              lClassName.includes("kamphold")
+            ) {
+              rankRange.min = -10.5;
+              rankRange.max = null;
+            }
+
+            if (lClassName.includes("børn")) {
+              rankRange.min = null;
+              rankRange.max = -11;
+            }
+
+            if (lClassName.includes("kidzz")) {
+              ageRange.min = 5;
+              ageRange.max = 9;
+              rankRange.max = -20.5;
+            }
+
+            const minKyuMatch = /(minimum|min\.)(.*) (10|[1-9])\. kyu/i.exec(
+              lClassName,
+            );
+            if (minKyuMatch) rankRange.min = -parseInt(minKyuMatch[3], 10);
+            const minKyuMatch2 = /(\d+)\. kyu og højere/i.exec(lClassName);
+            if (minKyuMatch2) rankRange.min = -parseInt(minKyuMatch2[1], 10);
+            const minKyuMatch3 = /(\d+)\. kyu +/i.exec(lClassName);
+            if (minKyuMatch3) rankRange.min = -parseInt(minKyuMatch3[1], 10);
+            const minAgeMatch = /minimum (\d+) år/i.exec(lClassName);
+            if (minAgeMatch) ageRange.min = parseInt(minAgeMatch[1], 10);
+            const minAgeMatch2 = /fra ([0-9]+) år/i.exec(lClassName);
+            if (minAgeMatch2) ageRange.min = parseInt(minAgeMatch2[1], 10);
+            const maxAgeMatch = /maksimum (\d+) år/i.exec(lClassName);
+            if (maxAgeMatch) ageRange.max = parseInt(maxAgeMatch[1], 10);
+            const maxAgeMatch2 = /til og med (\d+) år/i.exec(lClassName);
+            if (maxAgeMatch2) ageRange.max = parseInt(maxAgeMatch2[1], 10);
+            //f.x.   "className": "9. kyu (fra 15 år) samt 8. og 7. kyu (alle aldre)",
+            // if it lists multiple grades, e.g., "9. kyu (fra 15 år) samt 8. og 7. kyu (alle aldre)",
+            // we will need to get at least the highest and lowest rank mentioned in the className
+
+            const kyuGrades = /(10|[1-9])\.-(10|[1-9]). kyu/gi
+              .exec(className)
+              ?.slice(1, 3)
+              .map((m) => parseInt(m, 10));
+            if (kyuGrades && kyuGrades?.length > 1) {
+              rankRange.min = -Math.max(...kyuGrades);
+              rankRange.max = -Math.min(...kyuGrades);
+            }
+            const monGrades = /(10|[1-9])\.-(10|[1-9]). mon/gi
+              .exec(className)
+              ?.slice(1, 3)
+              .map((m) => parseInt(m, 10));
+            if (monGrades && monGrades?.length > 1) {
+              rankRange.min = -Math.max(...monGrades) - 10;
+              rankRange.max = -Math.min(...monGrades) - 10;
+            }
+            if (
+              lClassName.includes("børn") &&
+              lClassName.includes("begyndere")
+            ) {
+              rankRange.min = null;
+            }
+            if (
+              lClassName.includes("voksne") &&
+              lClassName.includes("begyndere")
+            ) {
+              rankRange.min = -10.5;
+            }
+
+            const monMaxMatch = /til.*(10|[1-9])\. mon/i.exec(lClassName);
+            if (monMaxMatch) rankRange.max = -parseInt(monMaxMatch[1], 10) - 10;
+            const monMinMatch = /(10|[1-9])\. mon +/i.exec(lClassName);
+            if (monMinMatch) rankRange.min = -parseInt(monMinMatch[1], 10) - 10;
+
             const [
               [startTimeHour, startTimeMinute],
               [endTimeHour, endTimeMinute],
@@ -721,7 +805,13 @@ const eventsSources = [
               nextStart.getTime() + end.getTime() - start.getTime(),
             );
 
-            yield { className, nextStart, nextEnd };
+            yield {
+              className,
+              nextStart,
+              nextEnd,
+              rankRange,
+              ageRange,
+            };
           }
         }
       }
