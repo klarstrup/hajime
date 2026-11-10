@@ -31,7 +31,7 @@ export default async function TræningPage() {
           className="text-xs 2xs:text-sm text-red-400 text-right"
           href={"/"}
         >
-          Se kommende karate
+          Se kommende karatetræf
         </Link>
       </div>
       <div className="flex flex-col gap-2">

@@ -45,15 +45,15 @@ export function EventList({
             className="text-xs 2xs:text-sm text-red-400 text-right"
             href="/hold"
           >
-            Se hold
+            Se karatehold
           </Link>
           <Link
             className="text-xs 2xs:text-sm text-red-400 text-right"
             href={cotemporality === "past" ? `/` : (`/fortid` as `/`)}
           >
             {cotemporality === "past"
-              ? "Se kommende karate"
-              : "Se tidligere karate"}
+              ? "Se kommende karatetræf"
+              : "Se tidligere karatetræf"}
           </Link>
         </div>
       </div>
