@@ -1,6 +1,79 @@
+import { getWeek } from "date-fns";
 import Link from "next/link";
 import { getClasses } from "../sources";
-import { getWeek } from "date-fns";
+
+const dkuRanks = [
+  {
+    index: -11,
+    name: "11. kyu",
+    color: "#fff",
+  },
+  {
+    index: -10,
+    name: "10. kyu",
+    color: "#f60",
+  },
+  {
+    index: -9,
+    name: "9. kyu",
+    color: "#f60",
+  },
+  {
+    index: -8,
+    name: "8. kyu",
+    color: "#04a",
+  },
+  {
+    index: -7,
+    name: "7. kyu",
+    color: "#04a",
+  },
+  {
+    index: -6,
+    name: "6. kyu",
+    color: "#fc0",
+  },
+  {
+    index: -5,
+    name: "5. kyu",
+    color: "#fc0",
+  },
+  {
+    index: -4,
+    name: "4. kyu",
+    color: "#217821",
+  },
+  {
+    index: -3,
+    name: "3. kyu",
+    color: "#217821",
+  },
+  {
+    index: -2,
+    name: "2. kyu",
+    color: "#784421",
+  },
+  {
+    index: -1,
+    name: "1. kyu",
+    color: "#784421",
+  },
+  {
+    index: 0,
+    name: "1. dan",
+    color: "#000",
+  },
+] as const;
+
+const getRanksFromRankRange = (rankRange: {
+  min?: number | null;
+  max?: number | null;
+}) =>
+  dkuRanks.filter(
+    (rank) =>
+      rank.index >= (rankRange.min ?? -Infinity) &&
+      rank.index <= (rankRange.max ?? Infinity),
+  );
 
 export const instant = false;
 export default async function TræningPage() {
@@ -117,44 +190,97 @@ export default async function TræningPage() {
                             }
                             return true;
                           })
-                          .map((c) => (
-                            <div
-                              key={
-                                c.source +
-                                c.nextStart.toISOString() +
-                                c.className
-                              }
-                              className="dark:bg-gray-900 bg-white p-2 pt-1 flex flex-col attribution-container leading-tight nafuda"
-                            >
-                              <div className="font-lighter text-xs flex flex-row gap-1">
-                                {c.federation}, {c.source}
-                                {"instructors" in c &&
-                                  Array.isArray(c.instructors) &&
-                                  c.instructors.length > 0 && (
-                                    <>
-                                      ,{" "}
-                                      <div className="font-lighter italic">
-                                        v.{" "}
-                                        {new Intl.ListFormat("da-DK").format(
-                                          c.instructors,
-                                        )}
-                                      </div>
-                                    </>
-                                  )}
-                              </div>
-                              <div className="flex flex-row gap-1 items-baseline">
-                                <div className="font-bold text-xl">
-                                  {c.className}
+                          .map((c) => {
+                            let className = c.className
+                              .replace("(alle aldre)", "")
+                              .replace(", alle grader", "");
+
+                            // if there are more than two words, prevent orphaned words by replacing the last space with a non-breaking space
+                            if (className.split(" ").length > 2) {
+                              className = className.replace(
+                                / (\S+)$/,
+                                "\u00A0$1",
+                              );
+                            }
+
+                            return (
+                              <div
+                                key={
+                                  c.source +
+                                  c.nextStart.toISOString() +
+                                  c.className
+                                }
+                                className="dark:bg-gray-900 bg-white p-2 pt-1 flex flex-col leading-tight"
+                              >
+                                <pre hidden>{JSON.stringify(c, null, 2)}</pre>
+                                <div className="flex flex-row gap-2 items-baseline">
+                                  <div className="whitespace-nowrap self-start">
+                                    {new Intl.DateTimeFormat("da-DK", {
+                                      timeStyle: "short",
+                                    }).formatRange(c.nextStart, c.nextEnd)}
+                                  </div>
+                                  <div>
+                                    <span className="font-bold text-xl mr-1 leading-tight">
+                                      {className}
+                                    </span>
+                                    <a
+                                      href={c.classesUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="font-lighter text-xs leading-none text-red-400 hover:underline"
+                                    >
+                                      {c.source}
+                                    </a>
+                                    {"instructors" in c &&
+                                      Array.isArray(c.instructors) &&
+                                      c.instructors.length > 0 && (
+                                        <>
+                                          ,{" "}
+                                          <span className="font-lighter text-xs leading-none font-lighter italic">
+                                            v.&nbsp;
+                                            {new Intl.ListFormat(
+                                              "da-DK",
+                                            ).format(c.instructors)}
+                                          </span>
+                                        </>
+                                      )}
+                                  </div>
                                 </div>
+                                {"rankRange" in c &&
+                                c.rankRange &&
+                                typeof c.rankRange === "object" &&
+                                ("min" in c.rankRange ||
+                                  "max" in c.rankRange) ? (
+                                  <div
+                                    className="flex flex-row gap-1 -mx-2 -mb-2"
+                                    style={{
+                                      background: "var(--color-background)",
+                                    }}
+                                  >
+                                    {getRanksFromRankRange(
+                                      c.rankRange as {
+                                        min?: number | null;
+                                        max?: number | null;
+                                      },
+                                    )
+                                      .filter(
+                                        (r, i, l) =>
+                                          l.findIndex(
+                                            (rr) => rr.color === r.color,
+                                          ) === i,
+                                      )
+                                      .map((r) => (
+                                        <div
+                                          key={r.index}
+                                          style={{ background: r.color }}
+                                          className="flex-1 h-2"
+                                        />
+                                      ))}
+                                  </div>
+                                ) : null}
                               </div>
-                              <div>
-                                {new Intl.DateTimeFormat("da-DK", {
-                                  dateStyle: "full",
-                                  timeStyle: "short",
-                                }).formatRange(c.nextStart, c.nextEnd)}
-                              </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                       </div>
                     </div>
                   ),

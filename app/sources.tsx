@@ -591,6 +591,7 @@ const eventsSources = [
       })
         .then((r) => r.json() as Promise<AllEventsResponse>)
         .then((data) => data.data),
+    classesUrl: "https://roskildekarateklub.dk/hold-priser",
     async *loadClasses() {
       const $res = await fetch$("https://roskildekarateklub.dk/hold-priser");
 
@@ -784,6 +785,7 @@ const eventsSources = [
         })
         .toArray();
     },
+    classesUrl: "https://farumkyokushin.dk/traeningstider/",
     async *loadClasses() {
       const $res = await fetch$("https://farumkyokushin.dk/traeningstider/");
 
@@ -833,6 +835,48 @@ const eventsSources = [
 
         if (weekday && timeRange && !className) {
           className = line;
+          const lClassName = className.toLowerCase();
+
+          const ageRange: { min: number | null; max: number | null } = {
+            min: null,
+            max: null,
+          };
+          const rankRange: { min: number | null; max: number | null } = {
+            min: null,
+            max: null,
+          };
+
+          const minKyuMatch = /(minimum|min\.)(.*) (10|[0-9])\. kyu/i.exec(
+            lClassName,
+          );
+          console.log({ minKyuMatch, className });
+          if (minKyuMatch) rankRange.min = -parseInt(minKyuMatch[3], 10);
+          const minKyuMatch2 = /(\d+)\. kyu og højere/i.exec(lClassName);
+          if (minKyuMatch2) rankRange.min = -parseInt(minKyuMatch2[1], 10);
+          const minAgeMatch = /minimum (\d+) år/i.exec(lClassName);
+          if (minAgeMatch) ageRange.min = parseInt(minAgeMatch[1], 10);
+          const minAgeMatch2 = /fra ([0-9]+) år/i.exec(lClassName);
+          if (minAgeMatch2) ageRange.min = parseInt(minAgeMatch2[1], 10);
+          const maxAgeMatch = /maksimum (\d+) år/i.exec(lClassName);
+          if (maxAgeMatch) ageRange.max = parseInt(maxAgeMatch[1], 10);
+          const maxAgeMatch2 = /til og med (\d+) år/i.exec(lClassName);
+          if (maxAgeMatch2) ageRange.max = parseInt(maxAgeMatch2[1], 10);
+          //f.x.   "className": "9. kyu (fra 15 år) samt 8. og 7. kyu (alle aldre)",
+          // if it lists multiple grades, e.g., "9. kyu (fra 15 år) samt 8. og 7. kyu (alle aldre)",
+          // we will need to get at least the highest and lowest rank mentioned in the className
+
+          const grades = [
+            ...className.matchAll(
+              /(?<!\d)(\d+)\.(?=(?:[\s,.-]+(?:og\s+)?\d+\.)*[\s,.-]*(?:og\s+)?kyu\b)/gi,
+            ),
+          ]
+            .map((match) => Number(match[1]))
+            .filter((n, i, arr) => arr.indexOf(n) === i);
+          if (grades.length > 1) {
+            rankRange.min = -Math.max(...grades);
+            rankRange.max = -Math.min(...grades);
+          }
+
           const start = new Date();
           start.setHours(parseInt(timeRange.split(".")[0], 10));
           start.setMinutes(parseInt(timeRange.split(".")[1].split(" ")[0], 10));
@@ -857,6 +901,8 @@ const eventsSources = [
             nextStart: nextOccurrence,
             nextEnd: new Date(nextOccurrence.getTime() + duration),
             className,
+            ageRange,
+            rankRange,
           };
         }
       }
@@ -1068,6 +1114,7 @@ const eventsSources = [
       }
       return shinryokudanEvents;
     },
+    classesUrl: "https://www.nansensgadekarate.dk/traeningstider",
     async *loadClasses() {
       const $res = await fetch$(
         "https://www.nansensgadekarate.dk/traeningstider",
@@ -1477,6 +1524,8 @@ export const getClasses = async () => {
             classes.map((c) => ({
               ...c,
               source: source.name,
+              classesUrl:
+                "classesUrl" in source ? source.classesUrl : undefined,
               federation:
                 "federation" in source ? source.federation : undefined,
             })),
