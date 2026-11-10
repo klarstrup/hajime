@@ -127,7 +127,8 @@ const dkuRanks = [
   {
     index: 0,
     name: "1. dan",
-    primaryColor: "#000",
+    primaryColor: "#333",
+    secondaryColor: "gold",
   },
 ] as const;
 
@@ -140,7 +141,6 @@ const getRanksFromRankRange = (rankRange: {
       rank.index >= (rankRange.min ?? -Infinity) &&
       rank.index <= (rankRange.max ?? Infinity),
   );
-
 export const instant = false;
 export default async function TræningPage() {
   const nextWeekOfClasses = await getClasses();
@@ -346,7 +346,7 @@ export default async function TræningPage() {
                                       .map((r) => (
                                         <div
                                           key={r.index}
-                                          className="w-[6.77%]"
+                                          className="w-[13.44%]"
                                         >
                                           <div
                                             style={{

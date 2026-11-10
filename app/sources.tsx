@@ -699,7 +699,7 @@ const eventsSources = [
               max: null,
             };
             const rankRange: { min: number | null; max: number | null } = {
-              min: null,
+              min: -10.5,
               max: null,
             };
 
@@ -932,7 +932,7 @@ const eventsSources = [
             max: null,
           };
           const rankRange: { min: number | null; max: number | null } = {
-            min: null,
+            min: -10.5,
             max: null,
           };
 
@@ -1274,7 +1274,7 @@ const eventsSources = [
             max: null,
           };
           const rankRange: { min: number | null; max: number | null } = {
-            min: null,
+            min: -10.5,
             max: null,
           };
 
