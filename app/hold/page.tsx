@@ -318,7 +318,7 @@ export default async function TræningPage() {
                                 ("min" in c.rankRange ||
                                   "max" in c.rankRange) ? (
                                   <div
-                                    className="flex flex-row gap-[1%] -mx-2 -mb-2"
+                                    className="flex flex-row gap-[1%] -mx-2 -mb-2 relative"
                                     style={{
                                       background: "var(--color-background)",
                                     }}
@@ -346,7 +346,7 @@ export default async function TræningPage() {
                                       .map((r) => (
                                         <div
                                           key={r.index}
-                                          className="w-[13.44%]"
+                                          className="w-[13.44%] relative"
                                         >
                                           <div
                                             style={{
@@ -357,9 +357,11 @@ export default async function TræningPage() {
                                           <div
                                             style={{
                                               background:
-                                                "secondaryColor" in r
-                                                  ? r.secondaryColor
-                                                  : r.primaryColor,
+                                                r.index >= 0
+                                                  ? r.primaryColor
+                                                  : "secondaryColor" in r
+                                                    ? r.secondaryColor
+                                                    : r.primaryColor,
                                             }}
                                             className="h-1"
                                           />
@@ -369,6 +371,15 @@ export default async function TræningPage() {
                                             }}
                                             className="h-1"
                                           />
+                                          {r.index >= 0 &&
+                                          "secondaryColor" in r ? (
+                                            <div
+                                              style={{
+                                                background: r.secondaryColor,
+                                              }}
+                                              className="h-full absolute left-3 w-1 top-0"
+                                            />
+                                          ) : null}
                                         </div>
                                       ))}
                                   </div>
