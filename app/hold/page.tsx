@@ -4,64 +4,124 @@ import { getClasses } from "../sources";
 
 const dkuRanks = [
   {
+    index: -Infinity,
+    name: "white belt",
+    primaryColor: "#fff",
+  },
+  {
+    index: -20,
+    name: "10. mon",
+    primaryColor: "#fff",
+    secondaryColor: "#f60",
+  },
+  {
+    index: -19,
+    name: "9. mon",
+    primaryColor: "#fff",
+    secondaryColor: "#f60",
+  },
+  {
+    index: -18,
+    name: "8. mon",
+    primaryColor: "#fff",
+    secondaryColor: "#04a",
+  },
+  {
+    index: -17,
+    name: "7. mon",
+    primaryColor: "#fff",
+    secondaryColor: "#04a",
+  },
+  {
+    index: -16,
+    name: "6. mon",
+    primaryColor: "#fff",
+    secondaryColor: "#fc0",
+  },
+  {
+    index: -15,
+    name: "5. mon",
+    primaryColor: "#fff",
+    secondaryColor: "#fc0",
+  },
+  {
+    index: -14,
+    name: "4. mon",
+    primaryColor: "#fff",
+    secondaryColor: "#217821",
+  },
+  {
+    index: -13,
+    name: "3. mon",
+    primaryColor: "#fff",
+    secondaryColor: "#217821",
+  },
+  {
+    index: -12,
+    name: "2. kyu",
+    primaryColor: "#fff",
+    secondaryColor: "#784421",
+  },
+  {
     index: -11,
-    name: "11. kyu",
-    color: "#fff",
+    name: "1. mon",
+    primaryColor: "#fff",
+    secondaryColor: "#784421",
   },
   {
     index: -10,
     name: "10. kyu",
-    color: "#f60",
+    primaryColor: "#f60",
   },
   {
     index: -9,
     name: "9. kyu",
-    color: "#f60",
+    primaryColor: "#f60",
   },
   {
     index: -8,
     name: "8. kyu",
-    color: "#04a",
+    primaryColor: "#04a",
   },
   {
     index: -7,
     name: "7. kyu",
-    color: "#04a",
+    primaryColor: "#04a",
   },
   {
     index: -6,
     name: "6. kyu",
-    color: "#fc0",
+    primaryColor: "#fc0",
   },
   {
     index: -5,
     name: "5. kyu",
-    color: "#fc0",
+    primaryColor: "#fc0",
   },
   {
     index: -4,
     name: "4. kyu",
-    color: "#217821",
+    primaryColor: "#217821",
   },
   {
     index: -3,
     name: "3. kyu",
-    color: "#217821",
+    primaryColor: "#217821",
   },
   {
     index: -2,
     name: "2. kyu",
-    color: "#784421",
+    primaryColor: "#784421",
   },
   {
     index: -1,
     name: "1. kyu",
-    color: "#784421",
+    primaryColor: "#784421",
   },
   {
     index: 0,
     name: "1. dan",
-    color: "#000",
+    primaryColor: "#000",
   },
 ] as const;
 
@@ -266,15 +326,32 @@ export default async function TræningPage() {
                                       .filter(
                                         (r, i, l) =>
                                           l.findIndex(
-                                            (rr) => rr.color === r.color,
+                                            (rr) =>
+                                              rr.primaryColor ===
+                                                r.primaryColor &&
+                                              ("secondaryColor" in rr &&
+                                              "secondaryColor" in r
+                                                ? rr.secondaryColor ===
+                                                  r.secondaryColor
+                                                : true),
                                           ) === i,
                                       )
                                       .map((r) => (
                                         <div
                                           key={r.index}
-                                          style={{ background: r.color }}
+                                          style={{ background: r.primaryColor }}
                                           className="flex-1 h-2"
-                                        />
+                                        >
+                                          {"secondaryColor" in r &&
+                                          r.secondaryColor ? (
+                                            <div
+                                              style={{
+                                                background: r.secondaryColor,
+                                              }}
+                                              className="flex-1 h-1"
+                                            ></div>
+                                          ) : null}
+                                        </div>
                                       ))}
                                   </div>
                                 ) : null}
