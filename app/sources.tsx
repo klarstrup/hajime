@@ -849,7 +849,6 @@ const eventsSources = [
           const minKyuMatch = /(minimum|min\.)(.*) (10|[0-9])\. kyu/i.exec(
             lClassName,
           );
-          console.log({ minKyuMatch, className });
           if (minKyuMatch) rankRange.min = -parseInt(minKyuMatch[3], 10);
           const minKyuMatch2 = /(\d+)\. kyu og højere/i.exec(lClassName);
           if (minKyuMatch2) rankRange.min = -parseInt(minKyuMatch2[1], 10);
