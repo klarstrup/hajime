@@ -762,7 +762,6 @@ const eventsSources = [
     name: "Farum Kyokushin",
     federation: "dku",
     calendarUrl: "https://farumkyokushin.dk/kalenderliste/",
-    only: true,
     loadEvents: async () => {
       const farumKyokushin$ = await fetch$(
         "https://farumkyokushin.dk/kalenderliste/",
@@ -1123,7 +1122,6 @@ const eventsSources = [
       }
       return shinryokudanEvents;
     },
-    only: true,
     classesUrl: "https://www.nansensgadekarate.dk/traeningstider",
     async *loadClasses() {
       const $res = await fetch$(
