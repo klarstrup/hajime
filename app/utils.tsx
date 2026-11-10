@@ -228,7 +228,7 @@ export function getAgeAndRankFromClassName(className: string): {
     lClassName,
   );
   if (minKyuMatch33) rankRange.min = -parseInt(minKyuMatch33[3], 10);
-  const minKyuMatch332 = /(\d+) kyu-/i.exec(lClassName);
+  const minKyuMatch332 = /(\d+)\.? kyu ?[-+]/i.exec(lClassName);
   if (minKyuMatch332) rankRange.min = -parseInt(minKyuMatch332[1], 10);
   const minKyuMatch34 = /fra (\d+)\. kyu/i.exec(lClassName);
   if (minKyuMatch34) rankRange.min = -parseInt(minKyuMatch34[1], 10);
@@ -411,6 +411,10 @@ if (import.meta.vitest) {
         rankRange: { min: -9, max: -7 },
         ageRange: { min: null, max: null },
       },
+      "Voksne, +14 år, Øvede, 4. kyu +": {
+        rankRange: { min: -4, max: null },
+        ageRange: { min: 14, max: null },
+      }
     };
     for (const [input, expected] of Object.entries(cases)) {
       it(input, () =>
