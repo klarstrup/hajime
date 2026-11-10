@@ -667,8 +667,6 @@ const eventsSources = [
           [] as [string, string[]][],
         );
 
-      console.log(holdLines);
-
       let weekday: Weekday | undefined = undefined;
       let timeRange: string | undefined = undefined;
       let className: string | undefined = undefined;
