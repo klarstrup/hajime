@@ -40,14 +40,22 @@ export function EventList({
           </span>
           <span className="text-sm 2xs:text-xl xs:text-4xl">{title}</span>
         </header>
-        <Link
-          className="text-xs 2xs:text-sm text-red-400 text-right"
-          href={cotemporality === "past" ? `/` : (`/fortid` as `/`)}
-        >
-          {cotemporality === "past"
-            ? "Se kommende karate"
-            : "Se tidligere karate"}
-        </Link>
+        <div className="flex-1 text-right flex flex-col">
+          <Link
+            className="text-xs 2xs:text-sm text-red-400 text-right"
+            href="/hold"
+          >
+            Se hold
+          </Link>
+          <Link
+            className="text-xs 2xs:text-sm text-red-400 text-right"
+            href={cotemporality === "past" ? `/` : (`/fortid` as `/`)}
+          >
+            {cotemporality === "past"
+              ? "Se kommende karate"
+              : "Se tidligere karate"}
+          </Link>
+        </div>
       </div>
       <div className="flex flex-col gap-2">
         {(cotemporality === "past"

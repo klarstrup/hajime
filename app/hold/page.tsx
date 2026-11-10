@@ -1,11 +1,6 @@
 import Link from "next/link";
 import { getClasses } from "../sources";
-
-function getWeekNumber(date: Date) {
-  const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
-  const pastDaysOfYear = (date.getTime() - firstDayOfYear.getTime()) / 86400000;
-  return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
-}
+import { getWeek } from "date-fns";
 
 export const instant = false;
 export default async function TræningPage() {
@@ -13,7 +8,7 @@ export default async function TræningPage() {
 
   const classesByWeekAndWeekday = nextWeekOfClasses.reduce(
     (acc, classItem) => {
-      const weekNo = getWeekNumber(classItem.nextStart);
+      const weekNo = getWeek(classItem.nextStart);
       const weekDay = classItem.nextStart.getDay();
       if (!acc[weekNo]) acc[weekNo] = {};
       if (!acc[weekNo][weekDay]) acc[weekNo][weekDay] = [];
