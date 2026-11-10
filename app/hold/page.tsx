@@ -166,10 +166,7 @@ export default async function TræningPage() {
           </span>
           <span className="text-sm 2xs:text-xl xs:text-4xl">Karatehold</span>
         </header>
-        <Link
-          className="text-xs 2xs:text-sm text-red-400 text-right"
-          href={"/"}
-        >
+        <Link className="text-xs 2xs:text-sm text-red-400 text-right" href="/">
           Se kommende karatetræf
         </Link>
       </div>

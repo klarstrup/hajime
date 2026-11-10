@@ -12,7 +12,9 @@ import { isEqual } from "date-fns/fp/isEqual";
 import { RRule, Weekday } from "rrule";
 import { convertIcsCalendar } from "ts-ics";
 import {
+  danishFullWeekdays,
   fuseCompare,
+  getAgeAndRankFromClassName,
   getRRuleWeekdayByFullDanishName,
   nlp,
   render,
@@ -592,21 +594,13 @@ const eventsSources = [
         .then((r) => r.json() as Promise<AllEventsResponse>)
         .then((data) => data.data),
     classesUrl: "https://roskildekarateklub.dk/hold-priser",
-    async *loadClasses() {
+    async *loadClasses({ now }: { now: Date }) {
       const $res = await fetch$("https://roskildekarateklub.dk/hold-priser");
 
       let times = $res("p")
         .filter((_, el) => {
           const text = $res(el).text();
-          return (
-            text.includes("Mandag") ||
-            text.includes("Tirsdag") ||
-            text.includes("Onsdag") ||
-            text.includes("Torsdag") ||
-            text.includes("Fredag") ||
-            text.includes("Lørdag") ||
-            text.includes("Søndag")
-          );
+          return danishFullWeekdays.some((weekday) => text.includes(weekday));
         })
         .parent()
         .parent()
@@ -633,15 +627,9 @@ const eventsSources = [
                 .out()
                 .flatMap((s) => s.replace(/\[DOT\]/g, ".").split(/\.?\n/))
                 .flatMap((line) => {
-                  const lineHasWeekday = [
-                    "Mandag",
-                    "Tirsdag",
-                    "Onsdag",
-                    "Torsdag",
-                    "Fredag",
-                    "Lørdag",
-                    "Søndag",
-                  ].find((weekday) => line.includes(weekday));
+                  const lineHasWeekday = danishFullWeekdays.find((weekday) =>
+                    line.includes(weekday),
+                  );
                   if (!lineHasWeekday) return line;
 
                   return line
@@ -692,89 +680,8 @@ const eventsSources = [
           if (timeRangeMatch) timeRange = timeRangeMatch[0];
 
           if (weekday && timeRange && className) {
-            const lClassName = className.toLowerCase();
-
-            const ageRange: { min: number | null; max: number | null } = {
-              min: null,
-              max: null,
-            };
-            const rankRange: { min: number | null; max: number | null } = {
-              min: -10.5,
-              max: null,
-            };
-
-            if (
-              lClassName.includes("voksne") ||
-              lClassName.includes("kamphold")
-            ) {
-              rankRange.min = -10.5;
-              rankRange.max = null;
-            }
-
-            if (lClassName.includes("børn")) {
-              rankRange.min = null;
-              rankRange.max = -11;
-            }
-
-            if (lClassName.includes("kidzz")) {
-              ageRange.min = 5;
-              ageRange.max = 9;
-              rankRange.max = -20.5;
-            }
-
-            const minKyuMatch = /(minimum|min\.)(.*) (10|[1-9])\. kyu/i.exec(
-              lClassName,
-            );
-            if (minKyuMatch) rankRange.min = -parseInt(minKyuMatch[3], 10);
-            const minKyuMatch2 = /(\d+)\. kyu og højere/i.exec(lClassName);
-            if (minKyuMatch2) rankRange.min = -parseInt(minKyuMatch2[1], 10);
-            const minKyuMatch3 = /(\d+)\. kyu +/i.exec(lClassName);
-            if (minKyuMatch3) rankRange.min = -parseInt(minKyuMatch3[1], 10);
-            const minAgeMatch = /minimum (\d+) år/i.exec(lClassName);
-            if (minAgeMatch) ageRange.min = parseInt(minAgeMatch[1], 10);
-            const minAgeMatch2 = /fra ([0-9]+) år/i.exec(lClassName);
-            if (minAgeMatch2) ageRange.min = parseInt(minAgeMatch2[1], 10);
-            const maxAgeMatch = /maksimum (\d+) år/i.exec(lClassName);
-            if (maxAgeMatch) ageRange.max = parseInt(maxAgeMatch[1], 10);
-            const maxAgeMatch2 = /til og med (\d+) år/i.exec(lClassName);
-            if (maxAgeMatch2) ageRange.max = parseInt(maxAgeMatch2[1], 10);
-            //f.x.   "className": "9. kyu (fra 15 år) samt 8. og 7. kyu (alle aldre)",
-            // if it lists multiple grades, e.g., "9. kyu (fra 15 år) samt 8. og 7. kyu (alle aldre)",
-            // we will need to get at least the highest and lowest rank mentioned in the className
-
-            const kyuGrades = /(10|[1-9])\.-(10|[1-9]). kyu/gi
-              .exec(className)
-              ?.slice(1, 3)
-              .map((m) => parseInt(m, 10));
-            if (kyuGrades && kyuGrades?.length > 1) {
-              rankRange.min = -Math.max(...kyuGrades);
-              rankRange.max = -Math.min(...kyuGrades);
-            }
-            const monGrades = /(10|[1-9])\.-(10|[1-9]). mon/gi
-              .exec(className)
-              ?.slice(1, 3)
-              .map((m) => parseInt(m, 10));
-            if (monGrades && monGrades?.length > 1) {
-              rankRange.min = -Math.max(...monGrades) - 10;
-              rankRange.max = -Math.min(...monGrades) - 10;
-            }
-            if (
-              lClassName.includes("børn") &&
-              lClassName.includes("begyndere")
-            ) {
-              rankRange.min = null;
-            }
-            if (
-              lClassName.includes("voksne") &&
-              lClassName.includes("begyndere")
-            ) {
-              rankRange.min = -10.5;
-            }
-
-            const monMaxMatch = /til.*(10|[1-9])\. mon/i.exec(lClassName);
-            if (monMaxMatch) rankRange.max = -parseInt(monMaxMatch[1], 10) - 10;
-            const monMinMatch = /(10|[1-9])\. mon +/i.exec(lClassName);
-            if (monMinMatch) rankRange.min = -parseInt(monMinMatch[1], 10) - 10;
+            const { rankRange, ageRange } =
+              getAgeAndRankFromClassName(className);
 
             const [
               [startTimeHour, startTimeMinute],
@@ -797,7 +704,7 @@ const eventsSources = [
               byweekday: weekday,
               freq: RRule.WEEKLY,
               dtstart: start,
-            }).after(new Date());
+            }).after(now);
 
             if (!nextStart) continue;
 
@@ -876,7 +783,7 @@ const eventsSources = [
         .toArray();
     },
     classesUrl: "https://farumkyokushin.dk/traeningstider/",
-    async *loadClasses() {
+    async *loadClasses({ now }: { now: Date }) {
       const $res = await fetch$("https://farumkyokushin.dk/traeningstider/");
 
       $res(".av_one_half")
@@ -925,55 +832,8 @@ const eventsSources = [
 
         if (weekday && timeRange && !className) {
           className = line;
-          const lClassName = className.toLowerCase();
 
-          const ageRange: { min: number | null; max: number | null } = {
-            min: null,
-            max: null,
-          };
-          const rankRange: { min: number | null; max: number | null } = {
-            min: -10.5,
-            max: null,
-          };
-
-          const minKyuMatch = /(minimum|min\.)(.*) (10|[0-9])\. kyu/i.exec(
-            lClassName,
-          );
-          if (minKyuMatch) rankRange.min = -parseInt(minKyuMatch[3], 10);
-          const minKyuMatch2 = /(\d+)\. kyu og højere/i.exec(lClassName);
-          if (minKyuMatch2) rankRange.min = -parseInt(minKyuMatch2[1], 10);
-          const minAgeMatch = /minimum (\d+) år/i.exec(lClassName);
-          if (minAgeMatch) ageRange.min = parseInt(minAgeMatch[1], 10);
-          const minAgeMatch2 = /fra ([0-9]+) år/i.exec(lClassName);
-          if (minAgeMatch2) ageRange.min = parseInt(minAgeMatch2[1], 10);
-          const maxAgeMatch = /maksimum (\d+) år/i.exec(lClassName);
-          if (maxAgeMatch) ageRange.max = parseInt(maxAgeMatch[1], 10);
-          const maxAgeMatch2 = /til og med (\d+) år/i.exec(lClassName);
-          if (maxAgeMatch2) ageRange.max = parseInt(maxAgeMatch2[1], 10);
-          //f.x.   "className": "9. kyu (fra 15 år) samt 8. og 7. kyu (alle aldre)",
-          // if it lists multiple grades, e.g., "9. kyu (fra 15 år) samt 8. og 7. kyu (alle aldre)",
-          // we will need to get at least the highest and lowest rank mentioned in the className
-
-          const grades = [
-            ...className.matchAll(
-              /(?<!\d)(\d+)\.(?=(?:[\s,.-]+(?:og\s+)?\d+\.)*[\s,.-]*(?:og\s+)?kyu\b)/gi,
-            ),
-          ]
-            .map((match) => Number(match[1]))
-            .filter((n, i, arr) => arr.indexOf(n) === i);
-          if (grades.length > 1) {
-            rankRange.min = -Math.max(...grades);
-            rankRange.max = -Math.min(...grades);
-          }
-
-          if (lClassName.includes("kids")) {
-            rankRange.max = -11;
-          }
-          if (lClassName.includes("mini bushi")) {
-            ageRange.min = 3;
-            ageRange.max = 5;
-            rankRange.max = -21;
-          }
+          const { ageRange, rankRange } = getAgeAndRankFromClassName(className);
 
           const start = new Date();
           start.setHours(parseInt(timeRange.split(".")[0], 10));
@@ -988,13 +848,14 @@ const eventsSources = [
           end.setSeconds(0);
           end.setMilliseconds(0);
           const duration = end.getTime() - start.getTime();
-          const rrule = new RRule({
+          const nextOccurrence = new RRule({
             byweekday: weekday,
             freq: RRule.WEEKLY,
             dtstart: start,
-          });
-          const nextOccurrence = rrule.after(new Date());
+          }).after(now);
+
           if (!nextOccurrence) continue;
+
           yield {
             nextStart: nextOccurrence,
             nextEnd: new Date(nextOccurrence.getTime() + duration),
@@ -1213,7 +1074,7 @@ const eventsSources = [
       return shinryokudanEvents;
     },
     classesUrl: "https://www.nansensgadekarate.dk/traeningstider",
-    async *loadClasses() {
+    async *loadClasses({ now }: { now: Date }) {
       const $res = await fetch$(
         "https://www.nansensgadekarate.dk/traeningstider",
       );
@@ -1267,68 +1128,7 @@ const eventsSources = [
         } else if (weekday && timeRange && className && !instructors) {
           instructors = line.split(",").flatMap((s) => s.trim().split(" og "));
 
-          const lClassName = className.toLowerCase();
-
-          const ageRange: { min: number | null; max: number | null } = {
-            min: null,
-            max: null,
-          };
-          const rankRange: { min: number | null; max: number | null } = {
-            min: -10.5,
-            max: null,
-          };
-
-          const minKyuMatch = /(minimum|min\.)(.*) (10|[1-9])\. kyu/i.exec(
-            lClassName,
-          );
-          if (minKyuMatch) rankRange.min = -parseInt(minKyuMatch[3], 10);
-          const minKyuMatch2 = /(\d+)\. kyu og højere/i.exec(lClassName);
-          if (minKyuMatch2) rankRange.min = -parseInt(minKyuMatch2[1], 10);
-          const minAgeMatch = /minimum (\d+) år/i.exec(lClassName);
-          if (minAgeMatch) ageRange.min = parseInt(minAgeMatch[1], 10);
-          const minAgeMatch2 = /fra ([0-9]+) år/i.exec(lClassName);
-          if (minAgeMatch2) ageRange.min = parseInt(minAgeMatch2[1], 10);
-          const maxAgeMatch = /maksimum (\d+) år/i.exec(lClassName);
-          if (maxAgeMatch) ageRange.max = parseInt(maxAgeMatch[1], 10);
-          const maxAgeMatch2 = /til og med (\d+) år/i.exec(lClassName);
-          if (maxAgeMatch2) ageRange.max = parseInt(maxAgeMatch2[1], 10);
-          //f.x.   "className": "9. kyu (fra 15 år) samt 8. og 7. kyu (alle aldre)",
-          // if it lists multiple grades, e.g., "9. kyu (fra 15 år) samt 8. og 7. kyu (alle aldre)",
-          // we will need to get at least the highest and lowest rank mentioned in the className
-
-          const grades = /(10|[1-9])\.-(10|[1-9]). kyu/gi
-            .exec(className)
-            ?.slice(1, 3)
-            .map((m) => parseInt(m, 10));
-
-          if (grades && grades?.length > 1) {
-            rankRange.min = -Math.max(...grades);
-            rankRange.max = -Math.min(...grades);
-          }
-
-          if (lClassName.includes("børn")) {
-            rankRange.min = null;
-            rankRange.max = -11;
-          }
-
-          const monMaxMatch = /til.*(10|[1-9])\. mon/i.exec(lClassName);
-          if (monMaxMatch) rankRange.max = -parseInt(monMaxMatch[1], 10) - 10;
-          const monMinMatch = /fra.*(10|[1-9])\. mon/i.exec(lClassName);
-          if (monMinMatch) rankRange.min = -parseInt(monMinMatch[1], 10) - 10;
-
-          if (
-            lClassName.includes("voksne") ||
-            lClassName.includes("kamphold")
-          ) {
-            rankRange.min = -10.5;
-            rankRange.max = null;
-          }
-
-          if (lClassName.includes("forældre/børn")) {
-            ageRange.min = 5;
-            ageRange.max = 9;
-            rankRange.max = -20.5;
-          }
+          const { rankRange, ageRange } = getAgeAndRankFromClassName(className);
 
           const start = new Date();
           start.setHours(parseInt(timeRange.split(":")[0], 10));
@@ -1343,13 +1143,14 @@ const eventsSources = [
           end.setSeconds(0);
           end.setMilliseconds(0);
           const duration = end.getTime() - start.getTime();
-          const rrule = new RRule({
+          const nextOccurrence = new RRule({
             byweekday: weekday,
             freq: RRule.WEEKLY,
             dtstart: start,
-          });
-          const nextOccurrence = rrule.after(new Date());
+          }).after(now);
+
           if (!nextOccurrence) continue;
+
           yield {
             nextStart: nextOccurrence,
             nextEnd: new Date(nextOccurrence.getTime() + duration),
@@ -1669,6 +1470,10 @@ export const fetchEvents = async ({
 };
 
 export const getClasses = async () => {
+  "use cache";
+
+  const now = new Date(startOfToday({ in: tz("Europe/Copenhagen") }));
+
   const anySourceHasOnly = eventsSources.some(
     (source) => "only" in source && source.only,
   );
@@ -1684,7 +1489,7 @@ export const getClasses = async () => {
         (source) =>
           "loadClasses" in source &&
           source.loadClasses &&
-          Array.fromAsync(source.loadClasses()).then((classes) =>
+          Array.fromAsync(source.loadClasses({ now })).then((classes) =>
             classes.map((c) => ({
               ...c,
               source: source.name,
