@@ -185,37 +185,36 @@ export default async function HoldList({
                                   c.nextStart.toISOString() +
                                   c.className
                                 }
-                                className="dark:bg-gray-800 bg-white p-2 pt-1 flex flex-col leading-tight"
+                                className="dark:bg-gray-800 bg-white p-2 flex flex-col leading-0"
                               >
-                                <div className="leading-0">
-                                  <span className="whitespace-nowrap">
-                                    {new Intl.DateTimeFormat("da-DK", {
-                                      timeStyle: "short",
-                                    }).formatRange(c.nextStart, c.nextEnd)}
-                                  </span>{" "}
-                                  <span className="font-bold text-xl">
-                                    {className}
-                                  </span>{" "}
+                                <div>
+                                  <div>
+                                    <span className="whitespace-nowrap font-semibold">
+                                      {new Intl.DateTimeFormat("da-DK", {
+                                        timeStyle: "short",
+                                      }).formatRange(c.nextStart, c.nextEnd)}
+                                    </span>{" "}
+                                    <span className="font-lighter text-xs">
+                                      {c.source}
+                                    </span>
+                                  </div>
                                   <a
                                     href={c.classesUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="font-lighter text-xs text-red-400 hover:underline"
+                                    className=" text-red-400 leading-none hover:underline font-bold text-xl"
                                   >
-                                    {c.source}
-                                  </a>
+                                    {className}
+                                  </a>{" "}
                                   {"instructors" in c &&
                                     Array.isArray(c.instructors) &&
                                     c.instructors.length > 0 && (
-                                      <>
-                                        ,{" "}
-                                        <span className="font-lighter text-xs font-lighter italic">
-                                          v.&nbsp;
-                                          {new Intl.ListFormat("da-DK").format(
-                                            c.instructors,
-                                          )}
-                                        </span>
-                                      </>
+                                      <div className="font-lighter text-xs leading-tight italic">
+                                        v.&nbsp;
+                                        {new Intl.ListFormat("da-DK").format(
+                                          c.instructors,
+                                        )}
+                                      </div>
                                     )}
                                 </div>
                                 {"rankRange" in c &&
@@ -224,7 +223,7 @@ export default async function HoldList({
                                 ("min" in c.rankRange ||
                                   "max" in c.rankRange) ? (
                                   <div
-                                    className="flex flex-row gap-[1%] -mx-2 -mb-2 relative"
+                                    className="flex flex-row gap-[1%] mt-1 -mx-2 -mb-2 relative"
                                     style={{
                                       background: "var(--color-background)",
                                     }}
