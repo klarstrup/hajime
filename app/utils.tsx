@@ -238,7 +238,7 @@ export function getAgeAndRankFromClassName(className: string): {
     max: null,
   };
 
-  if (lClassName.includes("børn")) {
+  if (lClassName.includes("børn") && !lClassName.includes("unge")) {
     rankRange.min = null;
     rankRange.max = -11;
   }
@@ -427,6 +427,10 @@ if (import.meta.vitest) {
       "Kiddz, 3-5 år": {
         rankRange: { min: null, max: null },
         ageRange: { min: 3, max: 5 },
+      },
+      "Børn og unge (til og med 14 år og min. 10. kyu)": {
+        rankRange: { min: -10, max: null },
+        ageRange: { min: null, max: 14 },
       },
     };
     for (const [input, expected] of Object.entries(cases)) {
