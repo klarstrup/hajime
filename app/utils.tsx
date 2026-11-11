@@ -208,7 +208,9 @@ export function getAgeAndRankFromClassName(className: string): {
 
   const minSuffixAge = /([1-9][0-9])\+/i.exec(lClassName)?.[1];
   if (minSuffixAge) ageRange.min = parseInt(minSuffixAge, 10);
-  const minPrefixAge = /(\+|minimum|fra) ?([1-9][0-9]) år/i.exec(lClassName)?.[2];
+  const minPrefixAge = /(\+|minimum|fra) ?([1-9][0-9]) år/i.exec(
+    lClassName,
+  )?.[2];
   if (minPrefixAge) ageRange.min = parseInt(minPrefixAge, 10);
   const maxAgeMatch = /til og med ([1-9][0-9]) år/i.exec(lClassName)?.[1];
   if (maxAgeMatch) ageRange.max = parseInt(maxAgeMatch, 10);
@@ -237,7 +239,7 @@ export function getAgeAndRankFromClassName(className: string): {
     rankRange.min = null;
     rankRange.max = -11;
   }
-  if (lClassName.includes("mini bushi")) {
+  if (lClassName.includes("mini bushi") || lClassName.includes("kidzz")) {
     rankRange.min = null;
     rankRange.max = -21;
   }
@@ -419,6 +421,10 @@ if (import.meta.vitest) {
         rankRange: { min: -10, max: null },
         ageRange: { min: null, max: 14 },
       },
+      "Kiddz, 3-5 år": {
+        rankRange: { min: null, max: null },
+        ageRange: { min: 3, max: 5 },
+      }
     };
     for (const [input, expected] of Object.entries(cases)) {
       it(input, () =>
