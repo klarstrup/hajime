@@ -187,6 +187,7 @@ export function getAgeAndRankFromClassName(className: string): {
   );
   const cleanRankMentions = rankMentions
     .flatMap((m) => m.match(/\d+/g)?.map(Number) || [])
+    .filter((n, i, arr) => arr.indexOf(n) === i)
     .map((n) =>
       cleanRankTier === "mon" ? -n - 10 : cleanRankTier === "dan" ? -n - 1 : -n,
     );
@@ -205,14 +206,16 @@ export function getAgeAndRankFromClassName(className: string): {
     ageRange.max = 9;
   }
 
-  const minAgeMatch = /([1-9][0-9])\+/i.exec(lClassName)?.[1];
-  if (minAgeMatch) ageRange.min = parseInt(minAgeMatch, 10);
+  const minSuffixAge = /([1-9][0-9])\+/i.exec(lClassName)?.[1];
+  if (minSuffixAge) ageRange.min = parseInt(minSuffixAge, 10);
+  const minPrefixAge = /(\+|minimum|fra) ?([1-9][0-9]) år/i.exec(lClassName)?.[2];
+  if (minPrefixAge) ageRange.min = parseInt(minPrefixAge, 10);
+  const maxAgeMatch = /til og med ([1-9][0-9]) år/i.exec(lClassName)?.[1];
+  if (maxAgeMatch) ageRange.max = parseInt(maxAgeMatch, 10);
 
   if (cleanAgeMentions.length > 1) {
     ageRange.min = Math.min(...cleanAgeMentions);
     ageRange.max = Math.max(...cleanAgeMentions);
-  } else if (cleanAgeMentions.length === 1) {
-    ageRange.min = cleanAgeMentions[0];
   }
 
   if (lClassName.includes("alle aldre")) {
@@ -246,9 +249,9 @@ export function getAgeAndRankFromClassName(className: string): {
   const minKyuMatch = /^(\d+)\. kyu/i.exec(lClassName)?.[1];
   if (minKyuMatch) rankRange.min = -parseInt(minKyuMatch, 10);
 
-  const minPrefixedKyuMatch = /(minimum|min\.|fra)(.*) (10|[1-9])\. kyu/i.exec(
+  const minPrefixedKyuMatch = /(minimum|min\.|fra).*(10|[1-9])\. kyu/i.exec(
     lClassName,
-  )?.[3];
+  )?.[2];
   if (minPrefixedKyuMatch) rankRange.min = -parseInt(minPrefixedKyuMatch, 10);
   const minSuffixedKyuMatch = /(\d+)\.? kyu ?[-+]/i.exec(lClassName)?.[1];
   if (minSuffixedKyuMatch) rankRange.min = -parseInt(minSuffixedKyuMatch, 10);
@@ -411,6 +414,10 @@ if (import.meta.vitest) {
       "Voksne, +14 år, Øvede, 4. kyu +": {
         rankRange: { min: -4, max: null },
         ageRange: { min: 14, max: null },
+      },
+      "Minimum 10. kyu (til og med 14 år og min. 10. kyu)": {
+        rankRange: { min: -10, max: null },
+        ageRange: { min: null, max: 14 },
       },
     };
     for (const [input, expected] of Object.entries(cases)) {
