@@ -1336,37 +1336,21 @@ const eventsSources = [
       // The lines can be weekday names, class name and time range of day. In that order. Assemble them into structured data.
       for (const line of holdLines) {
         const newWeekday = getRRuleWeekdayByFullDanishName(line);
-        if (newWeekday) {
-          weekday = newWeekday;
-          className = undefined;
-          timeRange = undefined;
-          continue;
-        }
-        if (!className) {
-          if (
-            line.match(/lukket/i) ||
-            line.match(/ingen træning/i) ||
-            line.match(/^\((.+)\)$/)
-          ) {
-            continue;
-          }
-          className = line;
-          timeRange = undefined;
-          continue;
-        }
-
         const newTimeRange = safeParseTimeRange(line, now);
-        if (!timeRange && newTimeRange) timeRange = newTimeRange;
+        if (newWeekday) weekday = newWeekday;
+        if (newTimeRange) timeRange = newTimeRange;
+
+        // If the line is neither a weekday nor a time range, it's the name of the class
+        if (!newWeekday && !newTimeRange) className = line;
 
         if (weekday && timeRange && className) {
-          const { rankRange, ageRange } = getAgeAndRankFromClassName(className);
+          const { ageRange, rankRange } = getAgeAndRankFromClassName(className);
 
           const { nextStart, nextEnd } = getNextStartAndEnd(timeRange, weekday);
           if (!nextStart) continue;
 
-          yield { nextStart, nextEnd, className, rankRange, ageRange };
+          yield { nextStart, nextEnd, className, ageRange, rankRange };
 
-          className = undefined;
           timeRange = undefined;
         }
       }
