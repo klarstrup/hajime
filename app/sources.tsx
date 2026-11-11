@@ -1053,26 +1053,19 @@ const eventsSources = [
       // The lines can be weekday names, time range of day, class name and instructors. In that order. Assemble them into structured data.
       for (const line of holdLines) {
         const newWeekday = getRRuleWeekdayByFullDanishName(line);
-        if (newWeekday) {
-          weekday = newWeekday;
-          continue;
-        }
         const newTimeRange = safeParseTimeRange(line, now);
-        // a new time range indicates the start of a new class session
-        if (newTimeRange) {
-          className = undefined;
-          instructors = undefined;
-          timeRange = newTimeRange;
-          // Do something with the time range, e.g., store it in a variable or object
-          continue;
+        if (newWeekday) weekday = newWeekday;
+        if (newTimeRange) timeRange = newTimeRange;
+
+        // If the line is neither a weekday nor a time range, it's the name of the class or the instructors
+        if (!newWeekday && !newTimeRange && !className) {
+          className = line;
+        } else if (!newWeekday && !newTimeRange && className && !instructors) {
+          instructors = line.split(",").flatMap((s) => s.trim().split(" og "));
         }
 
-        if (weekday && timeRange && !className) {
-          className = line;
-        } else if (weekday && timeRange && className && !instructors) {
-          instructors = line.split(",").flatMap((s) => s.trim().split(" og "));
-
-          const { rankRange, ageRange } = getAgeAndRankFromClassName(className);
+        if (weekday && timeRange && className && instructors) {
+          const { ageRange, rankRange } = getAgeAndRankFromClassName(className);
 
           const { nextStart, nextEnd } = getNextStartAndEnd(timeRange, weekday);
           if (!nextStart) continue;
@@ -1081,10 +1074,13 @@ const eventsSources = [
             nextStart,
             nextEnd,
             className,
-            instructors,
-            rankRange,
             ageRange,
+            rankRange,
+            instructors,
           };
+
+          className = undefined;
+          instructors = undefined;
         }
       }
     },
