@@ -17,10 +17,8 @@ import {
   fuseCompare,
   getAgeAndRankFromClassName,
   getRRuleWeekdayByFullDanishName,
-  hoursMinutesSeparatorRE,
   render,
-  timeRangeRE,
-  timeSeparatorRE,
+  safeParseTimeRange,
 } from "./utils";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -660,7 +658,7 @@ const eventsSources = [
         );
 
       let weekday: Weekday | undefined = undefined;
-      let timeRange: string | undefined = undefined;
+      let timeRange: { start: Date; end: Date } | undefined = undefined;
       let className: string | undefined = undefined;
 
       // The lines are class name, weekday names and time range of day. In that order. Assemble them into structured data.
@@ -670,47 +668,32 @@ const eventsSources = [
         className = undefined;
         for (const line of lines) {
           const newWeekday = getRRuleWeekdayByFullDanishName(line);
-          const timeRangeMatch = line.match(timeRangeRE);
+          const newTimeRange = safeParseTimeRange(line, now);
           // if it's not a time range or a weekday, it must be a class
-          if (!timeRangeMatch && !newWeekday) {
+          if (!newTimeRange && !newWeekday) {
             weekday = undefined;
             timeRange = undefined;
             className = superHold + ", " + line;
           }
           if (newWeekday) weekday = newWeekday;
-          if (timeRangeMatch) timeRange = timeRangeMatch[0];
+          if (newTimeRange) timeRange = newTimeRange;
 
           if (weekday && timeRange && className) {
             const { rankRange, ageRange } =
               getAgeAndRankFromClassName(className);
 
-            const [
-              [startTimeHour, startTimeMinute],
-              [endTimeHour, endTimeMinute],
-            ] = timeRange
-              .split(timeSeparatorRE)
-              .map((time) => time.trim().split(hoursMinutesSeparatorRE));
-            const start = new Date();
-            start.setHours(parseInt(startTimeHour, 10));
-            start.setMinutes(parseInt(startTimeMinute, 10));
-            start.setSeconds(0);
-            start.setMilliseconds(0);
-            const end = new Date();
-            end.setHours(parseInt(endTimeHour, 10));
-            end.setMinutes(parseInt(endTimeMinute, 10));
-            end.setSeconds(0);
-            end.setMilliseconds(0);
-
             const nextStart = new RRule({
               byweekday: weekday,
               freq: RRule.WEEKLY,
-              dtstart: start,
+              dtstart: timeRange.start,
             }).after(now);
 
             if (!nextStart) continue;
 
             const nextEnd = new Date(
-              nextStart.getTime() + end.getTime() - start.getTime(),
+              nextStart.getTime() +
+                timeRange.end.getTime() -
+                timeRange.start.getTime(),
             );
 
             yield {
@@ -810,7 +793,7 @@ const eventsSources = [
         .map((line) => line.trim());
 
       let weekday: Weekday | undefined = undefined;
-      let timeRange: string | undefined = undefined;
+      let timeRange: { start: Date; end: Date } | undefined = undefined;
       let className: string | undefined = undefined;
 
       // The lines can be weekday names, time range of day, class name and instructors. In that order. Assemble them into structured data.
@@ -820,11 +803,11 @@ const eventsSources = [
           weekday = newWeekday;
           continue;
         }
-        const timeRangeMatch = line.match(timeRangeRE);
+        const newTimeRange = safeParseTimeRange(line, now);
         // a new time range indicates the start of a new class session
-        if (timeRangeMatch) {
+        if (newTimeRange) {
           className = undefined;
-          timeRange = timeRangeMatch[0];
+          timeRange = newTimeRange;
           // Do something with the time range, e.g., store it in a variable or object
           continue;
         }
@@ -834,54 +817,19 @@ const eventsSources = [
 
           const { ageRange, rankRange } = getAgeAndRankFromClassName(className);
 
-          const start = new Date();
-          start.setHours(
-            parseInt(timeRange.split(hoursMinutesSeparatorRE)[0], 10),
-          );
-          start.setMinutes(
-            parseInt(
-              timeRange.split(hoursMinutesSeparatorRE)[1].split(" ")[0],
-              10,
-            ),
-          );
-          start.setSeconds(0);
-          start.setMilliseconds(0);
-          const end = new Date();
-          end.setHours(
-            parseInt(
-              timeRange
-                .split(timeSeparatorRE)[1]
-                .split(hoursMinutesSeparatorRE)[0],
-              10,
-            ),
-          );
-          end.setMinutes(
-            parseInt(
-              timeRange
-                .split(timeSeparatorRE)[1]
-                .split(hoursMinutesSeparatorRE)[1]
-                .split(" ")[0],
-              10,
-            ),
-          );
-          end.setSeconds(0);
-          end.setMilliseconds(0);
-          const duration = end.getTime() - start.getTime();
-          const nextOccurrence = new RRule({
+          const nextStart = new RRule({
             byweekday: weekday,
             freq: RRule.WEEKLY,
-            dtstart: start,
+            dtstart: timeRange.start,
           }).after(now);
 
-          if (!nextOccurrence) continue;
+          if (!nextStart) continue;
+          const nextEnd = new Date(
+            nextStart.getTime() +
+              (timeRange.end.getTime() - timeRange.start.getTime()),
+          );
 
-          yield {
-            nextStart: nextOccurrence,
-            nextEnd: new Date(nextOccurrence.getTime() + duration),
-            className,
-            ageRange,
-            rankRange,
-          };
+          yield { nextStart, nextEnd, className, ageRange, rankRange };
         }
       }
     },
@@ -1121,7 +1069,7 @@ const eventsSources = [
         .map((line) => line.trim());
 
       let weekday: Weekday | undefined = undefined;
-      let timeRange: string | undefined = undefined;
+      let timeRange: { start: Date; end: Date } | undefined = undefined;
       let className: string | undefined = undefined;
       let instructors: string[] | undefined = undefined;
 
@@ -1132,12 +1080,12 @@ const eventsSources = [
           weekday = newWeekday;
           continue;
         }
-        const timeRangeMatch = line.match(timeRangeRE);
+        const newTimeRange = safeParseTimeRange(line, now);
         // a new time range indicates the start of a new class session
-        if (timeRangeMatch) {
+        if (newTimeRange) {
           className = undefined;
           instructors = undefined;
-          timeRange = timeRangeMatch[0];
+          timeRange = newTimeRange;
           // Do something with the time range, e.g., store it in a variable or object
           continue;
         }
@@ -1149,50 +1097,21 @@ const eventsSources = [
 
           const { rankRange, ageRange } = getAgeAndRankFromClassName(className);
 
-          const start = new Date();
-          start.setHours(
-            parseInt(timeRange.split(hoursMinutesSeparatorRE)[0], 10),
-          );
-          start.setMinutes(
-            parseInt(
-              timeRange.split(hoursMinutesSeparatorRE)[1].split(" ")[0],
-              10,
-            ),
-          );
-          start.setSeconds(0);
-          start.setMilliseconds(0);
-          const end = new Date();
-          end.setHours(
-            parseInt(
-              timeRange
-                .split(timeSeparatorRE)[1]
-                .split(hoursMinutesSeparatorRE)[0],
-              10,
-            ),
-          );
-          end.setMinutes(
-            parseInt(
-              timeRange
-                .split(timeSeparatorRE)[1]
-                .split(hoursMinutesSeparatorRE)[1]
-                .split(" ")[0],
-              10,
-            ),
-          );
-          end.setSeconds(0);
-          end.setMilliseconds(0);
-          const duration = end.getTime() - start.getTime();
-          const nextOccurrence = new RRule({
+          const nextStart = new RRule({
             byweekday: weekday,
             freq: RRule.WEEKLY,
-            dtstart: start,
+            dtstart: timeRange.start,
           }).after(now);
 
-          if (!nextOccurrence) continue;
+          if (!nextStart) continue;
+          const nextEnd = new Date(
+            nextStart.getTime() +
+              (timeRange.end.getTime() - timeRange.start.getTime()),
+          );
 
           yield {
-            nextStart: nextOccurrence,
-            nextEnd: new Date(nextOccurrence.getTime() + duration),
+            nextStart,
+            nextEnd,
             className,
             instructors,
             rankRange,
@@ -1445,7 +1364,7 @@ const eventsSources = [
 
       let weekday: Weekday | undefined = undefined;
       let className: string | undefined = undefined;
-      let timeRange: string | undefined = undefined;
+      let timeRange: { start: Date; end: Date } | undefined = undefined;
       // The lines can be weekday names, class name and time range of day. In that order. Assemble them into structured data.
       for (const line of holdLines) {
         const newWeekday = getRRuleWeekdayByFullDanishName(line);
@@ -1468,53 +1387,24 @@ const eventsSources = [
           continue;
         }
 
-        const newTimeRange = line.match(timeRangeRE)?.[0];
+        const newTimeRange = safeParseTimeRange(line, now);
         if (!timeRange && newTimeRange) timeRange = newTimeRange;
 
         if (weekday && timeRange && className) {
           const { rankRange, ageRange } = getAgeAndRankFromClassName(className);
 
-          const start = new Date(now);
-          start.setHours(
-            parseInt(timeRange.split(hoursMinutesSeparatorRE)[0], 10),
-          );
-          start.setMinutes(
-            parseInt(
-              timeRange.split(hoursMinutesSeparatorRE)[1].split(" ")[0],
-              10,
-            ),
-          );
-          start.setSeconds(0);
-          start.setMilliseconds(0);
-          const end = new Date(now);
-          end.setHours(
-            parseInt(
-              timeRange
-                .split(timeSeparatorRE)[1]
-                .split(hoursMinutesSeparatorRE)[0],
-              10,
-            ),
-          );
-          end.setMinutes(
-            parseInt(
-              timeRange
-                .split(timeSeparatorRE)[1]
-                .split(hoursMinutesSeparatorRE)[1]
-                .split(" ")[0],
-              10,
-            ),
-          );
-          end.setSeconds(0);
-          end.setMilliseconds(0);
-          const duration = end.getTime() - start.getTime();
           const nextStart = new RRule({
             byweekday: weekday,
             freq: RRule.WEEKLY,
-            dtstart: start,
+            dtstart: timeRange.start,
           }).after(now);
 
           if (!nextStart) continue;
-          const nextEnd = new Date(nextStart.getTime() + duration);
+
+          const nextEnd = new Date(
+            nextStart.getTime() +
+              (timeRange.end.getTime() - timeRange.start.getTime()),
+          );
 
           yield { nextStart, nextEnd, className, rankRange, ageRange };
 
