@@ -187,39 +187,36 @@ export default async function HoldList({
                                 }
                                 className="dark:bg-gray-800 bg-white p-2 pt-1 flex flex-col leading-tight"
                               >
-                                <pre hidden>{JSON.stringify(c, null, 2)}</pre>
-                                <div className="flex flex-row gap-2 items-baseline">
-                                  <div className="whitespace-nowrap">
+                                <div className="leading-0">
+                                  <span className="whitespace-nowrap">
                                     {new Intl.DateTimeFormat("da-DK", {
                                       timeStyle: "short",
                                     }).formatRange(c.nextStart, c.nextEnd)}
-                                  </div>
-                                  <div>
-                                    <span className="font-bold text-xl mr-1 leading-tight">
-                                      {className}
-                                    </span>
-                                    <a
-                                      href={c.classesUrl}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="font-lighter text-xs leading-none text-red-400 hover:underline"
-                                    >
-                                      {c.source}
-                                    </a>
-                                    {"instructors" in c &&
-                                      Array.isArray(c.instructors) &&
-                                      c.instructors.length > 0 && (
-                                        <>
-                                          ,{" "}
-                                          <span className="font-lighter text-xs leading-none font-lighter italic">
-                                            v.&nbsp;
-                                            {new Intl.ListFormat(
-                                              "da-DK",
-                                            ).format(c.instructors)}
-                                          </span>
-                                        </>
-                                      )}
-                                  </div>
+                                  </span>{" "}
+                                  <span className="font-bold text-xl">
+                                    {className}
+                                  </span>{" "}
+                                  <a
+                                    href={c.classesUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="font-lighter text-xs text-red-400 hover:underline"
+                                  >
+                                    {c.source}
+                                  </a>
+                                  {"instructors" in c &&
+                                    Array.isArray(c.instructors) &&
+                                    c.instructors.length > 0 && (
+                                      <>
+                                        ,{" "}
+                                        <span className="font-lighter text-xs font-lighter italic">
+                                          v.&nbsp;
+                                          {new Intl.ListFormat("da-DK").format(
+                                            c.instructors,
+                                          )}
+                                        </span>
+                                      </>
+                                    )}
                                 </div>
                                 {"rankRange" in c &&
                                 c.rankRange &&
