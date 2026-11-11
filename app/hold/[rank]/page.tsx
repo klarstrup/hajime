@@ -9,7 +9,7 @@ export const instant = false;
 export default async function TræningPage({
   params,
 }: PageProps<"/hold/[rank]">) {
-  const queryRank = (await params).rank?.[0];
+  const queryRank = (await params).rank;
   const myRank = dkuRanks.find((rank) => rank.slug === queryRank);
 
   return <HoldList myRank={myRank} />;
