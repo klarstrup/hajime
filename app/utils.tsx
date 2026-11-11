@@ -152,39 +152,74 @@ export function getAgeAndRankFromClassName(className: string): {
   className = className.trim().replace("kyu junior", "mon");
   const lClassName = className.toLowerCase();
 
+  const ageIndices: number[] = [];
+  const rankIndices: number[] = [];
+  let ageResult;
+  const ageRegex = /år/gi;
+  while ((ageResult = ageRegex.exec(className)))
+    ageIndices.push(ageResult.index);
+  let rankResult;
+  const tierRegex = /kyu|mon|dan/gi;
+  while ((rankResult = tierRegex.exec(className)))
+    rankIndices.push(rankResult.index);
+
+  const ageMentions: string[] = [];
+  const rankMentions: string[] = [];
+
+  let lastIndex = -1;
+  for (const m of [...ageIndices, ...rankIndices].sort((a, b) => a - b)) {
+    if (rankIndices.includes(m)) {
+      rankMentions.push(
+        className.slice(lastIndex === -1 ? 0 : lastIndex + 2, m),
+      );
+    }
+    if (ageIndices.includes(m)) {
+      ageMentions.push(
+        className.slice(lastIndex === -1 ? 0 : lastIndex + 3, m),
+      );
+    }
+    lastIndex = m;
+  }
+
+  const cleanRankTier = className.match(tierRegex)?.[0]?.toLowerCase();
+  const cleanAgeMentions = ageMentions.flatMap(
+    (m) => m.match(/\d+/g)?.map(Number) || [],
+  );
+  const cleanRankMentions = rankMentions
+    .flatMap((m) => m.match(/\d+/g)?.map(Number) || [])
+    .map((n) =>
+      cleanRankTier === "mon" ? -n - 10 : cleanRankTier === "dan" ? -n - 1 : -n,
+    );
+
   const ageRange: { min: number | null; max: number | null } = {
     min: null,
     max: null,
   };
-  if (lClassName.includes("forældre/børn")) {
-    ageRange.min = 5;
-    ageRange.max = 9;
-  }
 
   if (lClassName.includes("mini bushi")) {
     ageRange.min = 3;
     ageRange.max = 5;
   }
+  if (lClassName.includes("forældre/børn")) {
+    ageRange.min = 5;
+    ageRange.max = 9;
+  }
 
-  const minAgeMatch = /minimum (\d+) år/i.exec(lClassName);
-  if (minAgeMatch) ageRange.min = parseInt(minAgeMatch[1], 10);
-  const minAgeMatch22 = /([1-9][0-9])\+/i.exec(lClassName);
-  if (minAgeMatch22) ageRange.min = parseInt(minAgeMatch22[1], 10);
-  const minAgeMatch12 = /fra ([0-9]+) år/i.exec(lClassName);
-  if (minAgeMatch12) ageRange.min = parseInt(minAgeMatch12[1], 10);
-  const minAgeMatch33 = /\+([0-9]+) år/i.exec(lClassName);
-  if (minAgeMatch33) ageRange.min = parseInt(minAgeMatch33[1], 10);
+  const minAgeMatch = /([1-9][0-9])\+/i.exec(lClassName)?.[1];
+  if (minAgeMatch) ageRange.min = parseInt(minAgeMatch, 10);
+
+  if (cleanAgeMentions.length > 1) {
+    ageRange.min = Math.min(...cleanAgeMentions);
+    ageRange.max = Math.max(...cleanAgeMentions);
+  } else if (cleanAgeMentions.length === 1) {
+    ageRange.min = cleanAgeMentions[0];
+  }
 
   if (lClassName.includes("alle aldre")) {
     ageRange.min = null;
     ageRange.max = null;
   }
 
-  const ages = /(\d+)-(\d+)[ -]år(ige)?/i.exec(lClassName);
-  if (ages) {
-    ageRange.min = parseInt(ages[1], 10);
-    ageRange.max = parseInt(ages[2], 10);
-  }
   if (lClassName.includes("kidzz")) {
     ageRange.min = 5;
     ageRange.max = 9;
@@ -200,72 +235,30 @@ export function getAgeAndRankFromClassName(className: string): {
     rankRange.max = -11;
   }
 
-  if (lClassName.includes("børn")) {
-    rankRange.min = null;
-    rankRange.max = -11;
-  }
-
   if (lClassName.includes("forældre")) {
     rankRange.max = -21;
   }
 
-  const minKyuMatch123 = /^(\d+)\. kyu/i.exec(lClassName);
-  if (minKyuMatch123) rankRange.min = -parseInt(minKyuMatch123[1], 10);
+  const minKyuMatch = /^(\d+)\. kyu/i.exec(lClassName)?.[1];
+  if (minKyuMatch) rankRange.min = -parseInt(minKyuMatch, 10);
 
-  const grades = [
-    ...className.matchAll(
-      /(?<!\d)(\d+)\.(?=(?:[\s,.-]+(?:og\s+)?\d+\.)*[\s,.-]*(?:og\s+)?kyu\b)/gi,
-    ),
-  ]
-    .map((match) => Number(match[1]))
-    .filter((n, i, arr) => arr.indexOf(n) === i);
-  if (grades.length > 1) {
-    rankRange.min = -Math.max(...grades);
-    rankRange.max = -Math.min(...grades);
-  }
-
-  const minKyuMatch33 = /(minimum|min\.)(.*) (10|[1-9])\. kyu/i.exec(
+  const minPrefixedKyuMatch = /(minimum|min\.|fra)(.*) (10|[1-9])\. kyu/i.exec(
     lClassName,
-  );
-  if (minKyuMatch33) rankRange.min = -parseInt(minKyuMatch33[3], 10);
-  const minKyuMatch332 = /(\d+)\.? kyu ?[-+]/i.exec(lClassName);
-  if (minKyuMatch332) rankRange.min = -parseInt(minKyuMatch332[1], 10);
-  const minKyuMatch34 = /fra (\d+)\. kyu/i.exec(lClassName);
-  if (minKyuMatch34) rankRange.min = -parseInt(minKyuMatch34[1], 10);
-  const maxKyuMatch32 = /til og med (\d+)\. kyu/i.exec(lClassName);
-  if (maxKyuMatch32) rankRange.max = -parseInt(maxKyuMatch32[1], 10);
-  const gradesAndTier =
-    /(10|[1-9])\.?-?(10|[1-9])?-(10|[1-9])\.? ?(kyu|mon|dan)/gi.exec(className);
-
-  const gradez = gradesAndTier
-    ?.slice(1, 4)
-    .filter(Boolean)
-    .map((m) => parseInt(m, 10));
-
-  const tier =
-    gradesAndTier?.[4] === "kyu"
-      ? "kyu"
-      : gradesAndTier?.[4] === "mon"
-        ? "mon"
-        : "dan";
-
-  if (gradez && gradez?.length > 1) {
-    rankRange.min =
-      -Math.max(...gradez) -
-      (tier === "mon" ? 10 : 0) -
-      (tier === "dan" ? -10 : 0);
-    rankRange.max =
-      -Math.min(...gradez) -
-      (tier === "mon" ? 10 : 0) -
-      (tier === "dan" ? -10 : 0);
+  )?.[3];
+  if (minPrefixedKyuMatch) rankRange.min = -parseInt(minPrefixedKyuMatch, 10);
+  const minSuffixedKyuMatch = /(\d+)\.? kyu ?[-+]/i.exec(lClassName)?.[1];
+  if (minSuffixedKyuMatch) rankRange.min = -parseInt(minSuffixedKyuMatch, 10);
+  const maxKyuMatch = /til og med (\d+)\. kyu/i.exec(lClassName)?.[1];
+  if (maxKyuMatch) rankRange.max = -parseInt(maxKyuMatch, 10);
+  if (cleanRankMentions.length > 1) {
+    rankRange.min = Math.min(...cleanRankMentions);
+    rankRange.max = Math.max(...cleanRankMentions);
   }
 
-  const monMaxMatch = /til.*(10|[1-9])\. mon/i.exec(lClassName);
-  if (monMaxMatch) rankRange.max = -parseInt(monMaxMatch[1], 10) - 10;
-  const monMinMatch =
-    /(10|[1-9])\. mon(.+)og op/i.exec(lClassName) ||
-    /(10|[1-9])\. mon \+/i.exec(lClassName);
-  if (monMinMatch) rankRange.min = -parseInt(monMinMatch[1], 10) - 10;
+  const monMax = /til.*(10|[1-9])\. mon/i.exec(lClassName)?.[1];
+  if (monMax) rankRange.max = -parseInt(monMax, 10) - 10;
+  const monMin = /(10|[1-9])\. mon(.+)(og op|\+)/i.exec(lClassName)?.[1];
+  if (monMin) rankRange.min = -parseInt(monMin, 10) - 10;
 
   if (lClassName.includes("voksne") && lClassName.includes("begyndere")) {
     rankRange.min = -10.5;
@@ -414,7 +407,7 @@ if (import.meta.vitest) {
       "Voksne, +14 år, Øvede, 4. kyu +": {
         rankRange: { min: -4, max: null },
         ageRange: { min: 14, max: null },
-      }
+      },
     };
     for (const [input, expected] of Object.entries(cases)) {
       it(input, () =>
