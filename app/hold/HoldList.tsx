@@ -20,7 +20,7 @@ export default async function HoldList({
   myRank?: (typeof dkuRanks)[number];
 }) {
   let nextWeekOfClasses = await getClasses();
-  const myAge = myRank?.index && myRank.index < 10.5 ? 12 : 24;
+  const myAge = myRank?.index && myRank.index < -10.5 ? 12 : 24;
   nextWeekOfClasses = nextWeekOfClasses
     .filter((classItem) =>
       myRank
