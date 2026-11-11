@@ -675,7 +675,7 @@ const eventsSources = [
           if (weekday && timeRange && className) {
             yield {
               className,
-              ...getNextStartAndEnd(timeRange, weekday),
+              ...getNextStartAndEnd(timeRange, weekday, now),
               ...getAgeAndRankFromClassName(className),
             };
 
@@ -784,7 +784,7 @@ const eventsSources = [
         if (weekday && timeRange && className) {
           yield {
             className,
-            ...getNextStartAndEnd(timeRange, weekday),
+            ...getNextStartAndEnd(timeRange, weekday, now),
             ...getAgeAndRankFromClassName(className),
           };
 
@@ -1038,7 +1038,7 @@ const eventsSources = [
         if (weekday && timeRange && className && instructors) {
           yield {
             className,
-            ...getNextStartAndEnd(timeRange, weekday),
+            ...getNextStartAndEnd(timeRange, weekday, now),
             ...getAgeAndRankFromClassName(className),
             instructors,
           };
@@ -1304,7 +1304,7 @@ const eventsSources = [
         if (weekday && timeRange && className) {
           yield {
             className,
-            ...getNextStartAndEnd(timeRange, weekday),
+            ...getNextStartAndEnd(timeRange, weekday, now),
             ...getAgeAndRankFromClassName(className),
           };
 

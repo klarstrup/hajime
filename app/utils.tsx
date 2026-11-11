@@ -1,7 +1,5 @@
-import { tz } from "@date-fns/tz";
 import type { CheerioAPI } from "cheerio";
 import * as cheerio from "cheerio";
-import { startOfDay } from "date-fns";
 import type { AnyNode } from "domhandler";
 import Fuse from "fuse.js";
 import type { Weekday } from "rrule";
@@ -468,12 +466,13 @@ export const safeParseTimeRange = (timeRangeStr: string, now: Date) => {
 export function getNextStartAndEnd(
   timeRange: { start: Date; end: Date },
   weekday: Weekday,
+  now: Date,
 ) {
   const nextStart = new RRule({
     byweekday: weekday,
     freq: RRule.WEEKLY,
     dtstart: timeRange.start,
-  }).after(startOfDay(timeRange.start, { in: tz("Europe/Copenhagen") }));
+  }).after(now);
 
   if (!nextStart) throw new Error("Could not determine next start date");
 
