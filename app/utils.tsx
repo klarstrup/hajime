@@ -234,6 +234,10 @@ export function getAgeAndRankFromClassName(className: string): {
     rankRange.min = null;
     rankRange.max = -11;
   }
+  if (lClassName.includes("mini bushi")) {
+    rankRange.min = null;
+    rankRange.max = -21;
+  }
 
   if (lClassName.includes("forældre")) {
     rankRange.max = -21;
