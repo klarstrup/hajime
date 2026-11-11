@@ -202,7 +202,7 @@ export default async function HoldList({
                                     href={c.classesUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className=" text-red-400 leading-none hover:underline font-bold text-xl"
+                                    className=" text-red-500 leading-none hover:underline font-bold text-xl"
                                   >
                                     {className}
                                   </a>{" "}
