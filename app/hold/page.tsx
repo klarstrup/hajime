@@ -234,6 +234,10 @@ export default async function TræningPage() {
                       </div>
                       <div className="max-w-full w-full flex-1 flex flex-col flex-wrap gap-2">
                         {weekDayClasses
+                          // sort alphabetically before sorting by start time
+                          .sort((a, b) =>
+                            a.className.localeCompare(b.className),
+                          )
                           .sort(
                             (a, b) =>
                               new Date(a.nextStart).getTime() -
