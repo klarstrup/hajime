@@ -441,7 +441,8 @@ if (import.meta.vitest) {
   });
 }
 
-export const timeRangeRE = /((\d{1,2})[:\.](\d{2}) ?[–-] ?(\d{1,2})[:\.](\d{2}))/;
+export const timeRangeRE =
+  /((\d{1,2})[:\.](\d{2}) ?[–-] ?(\d{1,2})[:\.](\d{2}))/;
 export const timeRangeRE2 = /(\d{1,2}[:\.]\d{2} ?[–-] ?\d{1,2}[:\.]\d{2})/;
 export const timeSeparatorRE = / ?[–-] ?/;
 export const hoursMinutesSeparatorRE = /[:\.]/;
@@ -474,7 +475,7 @@ export function getNextStartAndEnd(
     dtstart: timeRange.start,
   }).after(startOfDay(timeRange.start, { in: tz("Europe/Copenhagen") }));
 
-  if (!nextStart) return { nextStart: null, nextEnd: null };
+  if (!nextStart) throw new Error("Could not determine next start date");
 
   const duration = timeRange.end.getTime() - timeRange.start.getTime();
   const nextEnd = new Date(nextStart.getTime() + duration);

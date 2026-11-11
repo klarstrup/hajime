@@ -659,44 +659,27 @@ const eventsSources = [
           [] as [string, string[]][],
         );
 
-      let weekday: Weekday | undefined = undefined;
-      let timeRange: { start: Date; end: Date } | undefined = undefined;
-      let className: string | undefined = undefined;
-
-      // The lines are class name, weekday names and time range of day. In that order. Assemble them into structured data.
       for (const [superHold, lines] of holdLines) {
-        weekday = undefined;
-        timeRange = undefined;
-        className = undefined;
+        let weekday: Weekday | undefined = undefined;
+        let timeRange: { start: Date; end: Date } | undefined = undefined;
+        let className: string | undefined = undefined;
+
+        // The lines are class name, weekday names and time range of day. In that order. Assemble them into structured data.
         for (const line of lines) {
           const newWeekday = getRRuleWeekdayByFullDanishName(line);
           const newTimeRange = safeParseTimeRange(line, now);
-          // if it's not a time range or a weekday, it must be a class
-          if (!newTimeRange && !newWeekday) {
-            weekday = undefined;
-            timeRange = undefined;
-            className = superHold + ", " + line;
-          }
           if (newWeekday) weekday = newWeekday;
-          if (newTimeRange) timeRange = newTimeRange;
+          else if (newTimeRange) timeRange = newTimeRange;
+          else className = superHold + ", " + line;
 
           if (weekday && timeRange && className) {
-            const { rankRange, ageRange } =
-              getAgeAndRankFromClassName(className);
-
-            const { nextStart, nextEnd } = getNextStartAndEnd(
-              timeRange,
-              weekday,
-            );
-            if (!nextStart) continue;
-
             yield {
               className,
-              nextStart,
-              nextEnd,
-              rankRange,
-              ageRange,
+              ...getNextStartAndEnd(timeRange, weekday),
+              ...getAgeAndRankFromClassName(className),
             };
+
+            timeRange = undefined;
           }
         }
       }
@@ -795,18 +778,16 @@ const eventsSources = [
         const newWeekday = getRRuleWeekdayByFullDanishName(line);
         const newTimeRange = safeParseTimeRange(line, now);
         if (newWeekday) weekday = newWeekday;
-        if (newTimeRange) timeRange = newTimeRange;
-
-        // If the line is neither a weekday nor a time range, it's the name of the class
-        if (!newWeekday && !newTimeRange) className = line;
+        else if (newTimeRange) timeRange = newTimeRange;
+        else className = line;
 
         if (weekday && timeRange && className) {
-          const { ageRange, rankRange } = getAgeAndRankFromClassName(className);
+          yield {
+            className,
+            ...getNextStartAndEnd(timeRange, weekday),
+            ...getAgeAndRankFromClassName(className),
+          };
 
-          const { nextStart, nextEnd } = getNextStartAndEnd(timeRange, weekday);
-          if (!nextStart) continue;
-
-          yield { nextStart, nextEnd, className, ageRange, rankRange };
           className = undefined;
         }
       }
@@ -1055,17 +1036,10 @@ const eventsSources = [
           instructors = line.split(",").flatMap((s) => s.trim().split(" og "));
 
         if (weekday && timeRange && className && instructors) {
-          const { ageRange, rankRange } = getAgeAndRankFromClassName(className);
-
-          const { nextStart, nextEnd } = getNextStartAndEnd(timeRange, weekday);
-          if (!nextStart) continue;
-
           yield {
-            nextStart,
-            nextEnd,
             className,
-            ageRange,
-            rankRange,
+            ...getNextStartAndEnd(timeRange, weekday),
+            ...getAgeAndRankFromClassName(className),
             instructors,
           };
 
@@ -1324,18 +1298,15 @@ const eventsSources = [
         const newWeekday = getRRuleWeekdayByFullDanishName(line);
         const newTimeRange = safeParseTimeRange(line, now);
         if (newWeekday) weekday = newWeekday;
-        if (newTimeRange) timeRange = newTimeRange;
-
-        // If the line is neither a weekday nor a time range, it's the name of the class
-        if (!newWeekday && !newTimeRange) className = line;
+        else if (newTimeRange) timeRange = newTimeRange;
+        else className = line;
 
         if (weekday && timeRange && className) {
-          const { ageRange, rankRange } = getAgeAndRankFromClassName(className);
-
-          const { nextStart, nextEnd } = getNextStartAndEnd(timeRange, weekday);
-          if (!nextStart) continue;
-
-          yield { nextStart, nextEnd, className, ageRange, rankRange };
+          yield {
+            className,
+            ...getNextStartAndEnd(timeRange, weekday),
+            ...getAgeAndRankFromClassName(className),
+          };
 
           timeRange = undefined;
         }
