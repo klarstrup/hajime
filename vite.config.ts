@@ -1,4 +1,4 @@
-import { defineConfig } from "vitest/config";
+import { configDefaults, defineConfig } from "vitest/config";
 
 export default defineConfig({
   define: {
@@ -6,5 +6,12 @@ export default defineConfig({
   },
   test: {
     includeSource: ["app/**/*.{js,ts,tsx}"],
+    exclude: [
+      ...configDefaults.exclude,
+      "**/node_modules/**",
+      "**/.git/**",
+      "**/.next/**",
+    ],
+    reporters: [["minimal", { summary: false }]],
   },
 });

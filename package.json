@@ -1,11 +1,12 @@
 {
   "name": "nextjs",
   "version": "0.1.0",
+  "type": "module",
   "private": true,
   "scripts": {
     "dev": "bunx npm-run-all --parallel dev:next dev:test",
     "dev:next": "next dev",
-    "dev:test": "vitest",
+    "dev:test": "vitest --silent=passed-only --clearScreen=false --exclude '.next/*'",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
