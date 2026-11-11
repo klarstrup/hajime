@@ -28,10 +28,11 @@ export default async function HoldList({
           myRank.index <= (classItem.rankRange?.max ?? Infinity)
         : true,
     )
-    .filter(
-      (classItem) =>
-        myAge >= (classItem.ageRange?.min ?? -Infinity) &&
-        myAge <= (classItem.ageRange?.max ?? Infinity),
+    .filter((classItem) =>
+      myRank
+        ? myAge >= (classItem.ageRange?.min ?? -Infinity) &&
+          myAge <= (classItem.ageRange?.max ?? Infinity)
+        : true,
     );
 
   const classesByWeekAndWeekday = nextWeekOfClasses.reduce(
