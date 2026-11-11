@@ -20,6 +20,7 @@ import {
   getRRuleWeekdayByFullDanishName,
   render,
   safeParseTimeRange,
+  timeRangeRE2,
 } from "./utils";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -1033,17 +1034,10 @@ const eventsSources = [
         .sentences()
         .out()
         .flatMap((s) => s.replace(/\[DOT\]/g, ".").split(/\.?\n/))
-        .flatMap((line) => {
-          const parts = line.split(/:/);
-          if (parts.length == 4) {
-            return [
-              parts[0].trim() + ":" + parts[1].trim() + ":" + parts[2].trim(),
-              parts[3]?.trim(),
-            ];
-          }
-          return line;
-        })
-        .map((line) => line.trim());
+        // split [HH:MM]: [CLASS] strings into separate lines
+        .flatMap((line) => line.split(timeRangeRE2))
+        .map((line) => line.trim().replace(/^: ?/, "").replace(/\.$/, ""))
+        .filter(Boolean);
 
       let weekday: Weekday | undefined = undefined;
       let timeRange: { start: Date; end: Date } | undefined = undefined;
@@ -1055,14 +1049,10 @@ const eventsSources = [
         const newWeekday = getRRuleWeekdayByFullDanishName(line);
         const newTimeRange = safeParseTimeRange(line, now);
         if (newWeekday) weekday = newWeekday;
-        if (newTimeRange) timeRange = newTimeRange;
-
-        // If the line is neither a weekday nor a time range, it's the name of the class or the instructors
-        if (!newWeekday && !newTimeRange && !className) {
-          className = line;
-        } else if (!newWeekday && !newTimeRange && className && !instructors) {
+        else if (newTimeRange) timeRange = newTimeRange;
+        else if (!className) className = line;
+        else if (!instructors)
           instructors = line.split(",").flatMap((s) => s.trim().split(" og "));
-        }
 
         if (weekday && timeRange && className && instructors) {
           const { ageRange, rankRange } = getAgeAndRankFromClassName(className);

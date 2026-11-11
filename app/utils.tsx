@@ -441,7 +441,8 @@ if (import.meta.vitest) {
   });
 }
 
-export const timeRangeRE = /(\d{1,2})[:\.](\d{2}) ?[–-] ?(\d{1,2})[:\.](\d{2})/;
+export const timeRangeRE = /((\d{1,2})[:\.](\d{2}) ?[–-] ?(\d{1,2})[:\.](\d{2}))/;
+export const timeRangeRE2 = /(\d{1,2}[:\.]\d{2} ?[–-] ?\d{1,2}[:\.]\d{2})/;
 export const timeSeparatorRE = / ?[–-] ?/;
 export const hoursMinutesSeparatorRE = /[:\.]/;
 
@@ -449,7 +450,7 @@ export const safeParseTimeRange = (timeRangeStr: string, now: Date) => {
   const [startHour, startMinute, endHour, endMinute] =
     timeRangeStr
       .match(timeRangeRE)
-      ?.slice(1)
+      ?.slice(2)
       .map((s) => parseInt(s, 10)) || [];
   if ([startHour, startMinute, endHour, endMinute].some((v) => isNaN(v)))
     return null;
