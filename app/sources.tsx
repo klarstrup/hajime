@@ -2,23 +2,24 @@
 import { tz, TZDate } from "@date-fns/tz";
 import * as cheerio from "cheerio";
 import {
-  areIntervalsOverlapping,
-  endOfDay,
-  isDate,
-  startOfDay,
-  startOfToday,
+    areIntervalsOverlapping,
+    endOfDay,
+    isDate,
+    startOfDay,
+    startOfToday,
 } from "date-fns";
 import { isEqual } from "date-fns/fp/isEqual";
-import { RRule, Weekday } from "rrule";
+import type  { Weekday } from "rrule";
 import { convertIcsCalendar } from "ts-ics";
 import { nlp } from "./nlp";
 import {
-  danishFullWeekdays,
-  fuseCompare,
-  getAgeAndRankFromClassName,
-  getRRuleWeekdayByFullDanishName,
-  render,
-  safeParseTimeRange,
+    danishFullWeekdays,
+    fuseCompare,
+    getAgeAndRankFromClassName,
+    getNextStartAndEnd,
+    getRRuleWeekdayByFullDanishName,
+    render,
+    safeParseTimeRange,
 } from "./utils";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -682,19 +683,11 @@ const eventsSources = [
             const { rankRange, ageRange } =
               getAgeAndRankFromClassName(className);
 
-            const nextStart = new RRule({
-              byweekday: weekday,
-              freq: RRule.WEEKLY,
-              dtstart: timeRange.start,
-            }).after(now);
-
-            if (!nextStart) continue;
-
-            const nextEnd = new Date(
-              nextStart.getTime() +
-                timeRange.end.getTime() -
-                timeRange.start.getTime(),
+            const { nextStart, nextEnd } = getNextStartAndEnd(
+              timeRange,
+              weekday,
             );
+            if (!nextStart) continue;
 
             yield {
               className,
@@ -817,17 +810,8 @@ const eventsSources = [
 
           const { ageRange, rankRange } = getAgeAndRankFromClassName(className);
 
-          const nextStart = new RRule({
-            byweekday: weekday,
-            freq: RRule.WEEKLY,
-            dtstart: timeRange.start,
-          }).after(now);
-
+          const { nextStart, nextEnd } = getNextStartAndEnd(timeRange, weekday);
           if (!nextStart) continue;
-          const nextEnd = new Date(
-            nextStart.getTime() +
-              (timeRange.end.getTime() - timeRange.start.getTime()),
-          );
 
           yield { nextStart, nextEnd, className, ageRange, rankRange };
         }
@@ -1097,17 +1081,8 @@ const eventsSources = [
 
           const { rankRange, ageRange } = getAgeAndRankFromClassName(className);
 
-          const nextStart = new RRule({
-            byweekday: weekday,
-            freq: RRule.WEEKLY,
-            dtstart: timeRange.start,
-          }).after(now);
-
+          const { nextStart, nextEnd } = getNextStartAndEnd(timeRange, weekday);
           if (!nextStart) continue;
-          const nextEnd = new Date(
-            nextStart.getTime() +
-              (timeRange.end.getTime() - timeRange.start.getTime()),
-          );
 
           yield {
             nextStart,
@@ -1393,18 +1368,8 @@ const eventsSources = [
         if (weekday && timeRange && className) {
           const { rankRange, ageRange } = getAgeAndRankFromClassName(className);
 
-          const nextStart = new RRule({
-            byweekday: weekday,
-            freq: RRule.WEEKLY,
-            dtstart: timeRange.start,
-          }).after(now);
-
+          const { nextStart, nextEnd } = getNextStartAndEnd(timeRange, weekday);
           if (!nextStart) continue;
-
-          const nextEnd = new Date(
-            nextStart.getTime() +
-              (timeRange.end.getTime() - timeRange.start.getTime()),
-          );
 
           yield { nextStart, nextEnd, className, rankRange, ageRange };
 

@@ -1,8 +1,11 @@
+import { tz } from "@date-fns/tz";
+import type { CheerioAPI } from "cheerio";
 import * as cheerio from "cheerio";
-import { CheerioAPI } from "cheerio";
-import { AnyNode } from "domhandler";
+import { startOfDay } from "date-fns";
+import type { AnyNode } from "domhandler";
 import Fuse from "fuse.js";
-import { RRule, Weekday } from "rrule";
+import type { Weekday } from "rrule";
+import { RRule } from "rrule";
 export const normalizeString = (str: string) =>
   str
     .toLowerCase()
@@ -455,3 +458,21 @@ export const safeParseTimeRange = (timeRangeStr: string, now: Date) => {
 
   return { start, end };
 };
+
+export function getNextStartAndEnd(
+  timeRange: { start: Date; end: Date },
+  weekday: Weekday,
+) {
+  const nextStart = new RRule({
+    byweekday: weekday,
+    freq: RRule.WEEKLY,
+    dtstart: timeRange.start,
+  }).after(startOfDay(timeRange.start, { in: tz("Europe/Copenhagen") }));
+
+  if (!nextStart) return { nextStart: null, nextEnd: null };
+
+  const duration = timeRange.end.getTime() - timeRange.start.getTime();
+  const nextEnd = new Date(nextStart.getTime() + duration);
+
+  return { nextStart, nextEnd };
+}
