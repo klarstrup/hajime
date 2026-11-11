@@ -5,6 +5,7 @@ export function generateStaticParams() {
   return dkuRanks.map((rank) => ({ rank: rank.slug }));
 }
 
+export const instant = false;
 export default async function TræningPage({
   params,
 }: PageProps<"/hold/[rank]">) {
