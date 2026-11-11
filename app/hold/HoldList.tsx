@@ -45,7 +45,6 @@ export default async function HoldList({
     },
     {} as Record<number, Record<number, typeof nextWeekOfClasses>>,
   );
-  console.log(myRank)
 
   return (
     <div className="flex flex-col max-w-160">
