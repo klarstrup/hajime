@@ -582,6 +582,51 @@ const eventsSources = [
       fetchIcsEvents(
         "https://calendar.google.com/calendar/ical/b418b06beb19586d457e0914c5faa192e5823a33120645206a58c61c8bac1565%40group.calendar.google.com/public/basic.ics",
       ),
+    classesUrl: "https://kenzoku-karate.dk/hold",
+    async *loadClasses({ now }: { now: Date }) {
+      const $res = await fetch$("https://kenzoku-karate.dk/hold");
+      const times = $res(".contentgroup__text-wrapper:nth(2)")
+        .parent()
+        .parent()
+        .parent()
+        .parent()
+        .parent()
+        .parent()
+        .find(".contentgroup__text-wrapper");
+      times.find("br").replaceWith("\n");
+
+      for (let i = 0; i < times.length; i++) {
+        const holdLines = render(times.eq(i)).split("\n");
+
+        const className = holdLines[0];
+        const ageAndRank = getAgeAndRankFromClassName(className);
+        let timeRange: { start: Date; end: Date } | undefined = undefined;
+        let weekday: Weekday | undefined = undefined;
+        const ageRange: { min: number | null; max: number | null } =
+          ageAndRank.ageRange;
+        for (const line of holdLines.slice(1)) {
+          const newWeekday = getRRuleWeekdayByFullDanishName(line);
+          const newTimeRange = safeParseTimeRange(line, now);
+          const newAgeRange = getAgeAndRankFromClassName(line).ageRange;
+          if (newWeekday) weekday = newWeekday;
+          if (newTimeRange) timeRange = newTimeRange;
+          if (newAgeRange) {
+            ageRange.min = newAgeRange.min ?? ageRange.min;
+            ageRange.max = newAgeRange.max ?? ageRange.max;
+          }
+
+          if (weekday && timeRange && className) {
+            yield {
+              className,
+              ...getNextStartAndEnd(timeRange, weekday, now),
+              ...ageAndRank,
+              ageRange,
+            };
+            timeRange = undefined;
+          }
+        }
+      }
+    },
   },
   {
     sourceId: "roskilde-karate-klub-facebook",
@@ -777,7 +822,7 @@ const eventsSources = [
       for (const line of holdLines) {
         const newWeekday = getRRuleWeekdayByFullDanishName(line);
         const newTimeRange = safeParseTimeRange(line, now);
-        if (newWeekday) weekday = newWeekday;
+        if (newWeekday && newWeekday !== weekday) weekday = newWeekday;
         else if (newTimeRange) timeRange = newTimeRange;
         else className = line;
 
@@ -1029,7 +1074,7 @@ const eventsSources = [
       for (const line of holdLines) {
         const newWeekday = getRRuleWeekdayByFullDanishName(line);
         const newTimeRange = safeParseTimeRange(line, now);
-        if (newWeekday) weekday = newWeekday;
+        if (newWeekday && newWeekday !== weekday) weekday = newWeekday;
         else if (newTimeRange) timeRange = newTimeRange;
         else if (!className) className = line;
         else if (!instructors)
@@ -1297,7 +1342,7 @@ const eventsSources = [
       for (const line of holdLines) {
         const newWeekday = getRRuleWeekdayByFullDanishName(line);
         const newTimeRange = safeParseTimeRange(line, now);
-        if (newWeekday) weekday = newWeekday;
+        if (newWeekday && newWeekday !== weekday) weekday = newWeekday;
         else if (newTimeRange) timeRange = newTimeRange;
         else className = line;
 

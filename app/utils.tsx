@@ -65,9 +65,14 @@ const rruleWeekdaysByFullDanishName: Record<string, Weekday> = {
   lørdag: RRule.SA,
   søndag: RRule.SU,
 };
-export const getRRuleWeekdayByFullDanishName = (line: string): Weekday | null =>
-  rruleWeekdaysByFullDanishName[line.toLowerCase().trim()] || null;
-
+const danishWeekDayRE =
+  /(mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)/gi;
+export const getRRuleWeekdayByFullDanishName = (
+  line: string,
+): Weekday | null => {
+  const match = line.match(danishWeekDayRE)?.[0];
+  return (match && rruleWeekdaysByFullDanishName[match.toLowerCase()]) || null;
+};
 const inlineElements = new Set(
   `a,abbr,acronym,audio,b,bdi,bdo,big,br,button,canvas,cite,code,data,
   datalist,del,dfn,em,embed,i,iframe,img,input,ins,kbd,label,map,mark,
