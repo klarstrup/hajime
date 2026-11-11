@@ -235,6 +235,10 @@ export function getAgeAndRankFromClassName(className: string): {
     ageRange.min = 5;
     ageRange.max = 9;
   }
+  if (lClassName.includes("karate kids")) {
+    ageRange.min = 6;
+    ageRange.max = 8;
+  }
 
   const rankRange: { min: number | null; max: number | null } = {
     min: -10.5,
@@ -245,7 +249,11 @@ export function getAgeAndRankFromClassName(className: string): {
     rankRange.min = null;
     rankRange.max = -11;
   }
-  if (lClassName.includes("mini bushi") || lClassName.includes("kidzz")) {
+  if (
+    lClassName.includes("mini bushi") ||
+    lClassName.includes("kidzz") ||
+    lClassName.includes("karate kids")
+  ) {
     rankRange.min = null;
     rankRange.max = -21;
   }
@@ -286,6 +294,14 @@ export function getAgeAndRankFromClassName(className: string): {
     rankRange.min = null;
   }
 
+  if (
+    lClassName.includes("øvede") &&
+    !lClassName.includes("begyndere") &&
+    (!rankRange.min || rankRange.min === -10.5) &&
+    (!ageRange.max || ageRange.max > 13)
+  ) {
+    rankRange.min = -10;
+  }
   return { rankRange, ageRange };
 }
 
@@ -435,6 +451,18 @@ if (import.meta.vitest) {
         rankRange: { min: -10, max: null },
         ageRange: { min: null, max: 14 },
       },
+      Øvede: {
+        rankRange: { min: -10, max: null },
+        ageRange: { min: null, max: null },
+      },
+      "Begyndere og letøvede": {
+        rankRange: { min: -10.5, max: null },
+        ageRange: { min: null, max: null },
+      },
+      "Begyndere og øvede": {
+        rankRange: { min: -10.5, max: null },
+        ageRange: { min: null, max: null },
+      },
     };
     for (const [input, expected] of Object.entries(cases)) {
       it(input, () =>
@@ -486,3 +514,156 @@ export function getNextStartAndEnd(
 
   return { nextStart, nextEnd };
 }
+
+export const dkuRanks = [
+  {
+    index: -20.5,
+    name: "white belt",
+    slug: "white-belt-mon",
+    primaryColor: "#fff",
+    secondaryColor: "#fff",
+  },
+  {
+    index: -20,
+    name: "10. mon",
+    slug: "10-mon",
+    primaryColor: "#fff",
+    secondaryColor: "#f60",
+  },
+  {
+    index: -19,
+    name: "9. mon",
+    slug: "9-mon",
+    primaryColor: "#fff",
+    secondaryColor: "#f60",
+  },
+  {
+    index: -18,
+    name: "8. mon",
+    slug: "8-mon",
+    primaryColor: "#fff",
+    secondaryColor: "#04a",
+  },
+  {
+    index: -17,
+    name: "7. mon",
+    slug: "7-mon",
+    primaryColor: "#fff",
+    secondaryColor: "#04a",
+  },
+  {
+    index: -16,
+    name: "6. mon",
+    slug: "6-mon",
+    primaryColor: "#fff",
+    secondaryColor: "#fc0",
+  },
+  {
+    index: -15,
+    name: "5. mon",
+    slug: "5-mon",
+    primaryColor: "#fff",
+    secondaryColor: "#fc0",
+  },
+  {
+    index: -14,
+    name: "4. mon",
+    slug: "4-mon",
+    primaryColor: "#fff",
+    secondaryColor: "#217821",
+  },
+  {
+    index: -13,
+    name: "3. mon",
+    slug: "3-mon",
+    primaryColor: "#fff",
+    secondaryColor: "#217821",
+  },
+  {
+    index: -12,
+    name: "2. mon",
+    slug: "2-mon",
+    primaryColor: "#fff",
+    secondaryColor: "#784421",
+  },
+  {
+    index: -11,
+    name: "1. mon",
+    slug: "1-mon",
+    primaryColor: "#fff",
+    secondaryColor: "#784421",
+  },
+  {
+    index: -10.5,
+    name: "white belt",
+    slug: "white-belt-kyu",
+    primaryColor: "#fff",
+  },
+  {
+    index: -10,
+    name: "10. kyu",
+    slug: "10-kyu",
+    primaryColor: "#f60",
+  },
+  {
+    index: -9,
+    name: "9. kyu",
+    slug: "9-kyu",
+    primaryColor: "#f60",
+  },
+  {
+    index: -8,
+    name: "8. kyu",
+    slug: "8-kyu",
+    primaryColor: "#04a",
+  },
+  {
+    index: -7,
+    name: "7. kyu",
+    slug: "7-kyu",
+    primaryColor: "#04a",
+  },
+  {
+    index: -6,
+    name: "6. kyu",
+    slug: "6-kyu",
+    primaryColor: "#fc0",
+  },
+  {
+    index: -5,
+    name: "5. kyu",
+    primaryColor: "#fc0",
+    slug: "5-kyu",
+  },
+  {
+    index: -4,
+    name: "4. kyu",
+    slug: "4-kyu",
+    primaryColor: "#217821",
+  },
+  {
+    index: -3,
+    name: "3. kyu",
+    slug: "3-kyu",
+    primaryColor: "#217821",
+  },
+  {
+    index: -2,
+    name: "2. kyu",
+    slug: "2-kyu",
+    primaryColor: "#784421",
+  },
+  {
+    index: -1,
+    name: "1. kyu",
+    slug: "1-kyu",
+    primaryColor: "#784421",
+  },
+  {
+    index: 0,
+    name: "dan",
+    slug: "dan",
+    primaryColor: "#333",
+    secondaryColor: "gold",
+  },
+] as const;

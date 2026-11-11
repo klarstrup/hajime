@@ -199,7 +199,7 @@ export function EventList({
                             event.start?.toISOString() +
                             event.end?.toISOString()
                           }
-                          className="dark:bg-gray-900 bg-white p-2 pt-1 flex flex-col attribution-container leading-tight nafuda"
+                          className="dark:bg-gray-800 bg-white p-2 pt-1 flex flex-col attribution-container leading-tight nafuda"
                         >
                           <div
                             style={{ paddingRight: "calc(5*min(10px,2vw))" }}
