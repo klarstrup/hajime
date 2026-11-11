@@ -5,6 +5,6 @@ export default async function Fortid() {
   const events = await getSortedEvents({ cotemporality: "past" });
 
   return (
-    <EventList cotemporality="past" events={events} title="Tidligere Karatetræf" />
+    <EventList cotemporality="past" events={events} title="Karatetruf" />
   );
 }

@@ -38,22 +38,19 @@ export function EventList({
           <span className="text-[1.75rem] md:text-[2rem] lg:text-[2.5rem] xl:text-[3rem] leading-tight">
             🥋
           </span>
-          <span className="text-sm 2xs:text-xl xs:text-4xl">{title}</span>
+          <span className="text-2xl xs:text-4xl">{title}</span>
         </header>
-        <div className="flex-1 text-right flex flex-col">
-          <Link
-            className="text-xs 2xs:text-sm text-red-400 text-right"
-            href="/hold"
-          >
+        <div className="text-right flex flex-col leading-none font-semibold">
+          <Link className="text-xs 2xs:text-sm text-red-400" href="/hold">
             Se karatehold
           </Link>
           <Link
-            className="text-xs 2xs:text-sm text-red-400 text-right"
+            className="text-xs 2xs:text-sm text-red-400 "
             href={cotemporality === "past" ? `/` : (`/fortid` as `/`)}
           >
             {cotemporality === "past"
-              ? "Se kommende karatetræf"
-              : "Se tidligere karatetræf"}
+              ? "Se karatetræf"
+              : "Se karatetruf"}
           </Link>
         </div>
       </div>

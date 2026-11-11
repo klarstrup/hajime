@@ -53,12 +53,12 @@ export default async function HoldList({
           <span className="text-[1.75rem] md:text-[2rem] lg:text-[2.5rem] xl:text-[3rem] leading-tight">
             🥋
           </span>
-          <span className="text-sm 2xs:text-xl xs:text-4xl font-extrabold">
+          <span className="text-2xl xs:text-4xl font-extrabold">
             Karatehold
           </span>
           {myRank !== undefined && (
             <div className="pb-2 text-sm leading-none">
-              <Link href={`/hold`} className="text-red-400">
+              <Link href={`/hold`} className="text-red-400 font-semibold">
                 {myRank.name}
               </Link>
               <br />
@@ -66,19 +66,13 @@ export default async function HoldList({
             </div>
           )}
         </header>
-        <div className="flex-1 text-right flex flex-col">
+        <div className="text-right flex flex-col ">
           {myRank !== undefined && (
-            <Link
-              className="text-xs 2xs:text-sm text-red-400 text-right"
-              href="/hold"
-            >
+            <Link className="text-xs 2xs:text-sm text-red-400 " href="/hold">
               Se alle karatehold
             </Link>
           )}
-          <Link
-            className="text-xs 2xs:text-sm text-red-400 text-right"
-            href="/"
-          >
+          <Link className="text-xs 2xs:text-sm text-red-400 " href="/">
             Se karatetræf
           </Link>
         </div>
