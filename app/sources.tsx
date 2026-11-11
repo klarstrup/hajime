@@ -2,24 +2,24 @@
 import { tz, TZDate } from "@date-fns/tz";
 import * as cheerio from "cheerio";
 import {
-    areIntervalsOverlapping,
-    endOfDay,
-    isDate,
-    startOfDay,
-    startOfToday,
+  areIntervalsOverlapping,
+  endOfDay,
+  isDate,
+  startOfDay,
+  startOfToday,
 } from "date-fns";
 import { isEqual } from "date-fns/fp/isEqual";
-import type  { Weekday } from "rrule";
+import type { Weekday } from "rrule";
 import { convertIcsCalendar } from "ts-ics";
 import { nlp } from "./nlp";
 import {
-    danishFullWeekdays,
-    fuseCompare,
-    getAgeAndRankFromClassName,
-    getNextStartAndEnd,
-    getRRuleWeekdayByFullDanishName,
-    render,
-    safeParseTimeRange,
+  danishFullWeekdays,
+  fuseCompare,
+  getAgeAndRankFromClassName,
+  getNextStartAndEnd,
+  getRRuleWeekdayByFullDanishName,
+  render,
+  safeParseTimeRange,
 } from "./utils";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -792,28 +792,21 @@ const eventsSources = [
       // The lines can be weekday names, time range of day, class name and instructors. In that order. Assemble them into structured data.
       for (const line of holdLines) {
         const newWeekday = getRRuleWeekdayByFullDanishName(line);
-        if (newWeekday) {
-          weekday = newWeekday;
-          continue;
-        }
         const newTimeRange = safeParseTimeRange(line, now);
-        // a new time range indicates the start of a new class session
-        if (newTimeRange) {
-          className = undefined;
-          timeRange = newTimeRange;
-          // Do something with the time range, e.g., store it in a variable or object
-          continue;
-        }
+        if (newWeekday) weekday = newWeekday;
+        if (newTimeRange) timeRange = newTimeRange;
 
-        if (weekday && timeRange && !className) {
-          className = line;
+        // If the line is neither a weekday nor a time range, it's the name of the class
+        if (!newWeekday && !newTimeRange) className = line;
 
+        if (weekday && timeRange && className) {
           const { ageRange, rankRange } = getAgeAndRankFromClassName(className);
 
           const { nextStart, nextEnd } = getNextStartAndEnd(timeRange, weekday);
           if (!nextStart) continue;
 
           yield { nextStart, nextEnd, className, ageRange, rankRange };
+          className = undefined;
         }
       }
     },
