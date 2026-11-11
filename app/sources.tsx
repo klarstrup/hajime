@@ -670,9 +670,7 @@ const eventsSources = [
         className = undefined;
         for (const line of lines) {
           const newWeekday = getRRuleWeekdayByFullDanishName(line);
-          const timeRangeMatch = line.match(
-            /\d{1,2}:\d{2} ?[–-] ?\d{1,2}:\d{2}/,
-          );
+          const timeRangeMatch = line.match(timeRangeRE);
           // if it's not a time range or a weekday, it must be a class
           if (!timeRangeMatch && !newWeekday) {
             weekday = undefined;
@@ -690,8 +688,8 @@ const eventsSources = [
               [startTimeHour, startTimeMinute],
               [endTimeHour, endTimeMinute],
             ] = timeRange
-              .split(/ ?[–-] ?/)
-              .map((time) => time.trim().split(":"));
+              .split(timeSeparatorRE)
+              .map((time) => time.trim().split(hoursMinutesSeparatorRE));
             const start = new Date();
             start.setHours(parseInt(startTimeHour, 10));
             start.setMinutes(parseInt(startTimeMinute, 10));
@@ -822,9 +820,7 @@ const eventsSources = [
           weekday = newWeekday;
           continue;
         }
-        const timeRangeMatch = line.match(
-          /\d{1,2}\.\d{2}\s* – \s*\d{1,2}\.\d{2}/,
-        );
+        const timeRangeMatch = line.match(timeRangeRE);
         // a new time range indicates the start of a new class session
         if (timeRangeMatch) {
           className = undefined;
@@ -839,14 +835,34 @@ const eventsSources = [
           const { ageRange, rankRange } = getAgeAndRankFromClassName(className);
 
           const start = new Date();
-          start.setHours(parseInt(timeRange.split(".")[0], 10));
-          start.setMinutes(parseInt(timeRange.split(".")[1].split(" ")[0], 10));
+          start.setHours(
+            parseInt(timeRange.split(hoursMinutesSeparatorRE)[0], 10),
+          );
+          start.setMinutes(
+            parseInt(
+              timeRange.split(hoursMinutesSeparatorRE)[1].split(" ")[0],
+              10,
+            ),
+          );
           start.setSeconds(0);
           start.setMilliseconds(0);
           const end = new Date();
-          end.setHours(parseInt(timeRange.split("–")[1].split(".")[0], 10));
+          end.setHours(
+            parseInt(
+              timeRange
+                .split(timeSeparatorRE)[1]
+                .split(hoursMinutesSeparatorRE)[0],
+              10,
+            ),
+          );
           end.setMinutes(
-            parseInt(timeRange.split("–")[1].split(".")[1].split(" ")[0], 10),
+            parseInt(
+              timeRange
+                .split(timeSeparatorRE)[1]
+                .split(hoursMinutesSeparatorRE)[1]
+                .split(" ")[0],
+              10,
+            ),
           );
           end.setSeconds(0);
           end.setMilliseconds(0);
@@ -1116,7 +1132,7 @@ const eventsSources = [
           weekday = newWeekday;
           continue;
         }
-        const timeRangeMatch = line.match(/\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}/);
+        const timeRangeMatch = line.match(timeRangeRE);
         // a new time range indicates the start of a new class session
         if (timeRangeMatch) {
           className = undefined;
@@ -1134,14 +1150,34 @@ const eventsSources = [
           const { rankRange, ageRange } = getAgeAndRankFromClassName(className);
 
           const start = new Date();
-          start.setHours(parseInt(timeRange.split(":")[0], 10));
-          start.setMinutes(parseInt(timeRange.split(":")[1].split(" ")[0], 10));
+          start.setHours(
+            parseInt(timeRange.split(hoursMinutesSeparatorRE)[0], 10),
+          );
+          start.setMinutes(
+            parseInt(
+              timeRange.split(hoursMinutesSeparatorRE)[1].split(" ")[0],
+              10,
+            ),
+          );
           start.setSeconds(0);
           start.setMilliseconds(0);
           const end = new Date();
-          end.setHours(parseInt(timeRange.split("-")[1].split(":")[0], 10));
+          end.setHours(
+            parseInt(
+              timeRange
+                .split(timeSeparatorRE)[1]
+                .split(hoursMinutesSeparatorRE)[0],
+              10,
+            ),
+          );
           end.setMinutes(
-            parseInt(timeRange.split("-")[1].split(":")[1].split(" ")[0], 10),
+            parseInt(
+              timeRange
+                .split(timeSeparatorRE)[1]
+                .split(hoursMinutesSeparatorRE)[1]
+                .split(" ")[0],
+              10,
+            ),
           );
           end.setSeconds(0);
           end.setMilliseconds(0);

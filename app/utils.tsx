@@ -434,6 +434,6 @@ if (import.meta.vitest) {
   });
 }
 
-export const timeRangeRE = /\d{1,2}:\d{2}[–-]\d{1,2}:\d{2}/;
-export const timeSeparatorRE = /[–-]/;
-export const hoursMinutesSeparatorRE = /:/;
+export const timeRangeRE = /\d{1,2}[:\.]\d{2} ?[–-] ?\d{1,2}[:\.]\d{2}/;
+export const timeSeparatorRE = / ?[–-] ?/;
+export const hoursMinutesSeparatorRE = /[:\.]/;
