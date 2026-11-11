@@ -17,7 +17,10 @@ import {
   fuseCompare,
   getAgeAndRankFromClassName,
   getRRuleWeekdayByFullDanishName,
+  hoursMinutesSeparatorRE,
   render,
+  timeRangeRE,
+  timeSeparatorRE,
 } from "./utils";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -1384,6 +1387,107 @@ const eventsSources = [
           })),
       ),
   },
+  {
+    sourceId: "frederiksberg-karateskole",
+    name: "Frederiksberg Karateskole",
+    federation: "dku",
+    classesUrl: "https://www.frederiksbergkarateskole.dk/tr%C3%A6ningstider-0",
+    async *loadClasses({ now }: { now: Date }) {
+      const fk$ = (
+        await fetch$(
+          "https://www.frederiksbergkarateskole.dk/tr%C3%A6ningstider",
+        )
+      )("#main");
+      fk$.find("h1").remove();
+
+      const holdLines = nlp
+        .readDoc(render(fk$).replace(/(\d+)\./g, "$1[DOT]"))
+        .sentences()
+        .out()
+        .flatMap((s) => s.replace(/\[DOT\]/g, ".").split(/\.?\n/))
+        .map((line) => line.trim().replace(/\:$/, ""));
+
+      let weekday: Weekday | undefined = undefined;
+      let className: string | undefined = undefined;
+      let timeRange: string | undefined = undefined;
+      // The lines can be weekday names, class name and time range of day. In that order. Assemble them into structured data.
+      for (const line of holdLines) {
+        const newWeekday = getRRuleWeekdayByFullDanishName(line);
+        if (newWeekday) {
+          weekday = newWeekday;
+          className = undefined;
+          timeRange = undefined;
+          continue;
+        }
+        if (!className) {
+          if (
+            line.match(/lukket/i) ||
+            line.match(/ingen træning/i) ||
+            line.match(/^\((.+)\)$/)
+          ) {
+            continue;
+          }
+          className = line;
+          timeRange = undefined;
+          continue;
+        }
+
+        const newTimeRange = line.match(timeRangeRE)?.[0];
+        if (!timeRange && newTimeRange) timeRange = newTimeRange;
+
+        if (weekday && timeRange && className) {
+          const { rankRange, ageRange } = getAgeAndRankFromClassName(className);
+
+          const start = new Date(now);
+          start.setHours(
+            parseInt(timeRange.split(hoursMinutesSeparatorRE)[0], 10),
+          );
+          start.setMinutes(
+            parseInt(
+              timeRange.split(hoursMinutesSeparatorRE)[1].split(" ")[0],
+              10,
+            ),
+          );
+          start.setSeconds(0);
+          start.setMilliseconds(0);
+          const end = new Date(now);
+          end.setHours(
+            parseInt(
+              timeRange
+                .split(timeSeparatorRE)[1]
+                .split(hoursMinutesSeparatorRE)[0],
+              10,
+            ),
+          );
+          end.setMinutes(
+            parseInt(
+              timeRange
+                .split(timeSeparatorRE)[1]
+                .split(hoursMinutesSeparatorRE)[1]
+                .split(" ")[0],
+              10,
+            ),
+          );
+          end.setSeconds(0);
+          end.setMilliseconds(0);
+          const duration = end.getTime() - start.getTime();
+          const nextStart = new RRule({
+            byweekday: weekday,
+            freq: RRule.WEEKLY,
+            dtstart: start,
+          }).after(now);
+
+          if (!nextStart) continue;
+          const nextEnd = new Date(nextStart.getTime() + duration);
+
+          yield { nextStart, nextEnd, className, rankRange, ageRange };
+
+          className = undefined;
+          timeRange = undefined;
+        }
+      }
+    },
+  },
 ] as const;
 
 function eventsAreCoinciding(
@@ -1424,9 +1528,12 @@ export const fetchEvents = async ({
   return Promise.all(
     eventsSources
       .filter((source) =>
-        anySourceHasOnly ? "only" in source && source.only : true,
+        "loadClasses" in source && anySourceHasOnly
+          ? "only" in source && source.only
+          : true,
       )
       .map((source) => {
+        if (!("loadEvents" in source)) return [];
         if (process.env.VERCEL) {
           console.time(
             `Loading events for source: ${source.name} ${source.calendarUrl} ${cotemporality}`,

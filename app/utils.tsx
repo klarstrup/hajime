@@ -424,7 +424,7 @@ if (import.meta.vitest) {
       "Kiddz, 3-5 år": {
         rankRange: { min: null, max: null },
         ageRange: { min: 3, max: 5 },
-      }
+      },
     };
     for (const [input, expected] of Object.entries(cases)) {
       it(input, () =>
@@ -433,3 +433,7 @@ if (import.meta.vitest) {
     }
   });
 }
+
+export const timeRangeRE = /\d{1,2}:\d{2}[–-]\d{1,2}:\d{2}/;
+export const timeSeparatorRE = /[–-]/;
+export const hoursMinutesSeparatorRE = /:/;
