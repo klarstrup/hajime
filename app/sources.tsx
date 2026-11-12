@@ -1837,7 +1837,7 @@ export const getSortedEvents = async ({
           !title.match(/^test /i) &&
           !title.includes("swedish karate open") &&
           !(
-            title.includes("graduering") &&
+            (title.includes("graduering") || title.includes("gradering")) &&
             !title.includes("dangraduering") &&
             !title.includes("sortbæltegraduering") &&
             !title.includes("dan graduering")
