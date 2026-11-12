@@ -1484,8 +1484,8 @@ export const fetchEvents = async ({
       .filter((source) =>
         anySourceHasOnly ? "only" in source && source.only : true,
       )
-      .filter(
-        (source) => (!("skip" in source) || !source.skip) && !anySourceHasOnly,
+      .filter((source) =>
+        !anySourceHasOnly ? !("skip" in source) || !source.skip : true,
       )
       .map((source) => {
         if (!("loadEvents" in source)) return [];
@@ -1545,8 +1545,8 @@ export const getClasses = async () => {
       .filter((source) =>
         anySourceHasOnly ? "only" in source && source.only : true,
       )
-      .filter(
-        (source) => (!("skip" in source) || !source.skip) && !anySourceHasOnly,
+      .filter((source) =>
+        !anySourceHasOnly ? !("skip" in source) || !source.skip : true,
       )
       .flatMap(
         (source) =>
