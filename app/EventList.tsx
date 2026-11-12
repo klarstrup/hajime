@@ -14,10 +14,12 @@ export function EventList({
   events,
   title,
   cotemporality = "future",
+  federationSlug,
 }: {
   events: Awaited<ReturnType<typeof getSortedEvents>>;
   title: string;
   cotemporality?: "past" | "future";
+  federationSlug?: string;
 }) {
   const eventsByYearAndMonth = events.reduce(
     (acc, gEvents) => {
@@ -34,24 +36,45 @@ export function EventList({
   return (
     <div className="flex flex-col max-w-120 w-full">
       <div className="flex gap-2 items-end justify-between">
-        <header className="text-xl font-extrabold flex gap-2 mt-2 items-end">
+        <header className="text-xl font-extrabold flex gap-2 mt-2 items-baseline">
           <span className="text-[1.75rem] md:text-[2rem] lg:text-[2.5rem] xl:text-[3rem] leading-tight">
             🥋
           </span>
           <span className="text-2xl xs:text-4xl">{title}</span>
+          {federationSlug && (
+            <Link
+              className="text-sm leading-none text-red-400 font-semibold"
+              href={"/"}
+            >
+              {federationSlug}
+            </Link>
+          )}
         </header>
         <div className="text-right flex flex-col leading-none font-semibold">
-          <Link className="text-xs 2xs:text-sm text-red-400" href="/hold">
-            Se karatehold
-          </Link>
-          <Link
-            className="text-xs 2xs:text-sm text-red-400 "
-            href={cotemporality === "past" ? `/` : (`/fortid` as `/`)}
-          >
-            {cotemporality === "past"
-              ? "Se karatetræf"
-              : "Se karatetruf"}
-          </Link>
+          {federationSlug ? (
+            <Link
+              className="text-xs 2xs:text-sm text-red-400"
+              href={`/${federationSlug}/hold` as "/"}
+            >
+              Se {federationSlug} karatehold
+            </Link>
+          ) : (
+            <Link className="text-xs 2xs:text-sm text-red-400" href="/hold">
+              Se karatehold
+            </Link>
+          )}
+          {federationSlug ? (
+            <Link className="text-xs 2xs:text-sm text-red-400 " href={"/"}>
+              Se alle karatetræf
+            </Link>
+          ) : (
+            <Link
+              className="text-xs 2xs:text-sm text-red-400 "
+              href={cotemporality === "past" ? `/` : (`/fortid` as `/`)}
+            >
+              {cotemporality === "past" ? "Se karatetræf" : "Se karatetruf"}
+            </Link>
+          )}
         </div>
       </div>
       <div className="flex flex-col gap-2">
@@ -189,6 +212,13 @@ export function EventList({
                         federation = "*";
                       }
 
+                      if (
+                        federationSlug &&
+                        !federations.some((fed) => fed === federationSlug)
+                      ) {
+                        return null;
+                      }
+
                       return (
                         <li
                           key={
@@ -207,14 +237,19 @@ export function EventList({
                                 title.toLowerCase().includes("lejr") ||
                                 title.toLowerCase().includes("camp") ||
                                 title.toLowerCase().includes("gasshuku")) && (
-                                <span
+                                <Link
+                                  href={
+                                    federationSlug === federation
+                                      ? `/`
+                                      : (`/${federation}/` as "/")
+                                  }
                                   className={
-                                    "opacity-30 w-[calc(6*min(10px,2vw))] text-center absolute right-0 " +
+                                    "text-red-400 w-[calc(6*min(10px,2vw))] text-center absolute right-0 " +
                                     (federation === "*" ? "text-lg" : "text-sm")
                                   }
                                 >
                                   {federation === "*" ? "✱" : federation}
-                                </span>
+                                </Link>
                               )}
                             {url ? (
                               <a

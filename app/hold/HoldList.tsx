@@ -16,8 +16,10 @@ const getDkuRanksFromRankRange = (rankRange: {
 
 export default async function HoldList({
   myRank,
+  federationSlug,
 }: {
   myRank?: (typeof dkuRanks)[number];
+  federationSlug?: string;
 }) {
   let nextWeekOfClasses = await getClasses();
   const myAge = myRank?.index && myRank.index < -10.5 ? 12 : 24;
@@ -33,6 +35,9 @@ export default async function HoldList({
         ? myAge >= (classItem.ageRange?.min ?? -Infinity) &&
           myAge <= (classItem.ageRange?.max ?? Infinity)
         : true,
+    )
+    .filter((classItem) =>
+      federationSlug ? classItem.federation === federationSlug : true,
     );
 
   const classesByWeekAndWeekday = nextWeekOfClasses.reduce(
@@ -50,7 +55,7 @@ export default async function HoldList({
   return (
     <div className="flex flex-col max-w-120 w-full">
       <div className="flex gap-2 items-end justify-between">
-        <header className="text-xl flex gap-2 mt-2 items-end">
+        <header className="text-xl flex gap-2 mt-2 items-baseline">
           <span className="text-[1.75rem] md:text-[2rem] lg:text-[2.5rem] xl:text-[3rem] leading-tight">
             🥋
           </span>
@@ -58,17 +63,29 @@ export default async function HoldList({
             Karatehold
           </span>
           {myRank !== undefined && (
-            <div className="pb-1.5 text-sm leading-none min-w-15">
+            <span className="text-sm min-w-15 flex flex-col relative">
+              <Belt
+                rank={myRank}
+                href={`/hold`}
+                className="w-full absolute bottom-full"
+              />
               <Link href={`/hold`} className="text-red-400 font-semibold">
                 {myRank.name}
+                {federationSlug && `, ${federationSlug}`}
               </Link>
-              <br />
-              <Belt rank={myRank} href={`/hold`} className="w-full" />
-            </div>
+            </span>
+          )}
+          {federationSlug && !myRank && (
+            <Link
+              className="text-sm leading-none text-red-400 font-semibold"
+              href={"/hold"}
+            >
+              {federationSlug}
+            </Link>
           )}
         </header>
         <div className="text-right flex flex-col font-semibold">
-          {myRank !== undefined && (
+          {(myRank !== undefined || federationSlug) && (
             <Link className="text-xs 2xs:text-sm text-red-400 " href="/hold">
               Se alle karatehold
             </Link>
@@ -78,6 +95,11 @@ export default async function HoldList({
           </Link>
         </div>
       </div>
+      {nextWeekOfClasses.length === 0 && (
+        <center className=" font-semibold text-2xl mt-4">
+          Ingen {federationSlug ? federationSlug : ""} karatehold fundet 👊
+        </center>
+      )}
       <div className="flex flex-col gap-2">
         {Object.entries(classesByWeekAndWeekday).map(
           ([weekIndex, eventsByWeekDay]) => (
@@ -199,9 +221,16 @@ export default async function HoldList({
                                         {c.source.toLowerCase()}
                                       </span>
                                     </div>
-                                    <span className="font-lighter text-xs opacity-30">
+                                    <Link
+                                      className="font-lighter text-xs text-red-400"
+                                      href={
+                                        federationSlug === c.federation
+                                          ? (`/${c.federation}` as "/")
+                                          : (`/${c.federation}/hold` as "/")
+                                      }
+                                    >
                                       {c.federation}
-                                    </span>
+                                    </Link>
                                   </div>
                                   <a
                                     href={c.classesUrl}
@@ -256,7 +285,7 @@ export default async function HoldList({
                                           href={
                                             myRank === r
                                               ? `/hold`
-                                              : (`/hold/${r.slug}` as `/hold`)
+                                              : (`/${c.federation}/hold/${r.slug}` as `/hold`)
                                           }
                                         />
                                       ))}
@@ -285,9 +314,7 @@ function Belt({
   return (
     <Link
       {...htmlProps}
-      className={
-        "relative " + (htmlProps.className || "") + " inline-block h-3"
-      }
+      className={(htmlProps.className || "") + " inline-block h-3"}
     >
       {rank.colors.map((background, i) => (
         <div
