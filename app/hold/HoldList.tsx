@@ -4,7 +4,7 @@ import type { ComponentProps } from "react";
 import { getClasses } from "../sources";
 import { dkuRanks } from "../utils";
 
-const getRanksFromRankRange = (rankRange: {
+const getDkuRanksFromRankRange = (rankRange: {
   min?: number | null;
   max?: number | null;
 }) =>
@@ -58,12 +58,12 @@ export default async function HoldList({
             Karatehold
           </span>
           {myRank !== undefined && (
-            <div className="pb-2 text-sm leading-none">
+            <div className="pb-1.5 text-sm leading-none min-w-15">
               <Link href={`/hold`} className="text-red-400 font-semibold">
                 {myRank.name}
               </Link>
               <br />
-              <Belt rank={myRank} href={`/hold`} />
+              <Belt rank={myRank} href={`/hold`} className="w-full" />
             </div>
           )}
         </header>
@@ -188,14 +188,19 @@ export default async function HoldList({
                                 className="dark:bg-gray-800 bg-white p-2 flex flex-col leading-0"
                               >
                                 <div>
-                                  <div>
-                                    <span className="whitespace-nowrap font-semibold">
-                                      {new Intl.DateTimeFormat("da-DK", {
-                                        timeStyle: "short",
-                                      }).formatRange(c.nextStart, c.nextEnd)}
-                                    </span>{" "}
-                                    <span className="font-lighter text-xs">
-                                      {c.source}
+                                  <div className="flex flex-row justify-between items-baseline">
+                                    <div>
+                                      <span className="whitespace-nowrap font-semibold">
+                                        {new Intl.DateTimeFormat("da-DK", {
+                                          timeStyle: "short",
+                                        }).formatRange(c.nextStart, c.nextEnd)}
+                                      </span>{" "}
+                                      <span className="font-lighter text-xs">
+                                        {c.source.toLowerCase()}
+                                      </span>
+                                    </div>
+                                    <span className="font-lighter text-xs opacity-30">
+                                      {c.federation}
                                     </span>
                                   </div>
                                   <a
@@ -228,22 +233,17 @@ export default async function HoldList({
                                       background: "var(--color-background)",
                                     }}
                                   >
-                                    {getRanksFromRankRange(
-                                      c.rankRange as {
-                                        min?: number | null;
-                                        max?: number | null;
-                                      },
-                                    )
+                                    {getDkuRanksFromRankRange(c.rankRange)
                                       .filter(
                                         (r, i, l) =>
                                           l.findIndex(
                                             (rr) =>
-                                              rr.primaryColor ===
-                                                r.primaryColor &&
-                                              ("secondaryColor" in rr
-                                                ? "secondaryColor" in r &&
-                                                  rr.secondaryColor ===
-                                                    r.secondaryColor
+                                              rr.colors.join() ===
+                                                r.colors.join() &&
+                                              ("stripes" in rr
+                                                ? "stripes" in r &&
+                                                  rr.stripes?.join() ===
+                                                    r.stripes?.join()
                                                 : true),
                                           ) === i,
                                       )
@@ -283,37 +283,24 @@ function Belt({
   ...htmlProps
 }: { rank: (typeof dkuRanks)[number] } & ComponentProps<typeof Link>) {
   return (
-    <Link {...htmlProps} className={"relative " + (htmlProps.className || "")}>
-      <div
-        style={{
-          background: rank.primaryColor,
-        }}
-        className="h-1"
-      />
-      <div
-        style={{
-          background:
-            rank.index >= 0
-              ? rank.primaryColor
-              : "secondaryColor" in rank
-                ? rank.secondaryColor
-                : rank.primaryColor,
-        }}
-        className="h-1"
-      />
-      <div
-        style={{
-          background: rank.primaryColor,
-        }}
-        className="h-1"
-      />
-      {rank.index >= 0 && "secondaryColor" in rank ? (
+    <Link
+      {...htmlProps}
+      className={
+        "relative " + (htmlProps.className || "") + " inline-block h-3"
+      }
+    >
+      {rank.colors.map((background, i) => (
         <div
-          style={{
-            background: rank.secondaryColor,
-          }}
-          className="h-full absolute left-3 w-1 top-0"
+          key={i}
+          style={{ background, height: 100 / rank.colors.length + "%" }}
         />
+      ))}
+      {"stripes" in rank && rank.stripes?.length ? (
+        <div className="absolute inset-0 flex flex-row">
+          {rank.stripes?.map((background, i) => (
+            <div style={{ background }} key={i} className="h-full w-1 ml-2" />
+          ))}
+        </div>
       ) : null}
     </Link>
   );
