@@ -386,7 +386,7 @@ interface LoadParams {
   now: Date | TZDate;
 }
 
-const eventsSources = [
+export const eventsSources = [
   {
     sourceId: "risskov-karate-skole",
     name: "Risskov Karate Skole",
