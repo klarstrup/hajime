@@ -30,11 +30,10 @@ export default async function HoldList({
           myRank.index <= (classItem.rankRange?.max ?? Infinity)
         : true,
     )
-    .filter((classItem) =>
-      myRank
-        ? myAge >= (classItem.ageRange?.min ?? -Infinity) &&
-          myAge <= (classItem.ageRange?.max ?? Infinity)
-        : true,
+    .filter(
+      (classItem) =>
+        myAge >= (classItem.ageRange?.min ?? -Infinity) &&
+        myAge <= (classItem.ageRange?.max ?? Infinity),
     )
     .filter((classItem) =>
       federationSlug ? classItem.federation === federationSlug : true,
@@ -325,7 +324,7 @@ function Belt({
       {"stripes" in rank && rank.stripes?.length ? (
         <div className="absolute inset-0 flex flex-row">
           {rank.stripes?.map((background, i) => (
-            <div style={{ background }} key={i} className="h-full w-1 ml-2" />
+            <div style={{ background }} key={i} className="h-full w-1 ml-3" />
           ))}
         </div>
       ) : null}
