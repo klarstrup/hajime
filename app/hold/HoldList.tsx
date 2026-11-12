@@ -67,7 +67,7 @@ export default async function HoldList({
             </div>
           )}
         </header>
-        <div className="text-right flex flex-col ">
+        <div className="text-right flex flex-col font-semibold">
           {myRank !== undefined && (
             <Link className="text-xs 2xs:text-sm text-red-400 " href="/hold">
               Se alle karatehold
