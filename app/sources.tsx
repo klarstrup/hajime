@@ -14,6 +14,7 @@ import { convertIcsCalendar } from "ts-ics";
 import { nlp } from "./nlp";
 import {
   danishFullWeekdays,
+  danishWeekDayRE,
   fuseCompare,
   getAgeAndRankFromClassName,
   getNextStartAndEnd,
@@ -386,6 +387,74 @@ interface LoadParams {
 }
 
 const eventsSources = [
+  {
+    sourceId: "risskov-karate-skole",
+    name: "Risskov Karate Skole",
+    federation: "iogkf",
+    classesUrl: "https://risskovkarateskole.dk/",
+    async *loadClasses({ now }: { now: Date }) {
+      const $res = await fetch$("https://risskovkarateskole.dk/");
+      const times = $res(".fl-accordion-content").filter((_, el) =>
+        danishWeekDayRE.test(
+          $res(el)
+            .text()
+            .replace(/\u00AD/g, ""),
+        ),
+      );
+      times.find("br").replaceWith("\n");
+
+      const holdLines = nlp
+        .readDoc(
+          render(times)
+            .replace(/\u00AD/g, "")
+            .replace(/(\d+)\./gi, "$1[DOT]")
+            .replace(/(min)\. (\d+)/gi, "$1[DOT] $2")
+            .replace(/(Kl)\. (\d+)/gi, "$1[DOT] $2"),
+        )
+        .sentences()
+        .out()
+        // TODO: hopelessly optimistic, we should be able to parse the line in full
+        .flatMap((line) => line.split("træner"))
+        .flatMap((s) => s.replace(/\[DOT\]/g, ".").split(/\n/))
+        // split [HH:MM]: [CLASS] strings into separate lines
+        .flatMap((line) =>
+          line.toLowerCase().startsWith("kl.")
+            ? line
+                .split(timeRangeRE2)
+                .filter((s) => s && s.toLowerCase().trim() !== "kl.")
+            : line,
+        )
+        .map((line) => line.trim().replace(/^: ?/, "").replace(/\.$/, ""))
+        // TODO: brittle
+        .slice(3);
+
+      let weekdays: Weekday[] = [];
+      let timeRange: { start: Date; end: Date } | undefined = undefined;
+      let className: string | undefined = undefined;
+
+      // The lines can be weekday names, time range of day, class name and instructors. In that order. Assemble them into structured data.
+      for (const line of holdLines) {
+        const newWeekdays = getRRuleWeekdaysByFullDanishName(line);
+        const newTimeRange = safeParseTimeRange(line, now);
+        if (newWeekdays.length > 0) weekdays = newWeekdays;
+        if (newTimeRange) timeRange = newTimeRange;
+        if (newWeekdays.length === 0 && !newTimeRange) className = line;
+
+        if (weekdays.length && timeRange && className) {
+          for (const weekday of weekdays) {
+            yield {
+              className,
+              ...getNextStartAndEnd(timeRange, weekday, now),
+              ...getAgeAndRankFromClassName(className),
+            };
+          }
+
+          timeRange = undefined;
+          weekdays = [];
+        }
+      }
+    },
+  },
   {
     sourceId: "dansk-karate-union-facebook",
     name: "Dansk Karate Union",

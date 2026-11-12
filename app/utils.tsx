@@ -65,14 +65,73 @@ const rruleWeekdaysByFullDanishName: Record<string, Weekday> = {
   lørdag: RRule.SA,
   søndag: RRule.SU,
 };
-const danishWeekDayRE =
-  /(mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)/gi;
+export const danishWeekDayRE =
+  /(mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)/i;
+const danishWeekDayREG = new RegExp(
+  danishWeekDayRE.source,
+  danishWeekDayRE.flags + "g",
+);
 export const getRRuleWeekdayByFullDanishName = (line: string): Weekday | null =>
   getRRuleWeekdaysByFullDanishName(line)[0] || null;
 export const getRRuleWeekdaysByFullDanishName = (line: string): Weekday[] =>
-  (line.match(danishWeekDayRE) || []).map(
+  Array.from(new Set<string>(line.match(danishWeekDayREG) || [])).map(
     (match) => rruleWeekdaysByFullDanishName[match.toLowerCase()],
   );
+
+if (import.meta.vitest) {
+  const { describe, it, expect } = import.meta.vitest;
+
+  describe("getRRuleWeekdaysByFullDanishName", () => {
+    it("should return correct weekdays for single Danish full names", () => {
+      expect(getRRuleWeekdaysByFullDanishName("Mandag")).toEqual([RRule.MO]);
+      expect(getRRuleWeekdaysByFullDanishName("Tirsdag")).toEqual([RRule.TU]);
+      expect(getRRuleWeekdaysByFullDanishName("Onsdag")).toEqual([RRule.WE]);
+      expect(getRRuleWeekdaysByFullDanishName("Torsdag")).toEqual([RRule.TH]);
+      expect(getRRuleWeekdaysByFullDanishName("Fredag")).toEqual([RRule.FR]);
+      expect(getRRuleWeekdaysByFullDanishName("Lørdag")).toEqual([RRule.SA]);
+      expect(getRRuleWeekdaysByFullDanishName("Søndag")).toEqual([RRule.SU]);
+    });
+
+    it("should return correct weekdays for multiple Danish full names", () => {
+      expect(getRRuleWeekdaysByFullDanishName("Mandag Tirsdag")).toEqual([
+        RRule.MO,
+        RRule.TU,
+      ]);
+      expect(getRRuleWeekdaysByFullDanishName("Onsdag Torsdag Fredag")).toEqual(
+        [RRule.WE, RRule.TH, RRule.FR],
+      );
+      expect(getRRuleWeekdaysByFullDanishName("Lørdag Søndag")).toEqual([
+        RRule.SA,
+        RRule.SU,
+      ]);
+      expect(getRRuleWeekdaysByFullDanishName("Torsdag Søndag")).toEqual([
+        RRule.TH,
+        RRule.SU,
+      ]);
+      expect(getRRuleWeekdaysByFullDanishName("Mandag Søndag")).toEqual([
+        RRule.MO,
+        RRule.SU,
+      ]);
+      expect(getRRuleWeekdaysByFullDanishName("")).toEqual([]);
+      expect(
+        getRRuleWeekdaysByFullDanishName(
+          "Mandag Tirsdag Onsdag Torsdag Fredag Lørdag Søndag",
+        ),
+      ).toEqual([
+        RRule.MO,
+        RRule.TU,
+        RRule.WE,
+        RRule.TH,
+        RRule.FR,
+        RRule.SA,
+        RRule.SU,
+      ]);
+      expect(getRRuleWeekdaysByFullDanishName("Mandag Mandag")).toEqual([
+        RRule.MO,
+      ]);
+    });
+  });
+}
 
 const inlineElements = new Set(
   `a,abbr,acronym,audio,b,bdi,bdo,big,br,button,canvas,cite,code,data,
@@ -273,9 +332,7 @@ export function getAgeAndRankFromClassName(className: string): {
     lClassName,
   )?.[2];
   if (minPrefixedKyuMatch) rankRange.min = -parseInt(minPrefixedKyuMatch, 10);
-  const minSuffixedKyuMatch = /(\d+)\.? kyu ?[-+|og op]/i.exec(
-    lClassName,
-  )?.[1];
+  const minSuffixedKyuMatch = /(\d+)\.? kyu ?[-+|og op]/i.exec(lClassName)?.[1];
   if (minSuffixedKyuMatch) rankRange.min = -parseInt(minSuffixedKyuMatch, 10);
   const maxKyuMatch = /til og med (\d+)\. kyu/i.exec(lClassName)?.[1];
   if (maxKyuMatch) rankRange.max = -parseInt(maxKyuMatch, 10);
