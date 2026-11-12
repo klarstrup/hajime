@@ -67,12 +67,13 @@ const rruleWeekdaysByFullDanishName: Record<string, Weekday> = {
 };
 const danishWeekDayRE =
   /(mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)/gi;
-export const getRRuleWeekdayByFullDanishName = (
-  line: string,
-): Weekday | null => {
-  const match = line.match(danishWeekDayRE)?.[0];
-  return (match && rruleWeekdaysByFullDanishName[match.toLowerCase()]) || null;
-};
+export const getRRuleWeekdayByFullDanishName = (line: string): Weekday | null =>
+  getRRuleWeekdaysByFullDanishName(line)[0] || null;
+export const getRRuleWeekdaysByFullDanishName = (line: string): Weekday[] =>
+  (line.match(danishWeekDayRE) || []).map(
+    (match) => rruleWeekdaysByFullDanishName[match.toLowerCase()],
+  );
+
 const inlineElements = new Set(
   `a,abbr,acronym,audio,b,bdi,bdo,big,br,button,canvas,cite,code,data,
   datalist,del,dfn,em,embed,i,iframe,img,input,ins,kbd,label,map,mark,
@@ -162,11 +163,11 @@ export function getAgeAndRankFromClassName(className: string): {
   const rankIndices: number[] = [];
   let ageResult;
   const ageRegex = /år/gi;
-  while ((ageResult = ageRegex.exec(className)))
+  while ((ageResult = ageRegex.exec(lClassName)))
     ageIndices.push(ageResult.index);
   let rankResult;
   const tierRegex = /kyu|mon|dan/gi;
-  while ((rankResult = tierRegex.exec(className)))
+  while ((rankResult = tierRegex.exec(lClassName)))
     rankIndices.push(rankResult.index);
 
   const ageMentions: string[] = [];
@@ -176,21 +177,24 @@ export function getAgeAndRankFromClassName(className: string): {
   for (const m of [...ageIndices, ...rankIndices].sort((a, b) => a - b)) {
     if (rankIndices.includes(m)) {
       rankMentions.push(
-        className.slice(lastIndex === -1 ? 0 : lastIndex + 2, m),
+        lClassName.slice(lastIndex === -1 ? 0 : lastIndex + 2, m),
       );
     }
     if (ageIndices.includes(m)) {
       ageMentions.push(
-        className.slice(lastIndex === -1 ? 0 : lastIndex + 3, m),
+        lClassName.slice(lastIndex === -1 ? 0 : lastIndex + 3, m),
       );
     }
     lastIndex = m;
   }
 
-  const cleanRankTier = className.match(tierRegex)?.[0]?.toLowerCase();
-  const cleanAgeMentions = ageMentions.flatMap(
-    (m) => m.match(/\d+/g)?.map(Number) || [],
-  );
+  const cleanRankTier = lClassName.match(tierRegex)?.[0]?.toLowerCase();
+  const cleanAgeMentions = ageMentions
+    .flatMap((m) => [
+      m.match(/\d+/g)?.map(Number) || [],
+      m.match(/begyndere?/gi)?.map(() => 10.5) || [],
+    ])
+    .flat();
   const cleanRankMentions = rankMentions
     .flatMap((m) => m.match(/\d+/g)?.map(Number) || [])
     .filter((n, i, arr) => arr.indexOf(n) === i)
@@ -269,10 +273,14 @@ export function getAgeAndRankFromClassName(className: string): {
     lClassName,
   )?.[2];
   if (minPrefixedKyuMatch) rankRange.min = -parseInt(minPrefixedKyuMatch, 10);
-  const minSuffixedKyuMatch = /(\d+)\.? kyu ?[-+]/i.exec(lClassName)?.[1];
+  const minSuffixedKyuMatch = /(\d+)\.? kyu ?[-+|og op]/i.exec(
+    lClassName,
+  )?.[1];
   if (minSuffixedKyuMatch) rankRange.min = -parseInt(minSuffixedKyuMatch, 10);
   const maxKyuMatch = /til og med (\d+)\. kyu/i.exec(lClassName)?.[1];
   if (maxKyuMatch) rankRange.max = -parseInt(maxKyuMatch, 10);
+  const maxKyuMatch2 = /[-–] (\d+)\. kyu/i.exec(lClassName)?.[1];
+  if (maxKyuMatch2) rankRange.max = -parseInt(maxKyuMatch2, 10);
   if (cleanRankMentions.length > 1) {
     rankRange.min = Math.min(...cleanRankMentions);
     rankRange.max = Math.max(...cleanRankMentions);
@@ -463,6 +471,14 @@ if (import.meta.vitest) {
         rankRange: { min: -10.5, max: null },
         ageRange: { min: null, max: null },
       },
+      "Begynder – 9. kyu": {
+        rankRange: { min: -10.5, max: -9 },
+        ageRange: { min: null, max: null },
+      },
+      "Øvet (8. kyu og op)": {
+        rankRange: { min: -8, max: null },
+        ageRange: { min: null, max: null },
+      },
     };
     for (const [input, expected] of Object.entries(cases)) {
       it(input, () =>
@@ -473,17 +489,27 @@ if (import.meta.vitest) {
 }
 
 export const timeRangeRE =
-  /((\d{1,2})[:\.](\d{2}) ?[–-] ?(\d{1,2})[:\.](\d{2}))/;
-export const timeRangeRE2 = /(\d{1,2}[:\.]\d{2} ?[–-] ?\d{1,2}[:\.]\d{2})/;
+  /(\d{1,2})([:\.]\d{2})? ?[–-] ?(\d{1,2})([:\.]\d{2})?/;
+export const timeRangeRE2 =
+  /(\d{1,2}(?:[:\.]\d{2})? ?[–-] ?\d{1,2}(?:[:\.]\d{2})?)/;
 export const timeSeparatorRE = / ?[–-] ?/;
 export const hoursMinutesSeparatorRE = /[:\.]/;
 
 export const safeParseTimeRange = (timeRangeStr: string, now: Date) => {
-  const [startHour, startMinute, endHour, endMinute] =
-    timeRangeStr
-      .match(timeRangeRE)
-      ?.slice(2)
-      .map((s) => parseInt(s, 10)) || [];
+  if (!timeRangeStr.match(/\d/gi)) return null;
+  if (timeRangeStr.match(/år/gi)) return null;
+  const matches = timeRangeStr.match(timeRangeRE)?.slice(1) || [];
+  const [startHourStr, startMinuteStr, endHourStr, endMinuteStr] = matches;
+
+  const startHour = parseInt(startHourStr, 10);
+  const startMinute = isNaN(startHour)
+    ? NaN
+    : parseInt(startMinuteStr?.replace(/^[:\.]/, "") ?? "0", 10);
+  const endHour = parseInt(endHourStr, 10);
+  const endMinute = isNaN(endHour)
+    ? NaN
+    : parseInt(endMinuteStr?.replace(/^[:\.]/, "") ?? "0", 10);
+
   if ([startHour, startMinute, endHour, endMinute].some((v) => isNaN(v)))
     return null;
 
@@ -495,6 +521,40 @@ export const safeParseTimeRange = (timeRangeStr: string, now: Date) => {
 
   return { start, end };
 };
+if (import.meta.vitest) {
+  const { describe, it, expect } = import.meta.vitest;
+  const timeToParts = (d: Date) => [
+    d.getHours(),
+    d.getMinutes(),
+    d.getSeconds(),
+  ];
+  describe("safeParseTimeRange should parse correctly", () => {
+    const now = new Date();
+    const cases = {
+      "10:00 - 12:00": { start: [10, 0], end: [12, 0] },
+      "10:30 - 12:15": { start: [10, 30], end: [12, 15] },
+      "10:00 - 12:25": { start: [10, 0], end: [12, 25] },
+      "10:35 - 12:00": { start: [10, 35], end: [12, 0] },
+      "10:30-12:15": { start: [10, 30], end: [12, 15] },
+      "10.30 - 12.15": { start: [10, 30], end: [12, 15] },
+      "10:00-12:00": { start: [10, 0], end: [12, 0] },
+      "10.00 - 12.00": { start: [10, 0], end: [12, 0] },
+      "10.00-12.00": { start: [10, 0], end: [12, 0] },
+      "10 - 12": { start: [10, 0], end: [12, 0] },
+      "10-12": { start: [10, 0], end: [12, 0] },
+      "10:00-12": { start: [10, 0], end: [12, 0] },
+      "10.30-12.15": { start: [10, 30], end: [12, 15] },
+    };
+    for (const [input, expected] of Object.entries(cases)) {
+      it(`"${input}"`, () => {
+        const result = safeParseTimeRange(input, now);
+        expect(result).not.toBeNull();
+        expect(timeToParts(result!.start)).toEqual([...expected.start, 0]);
+        expect(timeToParts(result!.end)).toEqual([...expected.end, 0]);
+      });
+    }
+  });
+}
 
 export function getNextStartAndEnd(
   timeRange: { start: Date; end: Date },

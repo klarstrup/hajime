@@ -18,6 +18,7 @@ import {
   getAgeAndRankFromClassName,
   getNextStartAndEnd,
   getRRuleWeekdayByFullDanishName,
+  getRRuleWeekdaysByFullDanishName,
   render,
   safeParseTimeRange,
   timeRangeRE2,
@@ -572,6 +573,89 @@ const eventsSources = [
           summary: e.summary.replace("Stævne i Helsingør", "Bushido Cup"),
         })),
       ),
+    classesUrl: "https://www.bskarate.dk/tider-og-priser/",
+    async *loadClasses({ now }: { now: Date }) {
+      const $res = await fetch$("https://www.bskarate.dk/tider-og-priser/");
+      const times = $res("p,figcaption")
+        .filter((_, el) => {
+          const text = $res(el).text();
+          return danishFullWeekdays.some((weekday) => text.includes(weekday));
+        })
+        .parent()
+        .parent();
+
+      times.find("br").replaceWith("\n");
+
+      for (let i = 0; i < times.length; i++) {
+        const holdLines = nlp
+          .readDoc(
+            render(times.eq(i))
+              .replace(/(\d+)\./gi, "$1[DOT]")
+              .replace(/(min)\. (\d+)/gi, "$1[DOT] $2")
+              .replace(/(Kl)\. (\d+)/gi, "$1[DOT] $2"),
+          )
+          .sentences()
+          .out()
+          .flatMap((s) => s.replace(/\[DOT\]/g, ".").split(/\n/))
+          // split [HH:MM]: [CLASS] strings into separate lines
+          .flatMap((line) =>
+            line.toLowerCase().startsWith("kl.")
+              ? line
+                  .split(timeRangeRE2)
+                  .filter((s) => s && s.toLowerCase().trim() !== "kl.")
+              : line,
+          )
+          .map((line) => line.trim().replace(/^: ?/, "").replace(/\.$/, ""));
+        // console.log(holdLines);
+
+        const superClassName = holdLines[0];
+        let classNames: string[] = [];
+        let timeRange: { start: Date; end: Date } | undefined = undefined;
+        let weekdays: Weekday[] = [];
+        const lastLineIsClassName =
+          holdLines[holdLines.length - 1] &&
+          !getRRuleWeekdaysByFullDanishName(holdLines[holdLines.length - 1])
+            .length &&
+          !safeParseTimeRange(holdLines[holdLines.length - 1], now);
+        for (const line of holdLines.slice(1)) {
+          const isLastLine = line === holdLines[holdLines.length - 1];
+          const newWeekdays = getRRuleWeekdaysByFullDanishName(line);
+          const newTimeRange = safeParseTimeRange(line, now);
+          if (newWeekdays.length > 0) weekdays = newWeekdays;
+          else if (newTimeRange) timeRange = newTimeRange;
+          else {
+            classNames.push(line);
+          }
+
+          if (
+            weekdays.length > 0 &&
+            timeRange &&
+            (classNames.length > (lastLineIsClassName ? 1 : 0) || isLastLine)
+          ) {
+            for (const weekday of weekdays) {
+              yield {
+                className: [
+                  superClassName,
+                  ...(classNames?.slice(lastLineIsClassName ? 1 : 0) ?? []),
+                ]
+                  .filter(Boolean)
+                  .join(": "),
+                ...getNextStartAndEnd(timeRange, weekday, now),
+                ...getAgeAndRankFromClassName(
+                  [superClassName, ...(classNames ?? [])]
+                    .filter(Boolean)
+                    .join(" "),
+                ),
+              };
+            }
+            classNames = lastLineIsClassName
+              ? [classNames[classNames.length - 2]]
+              : [];
+            timeRange = undefined;
+          }
+        }
+      }
+    },
   },
   {
     sourceId: "karateklubben-kenzoku",
@@ -1398,9 +1482,10 @@ export const fetchEvents = async ({
   return Promise.all(
     eventsSources
       .filter((source) =>
-        "loadClasses" in source && anySourceHasOnly
-          ? "only" in source && source.only
-          : true,
+        anySourceHasOnly ? "only" in source && source.only : true,
+      )
+      .filter(
+        (source) => (!("skip" in source) || !source.skip) && !anySourceHasOnly,
       )
       .map((source) => {
         if (!("loadEvents" in source)) return [];
@@ -1457,10 +1542,11 @@ export const getClasses = async () => {
 
   return Promise.all(
     eventsSources
+      .filter((source) =>
+        anySourceHasOnly ? "only" in source && source.only : true,
+      )
       .filter(
-        (source) =>
-          "loadClasses" in source &&
-          (anySourceHasOnly ? "only" in source && source.only : true),
+        (source) => (!("skip" in source) || !source.skip) && !anySourceHasOnly,
       )
       .flatMap(
         (source) =>
