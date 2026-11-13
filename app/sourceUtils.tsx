@@ -39,7 +39,7 @@ export function* parseClassesSchedulesLines(
     if (newWeekdays) setData("weekdays", newWeekdays);
     if (newTimeRange) setData("timeRange", newTimeRange);
     if (!newWeekdays && !newTimeRange)
-      setData("className", processClassName ? processClassName(line) : line);
+      setData("className", processClassName?.(line) ?? line);
 
     if (!allDataSet(data)) continue;
 
