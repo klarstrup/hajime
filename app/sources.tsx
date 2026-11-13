@@ -396,18 +396,13 @@ export const eventsSources = [
     async *loadClasses({ now }: { now: Date }) {
       const $res = await fetch$("https://risskovkarateskole.dk/");
       const times = $res(".fl-accordion-content").filter((_, el) =>
-        danishWeekDayRE.test(
-          $res(el)
-            .text()
-            .replace(/\u00AD/g, ""),
-        ),
+        danishWeekDayRE.test(render($res(el))),
       );
       times.find("br").replaceWith("\n");
 
       const holdLines = nlp
         .readDoc(
           render(times)
-            .replace(/\u00AD/g, "")
             .replace(/(\d+)\./gi, "$1[DOT]")
             .replace(/(min)\. (\d+)/gi, "$1[DOT] $2")
             .replace(/(Kl)\. (\d+)/gi, "$1[DOT] $2"),
@@ -429,30 +424,7 @@ export const eventsSources = [
         // TODO: brittle
         .slice(3);
 
-      let weekdays: [Weekday, ...Weekday[]] | undefined = undefined;
-      let timeRange: { start: Date; end: Date } | undefined = undefined;
-      let className: string | undefined = undefined;
-
-      // The lines can be weekday names, time range of day, class name and instructors. In that order. Assemble them into structured data.
-      for (const line of holdLines) {
-        const newWeekdays = getRRuleWeekdaysByFullDanishName(line);
-        const newTimeRange = safeParseTimeRange(line, now);
-        if (newWeekdays) weekdays = newWeekdays;
-        if (newTimeRange) timeRange = newTimeRange;
-        if (!newWeekdays && !newTimeRange) className = line;
-
-        if (weekdays && timeRange && className) {
-          for (const weekday of weekdays) {
-            yield {
-              className,
-              ...getNextStartAndEnd(timeRange, weekday, now),
-              ...getAgeAndRankFromClassName(className),
-            };
-          }
-
-          timeRange = undefined;
-        }
-      }
+      yield* parseClassesSchedulesLines(holdLines, now);
     },
   },
   {
