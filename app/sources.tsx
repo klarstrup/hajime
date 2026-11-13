@@ -12,6 +12,7 @@ import { isEqual } from "date-fns/fp/isEqual";
 import type { Weekday } from "rrule";
 import { convertIcsCalendar } from "ts-ics";
 import { nlp } from "./nlp";
+import { parseClassesSchedulesLines } from "./sourceUtils";
 import {
   danishFullWeekdays,
   danishWeekDayRE,
@@ -967,28 +968,8 @@ export const eventsSources = [
         .flatMap((line) => line.split(/:/))
         .map((line) => line.trim());
 
-      let weekday: Weekday | undefined = undefined;
-      let timeRange: { start: Date; end: Date } | undefined = undefined;
-      let className: string | undefined = undefined;
-
       // The lines can be weekday names, time range of day, class name and instructors. In that order. Assemble them into structured data.
-      for (const line of holdLines) {
-        const newWeekday = getRRuleWeekdayByFullDanishName(line);
-        const newTimeRange = safeParseTimeRange(line, now);
-        if (newWeekday && newWeekday !== weekday) weekday = newWeekday;
-        else if (newTimeRange) timeRange = newTimeRange;
-        else className = line;
-
-        if (weekday && timeRange && className) {
-          yield {
-            className,
-            ...getNextStartAndEnd(timeRange, weekday, now),
-            ...getAgeAndRankFromClassName(className),
-          };
-
-          className = undefined;
-        }
-      }
+      yield* parseClassesSchedulesLines(holdLines, now);
     },
   },
   {
@@ -1488,27 +1469,7 @@ export const eventsSources = [
         .flatMap((s) => s.replace(/\[DOT\]/g, ".").split(/\.?\n/))
         .map((line) => line.trim().replace(/\:$/, ""));
 
-      let weekday: Weekday | undefined = undefined;
-      let className: string | undefined = undefined;
-      let timeRange: { start: Date; end: Date } | undefined = undefined;
-      // The lines can be weekday names, class name and time range of day. In that order. Assemble them into structured data.
-      for (const line of holdLines) {
-        const newWeekday = getRRuleWeekdayByFullDanishName(line);
-        const newTimeRange = safeParseTimeRange(line, now);
-        if (newWeekday && newWeekday !== weekday) weekday = newWeekday;
-        else if (newTimeRange) timeRange = newTimeRange;
-        else className = line;
-
-        if (weekday && timeRange && className) {
-          yield {
-            className,
-            ...getNextStartAndEnd(timeRange, weekday, now),
-            ...getAgeAndRankFromClassName(className),
-          };
-
-          timeRange = undefined;
-        }
-      }
+      yield* parseClassesSchedulesLines(holdLines, now);
     },
   },
 ] as const;
