@@ -24,20 +24,20 @@ export default async function HoldList({
   let nextWeekOfClasses = await getClasses();
   const myAge = myRank?.index && myRank.index < -10.5 ? 12 : 24;
   nextWeekOfClasses = nextWeekOfClasses
-    .filter((classItem) =>
+    .filter(({ rankRange }) =>
       myRank
-        ? myRank.index >= (classItem.rankRange?.min ?? -Infinity) &&
-          myRank.index <= (classItem.rankRange?.max ?? Infinity)
+        ? myRank.index >= (rankRange?.min ?? -Infinity) &&
+          myRank.index <= (rankRange?.max ?? Infinity)
         : true,
     )
-    .filter((classItem) =>
+    .filter(({ ageRange }) =>
       myRank || !federationSlug
-        ? myAge >= (classItem.ageRange?.min ?? -Infinity) &&
-          myAge <= (classItem.ageRange?.max ?? Infinity)
+        ? myAge >= (ageRange?.min ?? -Infinity) &&
+          myAge <= (ageRange?.max ?? Infinity)
         : true,
     )
-    .filter((classItem) =>
-      federationSlug ? classItem.federation === federationSlug : true,
+    .filter(({ federation }) =>
+      federationSlug ? federation === federationSlug : true,
     );
 
   const classesByWeekAndWeekday = nextWeekOfClasses.reduce(
@@ -56,9 +56,12 @@ export default async function HoldList({
     <div className="flex flex-col max-w-120 w-full">
       <div className="flex gap-2 items-end justify-between">
         <header className="text-xl flex gap-2 mt-2 items-baseline">
-          <span className="text-[1.75rem] md:text-[2rem] lg:text-[2.5rem] xl:text-[3rem] leading-tight">
+          <Link
+            href="/"
+            className="text-[1.75rem] md:text-[2rem] lg:text-[2.5rem] xl:text-[3rem] leading-tight"
+          >
             🥋
-          </span>
+          </Link>
           <span className="text-2xl xs:text-4xl font-extrabold">
             Karatehold
           </span>

@@ -37,9 +37,12 @@ export function EventList({
     <div className="flex flex-col max-w-120 w-full">
       <div className="flex gap-2 items-end justify-between">
         <header className="text-xl font-extrabold flex gap-2 mt-2 items-baseline">
-          <span className="text-[1.75rem] md:text-[2rem] lg:text-[2.5rem] xl:text-[3rem] leading-tight">
+          <Link
+            href="/"
+            className="text-[1.75rem] md:text-[2rem] lg:text-[2.5rem] xl:text-[3rem] leading-tight"
+          >
             🥋
-          </span>
+          </Link>
           <span className="text-2xl xs:text-4xl">{title}</span>
           {federationSlug && (
             <Link
