@@ -721,32 +721,21 @@ export const eventsSources = [
         const holdLines = render(times.eq(i)).split("\n");
 
         const className = holdLines[0];
-        const ageAndRank = getAgeAndRankFromClassName(className);
-        let timeRange: { start: Date; end: Date } | undefined = undefined;
-        let weekday: Weekday | undefined = undefined;
-        const ageRange: { min: number | null; max: number | null } =
-          ageAndRank.ageRange;
-        for (const line of holdLines.slice(1)) {
-          const newWeekday = getRRuleWeekdayByFullDanishName(line);
-          const newTimeRange = safeParseTimeRange(line, now);
-          const newAgeRange = getAgeAndRankFromClassName(line).ageRange;
-          if (newWeekday) weekday = newWeekday;
-          if (newTimeRange) timeRange = newTimeRange;
-          if (newAgeRange) {
-            ageRange.min = newAgeRange.min ?? ageRange.min;
-            ageRange.max = newAgeRange.max ?? ageRange.max;
-          }
+        yield* parseClassesSchedulesLines(
+          holdLines.slice(1),
+          now,
+          {
+            className: () => className,
+            ageRange: (line) => {
+              const lineAgeRange = getAgeAndRankFromClassName(line).ageRange;
 
-          if (weekday && timeRange && className) {
-            yield {
-              className,
-              ...getNextStartAndEnd(timeRange, weekday, now),
-              ...ageAndRank,
-              ageRange,
-            };
-            timeRange = undefined;
-          }
-        }
+              return lineAgeRange.min !== null || lineAgeRange.max !== null
+                ? lineAgeRange
+                : null;
+            },
+          },
+          { ageRange: getAgeAndRankFromClassName(className).ageRange },
+        );
       }
     },
   },
@@ -830,6 +819,8 @@ export const eventsSources = [
         yield* parseClassesSchedulesLines(
           lines,
           now,
+          undefined,
+          undefined,
           (className) => superHold + ", " + className,
         );
       }

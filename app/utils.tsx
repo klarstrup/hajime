@@ -1,5 +1,6 @@
 import type { CheerioAPI } from "cheerio";
 import * as cheerio from "cheerio";
+import { isValid } from "date-fns";
 import type { AnyNode } from "domhandler";
 import Fuse from "fuse.js";
 import type { Weekday } from "rrule";
@@ -117,7 +118,8 @@ if (import.meta.vitest) {
         RRule.MO,
         RRule.SU,
       ]);
-      expect(getRRuleWeekdaysByFullDanishName("")).toEqual([]);
+      expect(getRRuleWeekdaysByFullDanishName("asdfasdf")).toBeNull();
+      expect(getRRuleWeekdaysByFullDanishName("")).toBeNull();
       expect(
         getRRuleWeekdaysByFullDanishName(
           "Mandag Tirsdag Onsdag Torsdag Fredag Lørdag Søndag",
@@ -558,6 +560,17 @@ export const timeRangeRE2 =
 export const timeSeparatorRE = / ?[–-] ?/;
 export const hoursMinutesSeparatorRE = /[:\.]/;
 
+export interface TimeRange {
+  start: Date;
+  end: Date;
+}
+export const isValidTimeRange = (timeRange: unknown): timeRange is TimeRange =>
+  typeof timeRange === "object" &&
+  timeRange !== null &&
+  "start" in timeRange &&
+  "end" in timeRange &&
+  isValid((timeRange as TimeRange).start) &&
+  isValid((timeRange as TimeRange).end);
 export const safeParseTimeRange = (timeRangeStr: string, now: Date) => {
   if (!timeRangeStr.match(/\d/gi)) return null;
   if (timeRangeStr.match(/år/gi)) return null;
