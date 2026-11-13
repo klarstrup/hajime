@@ -451,7 +451,6 @@ export const eventsSources = [
           }
 
           timeRange = undefined;
-          weekdays = undefined;
         }
       }
     },
