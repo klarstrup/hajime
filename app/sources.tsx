@@ -647,7 +647,6 @@ export const eventsSources = [
               : line,
           )
           .map((line) => line.trim().replace(/^: ?/, "").replace(/\.$/, ""));
-        // console.log(holdLines);
 
         const superClassName = holdLines[0];
         let classNames: string[] = [];
@@ -663,10 +662,8 @@ export const eventsSources = [
           const newWeekdays = getRRuleWeekdaysByFullDanishName(line);
           const newTimeRange = safeParseTimeRange(line, now);
           if (newWeekdays) weekdays = newWeekdays;
-          else if (newTimeRange) timeRange = newTimeRange;
-          else {
-            classNames.push(line);
-          }
+          if (newTimeRange) timeRange = newTimeRange;
+          if (!newWeekdays && !newTimeRange) classNames.push(line);
 
           if (
             weekdays &&
