@@ -197,7 +197,8 @@ export function render(
     .split(/\n+/g)
     .map((line) => line.trim())
     .filter(Boolean)
-    .join("\n");
+    .join("\n")
+    .replace(/\u00AD/g, "");
 }
 
 function walk(
