@@ -19,7 +19,6 @@ import {
   fuseCompare,
   getAgeAndRankFromClassName,
   getNextStartAndEnd,
-  getRRuleWeekdayByFullDanishName,
   getRRuleWeekdaysByFullDanishName,
   render,
   safeParseTimeRange,
@@ -1141,33 +1140,43 @@ export const eventsSources = [
         .map((line) => line.trim().replace(/^: ?/, "").replace(/\.$/, ""))
         .filter(Boolean);
 
-      let weekday: Weekday | undefined = undefined;
-      let timeRange: { start: Date; end: Date } | undefined = undefined;
-      let className: string | undefined = undefined;
-      let instructors: string[] | undefined = undefined;
+      yield* parseClassesSchedulesLines(
+        holdLines.map((l) => l.replace("Kamphold torsdag", "Kamphold")),
+        now,
+        {
+          className: (line, now, data) => {
+            if (
+              data.className ||
+              !data.weekdays ||
+              !data.timeRange ||
+              safeParseTimeRange(line, now) ||
+              getRRuleWeekdaysByFullDanishName(line)
+            )
+              return null;
 
-      // The lines can be weekday names, time range of day, class name and instructors. In that order. Assemble them into structured data.
-      for (const line of holdLines) {
-        const newWeekday = getRRuleWeekdayByFullDanishName(line);
-        const newTimeRange = safeParseTimeRange(line, now);
-        if (newWeekday && newWeekday !== weekday) weekday = newWeekday;
-        else if (newTimeRange) timeRange = newTimeRange;
-        else if (!className) className = line;
-        else if (!instructors)
-          instructors = line.split(",").flatMap((s) => s.trim().split(" og "));
+            return line;
+          },
+          instructors: (line, now, data) => {
+            if (
+              !data.className ||
+              data.className === line ||
+              !data.weekdays ||
+              !data.timeRange ||
+              safeParseTimeRange(line, now) ||
+              getRRuleWeekdaysByFullDanishName(line)
+            )
+              return null;
 
-        if (weekday && timeRange && className && instructors) {
-          yield {
-            className,
-            ...getNextStartAndEnd(timeRange, weekday, now),
-            ...getAgeAndRankFromClassName(className),
-            instructors,
-          };
-
-          className = undefined;
-          instructors = undefined;
-        }
-      }
+            return line.split(",").flatMap((s) => s.trim().split(" og "));
+          },
+        },
+        undefined,
+        undefined,
+        (data) => {
+          data.instructors = undefined;
+          data.className = undefined;
+        },
+      );
     },
   },
   {

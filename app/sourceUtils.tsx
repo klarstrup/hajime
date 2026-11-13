@@ -16,16 +16,37 @@ export const defaultKeyParsers = {
 };
 
 interface KeyParsers {
-  weekdays?: (line: string) => Weekday[] | null;
-  timeRange?: (line: string, now: Date) => { start: Date; end: Date } | null;
+  weekdays?: (
+    line: string,
+    now: Date,
+    data: { [key: string]: unknown },
+  ) => Weekday[] | null;
+  timeRange?: (
+    line: string,
+    now: Date,
+    data: { [key: string]: unknown },
+  ) => { start: Date; end: Date } | null;
   ageRange?: (
     line: string,
+    now: Date,
+    data: { [key: string]: unknown },
   ) => { min: number | null; max: number | null } | null;
   rankRange?: (
     line: string,
+    now: Date,
+    data: { [key: string]: unknown },
   ) => { min: number | null; max: number | null } | null;
   // Can be set to override the default className parsing behavior
-  className?: (line: string) => string | undefined;
+  className?: (
+    line: string,
+    now: Date,
+    data: { [key: string]: unknown },
+  ) => string | null;
+  instructors?: (
+    line: string,
+    now: Date,
+    data: { [key: string]: unknown },
+  ) => string[] | null;
 }
 
 export function* parseClassesSchedulesLines(
@@ -37,6 +58,7 @@ export function* parseClassesSchedulesLines(
     [key: string]: unknown;
   },
   processClassName?: (line: string) => string | undefined,
+  wipe?: (data: { [key: string]: unknown }) => void,
 ) {
   const keyParsers = { ...defaultKeyParsers, ...additionalKeyParsers };
   const data: {
@@ -49,27 +71,28 @@ export function* parseClassesSchedulesLines(
     ),
     ...initialData,
   };
-  type DataKey = keyof typeof keyParsers | "className";
+  type DataKey = keyof typeof keyParsers;
   let lastSet: DataKey | undefined = undefined;
 
-  const setData = <T extends DataKey>(key: T, value: (typeof data)[T]) => {
-    if (!allDataSet(data)) lastSet = key;
-
-    data[key] = value;
-  };
   const resetLastSet = () => lastSet && (data[lastSet] = undefined);
 
   for (const line of holdLines) {
     let setValue = false;
     for (const key of Object.keys(keyParsers) as (keyof typeof keyParsers)[]) {
-      const value = keyParsers[key]!(line, now);
-
+      const value = keyParsers[key]!(line, now, data);
       if (value) {
-        setData(key, value);
+        if (!allDataSet(data)) lastSet = key;
+
+        // @ts-expect-error: TypeScript may not be able to infer the type of data[key] correctly
+        data[key] = value;
         setValue = true;
       }
     }
-    if (!setValue) setData("className", processClassName?.(line) ?? line);
+
+    if (!setValue && !keyParsers.className) {
+      if (!allDataSet(data)) lastSet = "className";
+      data.className = processClassName?.(line) ?? line;
+    }
 
     if (!allDataSet(data)) continue;
 
@@ -81,6 +104,9 @@ export function* parseClassesSchedulesLines(
     if (!isValidTimeRange(timeRange)) {
       throw new Error("Expected data.timeRange to be a valid TimeRange");
     }
+    if (!className) {
+      throw new Error("Expected data.className to be defined");
+    }
 
     for (const weekday of weekdays) {
       yield {
@@ -91,6 +117,7 @@ export function* parseClassesSchedulesLines(
       };
     }
 
-    resetLastSet();
+    if (wipe) wipe(data);
+    else resetLastSet();
   }
 }
