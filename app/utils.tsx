@@ -72,11 +72,16 @@ const danishWeekDayREG = new RegExp(
   danishWeekDayRE.flags + "g",
 );
 export const getRRuleWeekdayByFullDanishName = (line: string): Weekday | null =>
-  getRRuleWeekdaysByFullDanishName(line)[0] || null;
-export const getRRuleWeekdaysByFullDanishName = (line: string): Weekday[] =>
-  Array.from(new Set<string>(line.match(danishWeekDayREG) || [])).map(
-    (match) => rruleWeekdaysByFullDanishName[match.toLowerCase()],
-  );
+  getRRuleWeekdaysByFullDanishName(line)?.[0] || null;
+export const getRRuleWeekdaysByFullDanishName = (
+  line: string,
+): [Weekday, ...Weekday[]] | null => {
+  const weekdays = Array.from(
+    new Set<string>(line.match(danishWeekDayREG) || []),
+  ).map((match) => rruleWeekdaysByFullDanishName[match.toLowerCase()]);
+  if (weekdays.length === 0) return null;
+  return weekdays as [Weekday, ...Weekday[]];
+};
 
 if (import.meta.vitest) {
   const { describe, it, expect } = import.meta.vitest;

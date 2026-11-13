@@ -429,7 +429,7 @@ export const eventsSources = [
         // TODO: brittle
         .slice(3);
 
-      let weekdays: Weekday[] = [];
+      let weekdays: [Weekday, ...Weekday[]] | undefined = undefined;
       let timeRange: { start: Date; end: Date } | undefined = undefined;
       let className: string | undefined = undefined;
 
@@ -437,11 +437,11 @@ export const eventsSources = [
       for (const line of holdLines) {
         const newWeekdays = getRRuleWeekdaysByFullDanishName(line);
         const newTimeRange = safeParseTimeRange(line, now);
-        if (newWeekdays.length > 0) weekdays = newWeekdays;
+        if (newWeekdays) weekdays = newWeekdays;
         if (newTimeRange) timeRange = newTimeRange;
-        if (newWeekdays.length === 0 && !newTimeRange) className = line;
+        if (!newWeekdays && !newTimeRange) className = line;
 
-        if (weekdays.length && timeRange && className) {
+        if (weekdays && timeRange && className) {
           for (const weekday of weekdays) {
             yield {
               className,
@@ -451,7 +451,7 @@ export const eventsSources = [
           }
 
           timeRange = undefined;
-          weekdays = [];
+          weekdays = undefined;
         }
       }
     },
@@ -681,24 +681,24 @@ export const eventsSources = [
         const superClassName = holdLines[0];
         let classNames: string[] = [];
         let timeRange: { start: Date; end: Date } | undefined = undefined;
-        let weekdays: Weekday[] = [];
+        let weekdays: [Weekday, ...Weekday[]] | undefined = undefined;
         const lastLineIsClassName =
           holdLines[holdLines.length - 1] &&
           !getRRuleWeekdaysByFullDanishName(holdLines[holdLines.length - 1])
-            .length &&
+            ?.length &&
           !safeParseTimeRange(holdLines[holdLines.length - 1], now);
         for (const line of holdLines.slice(1)) {
           const isLastLine = line === holdLines[holdLines.length - 1];
           const newWeekdays = getRRuleWeekdaysByFullDanishName(line);
           const newTimeRange = safeParseTimeRange(line, now);
-          if (newWeekdays.length > 0) weekdays = newWeekdays;
+          if (newWeekdays) weekdays = newWeekdays;
           else if (newTimeRange) timeRange = newTimeRange;
           else {
             classNames.push(line);
           }
 
           if (
-            weekdays.length > 0 &&
+            weekdays &&
             timeRange &&
             (classNames.length > (lastLineIsClassName ? 1 : 0) || isLastLine)
           ) {

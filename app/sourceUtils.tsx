@@ -6,47 +6,46 @@ import {
   safeParseTimeRange,
 } from "./utils";
 
+interface Data {
+  weekdays?: [Weekday, ...Weekday[]];
+  timeRange?: { start: Date; end: Date };
+  className?: string;
+}
+type FullData = Required<Data>;
+
+const allDataSet = (d: Data): d is FullData => Object.values(d).every((v) => v);
 export function* parseClassesSchedulesLines(holdLines: string[], now: Date) {
-  let weekdays: Weekday[] = [];
-  let timeRange: { start: Date; end: Date } | undefined = undefined;
-  let className: string | undefined = undefined;
-  let lastSet: "weekday" | "timeRange" | "className" | undefined = undefined;
+  let lastSet: keyof Data | undefined = undefined;
+  const data: Data = {
+    weekdays: undefined,
+    timeRange: undefined,
+    className: undefined,
+  };
+
+  const setData = <T extends keyof Data>(key: T, value: Data[T]) => {
+    if (!allDataSet(data)) lastSet = key;
+
+    data[key] = value;
+  };
+  const resetLastSet = () => lastSet && (data[lastSet] = undefined);
+
   for (const line of holdLines) {
     const newWeekdays = getRRuleWeekdaysByFullDanishName(line);
     const newTimeRange = safeParseTimeRange(line, now);
-    if (newWeekdays.length) {
-      if (!weekdays?.length || !timeRange || !className) lastSet = "weekday";
-      weekdays = newWeekdays;
-    }
-    if (newTimeRange) {
-      if (!weekdays?.length || !timeRange || !className) lastSet = "timeRange";
-      timeRange = newTimeRange;
-    }
-    if (!newWeekdays.length && !newTimeRange) {
-      if (!weekdays?.length || !timeRange || !className) lastSet = "className";
-      className = line;
+    if (newWeekdays) setData("weekdays", newWeekdays);
+    if (newTimeRange) setData("timeRange", newTimeRange);
+    if (!newWeekdays && !newTimeRange) setData("className", line);
+
+    if (!allDataSet(data)) continue;
+
+    for (const weekday of data.weekdays) {
+      yield {
+        className: data.className,
+        ...getNextStartAndEnd(data.timeRange, weekday, now),
+        ...getAgeAndRankFromClassName(data.className),
+      };
     }
 
-    if (weekdays && timeRange && className) {
-      for (const weekday of weekdays) {
-        yield {
-          className,
-          ...getNextStartAndEnd(timeRange, weekday, now),
-          ...getAgeAndRankFromClassName(className),
-        };
-      }
-
-      switch (lastSet) {
-        case "weekday":
-          weekdays = [];
-          break;
-        case "timeRange":
-          timeRange = undefined;
-          break;
-        case "className":
-          className = undefined;
-          break;
-      }
-    }
+    resetLastSet();
   }
 }
