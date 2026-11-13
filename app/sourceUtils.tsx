@@ -14,7 +14,11 @@ interface Data {
 type FullData = Required<Data>;
 
 const allDataSet = (d: Data): d is FullData => Object.values(d).every((v) => v);
-export function* parseClassesSchedulesLines(holdLines: string[], now: Date) {
+export function* parseClassesSchedulesLines(
+  holdLines: string[],
+  now: Date,
+  processClassName?: (className: string) => string,
+) {
   let lastSet: keyof Data | undefined = undefined;
   const data: Data = {
     weekdays: undefined,
@@ -34,7 +38,8 @@ export function* parseClassesSchedulesLines(holdLines: string[], now: Date) {
     const newTimeRange = safeParseTimeRange(line, now);
     if (newWeekdays) setData("weekdays", newWeekdays);
     if (newTimeRange) setData("timeRange", newTimeRange);
-    if (!newWeekdays && !newTimeRange) setData("className", line);
+    if (!newWeekdays && !newTimeRange)
+      setData("className", processClassName ? processClassName(line) : line);
 
     if (!allDataSet(data)) continue;
 

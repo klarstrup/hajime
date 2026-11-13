@@ -827,28 +827,11 @@ export const eventsSources = [
         );
 
       for (const [superHold, lines] of holdLines) {
-        let weekday: Weekday | undefined = undefined;
-        let timeRange: { start: Date; end: Date } | undefined = undefined;
-        let className: string | undefined = undefined;
-
-        // The lines are class name, weekday names and time range of day. In that order. Assemble them into structured data.
-        for (const line of lines) {
-          const newWeekday = getRRuleWeekdayByFullDanishName(line);
-          const newTimeRange = safeParseTimeRange(line, now);
-          if (newWeekday) weekday = newWeekday;
-          else if (newTimeRange) timeRange = newTimeRange;
-          else className = superHold + ", " + line;
-
-          if (weekday && timeRange && className) {
-            yield {
-              className,
-              ...getNextStartAndEnd(timeRange, weekday, now),
-              ...getAgeAndRankFromClassName(className),
-            };
-
-            timeRange = undefined;
-          }
-        }
+        yield* parseClassesSchedulesLines(
+          lines,
+          now,
+          (className) => superHold + ", " + className,
+        );
       }
     },
   },
