@@ -39,7 +39,7 @@ export default async function HoldList({
         : true,
     )
     .filter(({ ageRange }) =>
-      myRank || !federationSlug
+      myRank || (!federationSlug && !clubSlug)
         ? myAge >= (ageRange?.min ?? -Infinity) &&
           myAge <= (ageRange?.max ?? Infinity)
         : true,
@@ -104,7 +104,7 @@ export default async function HoldList({
           )}
         </header>
         <div className="text-right flex flex-col font-semibold">
-          {(myRank !== undefined || federationSlug) && (
+          {(myRank !== undefined || federationSlug || clubSlug) && (
             <Link
               className="text-xs 2xs:text-sm text-red-400 whitespace-nowrap"
               href="/hold"
