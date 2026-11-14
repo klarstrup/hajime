@@ -257,8 +257,8 @@ export default async function HoldList({
                                       className="font-lighter text-xs text-red-400"
                                       href={
                                         federationSlug === c.federation
-                                          ? (`/${c.federation}` as "/")
-                                          : (`/${c.federation}/hold` as "/")
+                                          ? `/hold`
+                                          : `/${c.federation}/hold`
                                       }
                                     >
                                       {c.federation}
