@@ -751,6 +751,16 @@ export const eventsSources = [
       })
         .then((r) => r.json() as Promise<AllEventsResponse>)
         .then((data) => data.data),
+  },
+  {
+    sourceId: "roskilde-karate-klub",
+    name: "Roskilde Karate Klub",
+    federation: "dku",
+    calendarUrl: "https://roskildekarateklub.dk/events",
+    loadEvents: () =>
+      fetchIcsEvents(
+        "https://calendar.google.com/calendar/ical/ph0n9gra71t3a81ksfjkhts7mc%40group.calendar.google.com/public/basic.ics",
+      ),
     classesUrl: "https://roskildekarateklub.dk/hold-priser",
     async *loadClasses({ now }: { now: Date }) {
       const $res = await fetch$("https://roskildekarateklub.dk/hold-priser");
@@ -824,16 +834,6 @@ export const eventsSources = [
         );
       }
     },
-  },
-  {
-    sourceId: "roskilde-karate-klub",
-    name: "Roskilde Karate Klub",
-    federation: "dku",
-    calendarUrl: "https://roskildekarateklub.dk/events",
-    loadEvents: () =>
-      fetchIcsEvents(
-        "https://calendar.google.com/calendar/ical/ph0n9gra71t3a81ksfjkhts7mc%40group.calendar.google.com/public/basic.ics",
-      ),
   },
   {
     sourceId: "shobu-ippon-denmark",
@@ -1537,6 +1537,7 @@ export const getClasses = async () => {
             classes.map((c) => ({
               ...c,
               source: source.name,
+              sourceId: source.sourceId,
               classesUrl:
                 "classesUrl" in source ? source.classesUrl : undefined,
               federation:
