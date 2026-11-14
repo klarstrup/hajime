@@ -1,7 +1,7 @@
 import { getWeek } from "date-fns";
 import Link from "next/link";
 import type { ComponentProps } from "react";
-import { getClasses } from "../sources";
+import { eventsSources, getClasses } from "../sources";
 import { dkuRanks } from "../utils";
 
 const getDkuRanksFromRankRange = (rankRange: {
@@ -17,13 +17,21 @@ const getDkuRanksFromRankRange = (rankRange: {
 export default async function HoldList({
   myRank,
   federationSlug,
+  clubSlug,
 }: {
   myRank?: (typeof dkuRanks)[number];
   federationSlug?: string;
+  clubSlug?: string;
 }) {
   let nextWeekOfClasses = await getClasses();
   const myAge = myRank?.index && myRank.index < -10.5 ? 12 : 24;
+
+  const mySource = clubSlug
+    ? eventsSources.find((source) => source.sourceId === clubSlug)
+    : undefined;
+
   nextWeekOfClasses = nextWeekOfClasses
+    .filter(({ sourceId: slug }) => (clubSlug ? slug === clubSlug : true))
     .filter(({ rankRange }) =>
       myRank
         ? myRank.index >= (rankRange?.min ?? -Infinity) &&
@@ -54,8 +62,8 @@ export default async function HoldList({
 
   return (
     <div className="flex flex-col max-w-120 w-full">
-      <div className="flex gap-2 items-end justify-between">
-        <header className="text-xl flex gap-2 mt-2 items-baseline">
+      <div className="flex gap-2 items-center justify-between">
+        <header className="text-xl flex gap-2 mt-2 items-center">
           <Link
             href="/"
             className="text-[1.75rem] md:text-[2rem] lg:text-[2.5rem] xl:text-[3rem] leading-tight"
@@ -86,14 +94,28 @@ export default async function HoldList({
               {federationSlug}
             </Link>
           )}
+          {mySource && (
+            <Link
+              className="text-xs leading-none text-red-400 font-semibold "
+              href={"/hold"}
+            >
+              {mySource.name}
+            </Link>
+          )}
         </header>
         <div className="text-right flex flex-col font-semibold">
           {(myRank !== undefined || federationSlug) && (
-            <Link className="text-xs 2xs:text-sm text-red-400 " href="/hold">
+            <Link
+              className="text-xs 2xs:text-sm text-red-400 whitespace-nowrap"
+              href="/hold"
+            >
               Se alle karatehold
             </Link>
           )}
-          <Link className="text-xs 2xs:text-sm text-red-400 " href="/">
+          <Link
+            className="text-xs 2xs:text-sm text-red-400 whitespace-nowrap"
+            href="/"
+          >
             Se karatetræf
           </Link>
         </div>
@@ -220,9 +242,16 @@ export default async function HoldList({
                                           timeStyle: "short",
                                         }).formatRange(c.nextStart, c.nextEnd)}
                                       </span>{" "}
-                                      <span className="font-lighter text-xs">
+                                      <Link
+                                        href={
+                                          clubSlug === c.sourceId
+                                            ? `/hold`
+                                            : `/hold/${c.sourceId.toLowerCase()}`
+                                        }
+                                        className="font-lighter text-xs text-red-400"
+                                      >
                                         {c.source.toLowerCase()}
-                                      </span>
+                                      </Link>
                                     </div>
                                     <Link
                                       className="font-lighter text-xs text-red-400"

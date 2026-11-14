@@ -35,8 +35,8 @@ export function EventList({
   );
   return (
     <div className="flex flex-col max-w-120 w-full">
-      <div className="flex gap-2 items-end justify-between">
-        <header className="text-xl font-extrabold flex gap-2 mt-2 items-baseline">
+      <div className="flex gap-2 items-center justify-between">
+        <header className="text-xl font-extrabold flex gap-2 mt-2 items-center">
           <Link
             href="/"
             className="text-[1.75rem] md:text-[2rem] lg:text-[2.5rem] xl:text-[3rem] leading-tight"
