@@ -2,6 +2,7 @@ import { getWeek } from "date-fns";
 import Link from "next/link";
 import type { ComponentProps } from "react";
 import { eventsSources, getClasses } from "../sources";
+import { SourcesList } from "../SourcesList";
 import { dkuRanks } from "../utils";
 
 const getDkuRanksFromRankRange = (rankRange: {
@@ -61,281 +62,295 @@ export default async function HoldList({
   );
 
   return (
-    <div className="flex flex-col max-w-120 w-full">
-      <div className="flex gap-2 items-center justify-between">
-        <header className="text-xl flex gap-2 mt-2 items-center">
-          <Link
-            href="/"
-            className="text-[1.75rem] md:text-[2rem] lg:text-[2.5rem] xl:text-[3rem] leading-tight"
-          >
-            🥋
-          </Link>
-          <span className="text-2xl xs:text-4xl font-extrabold">
-            Karatehold
-          </span>
-          {myRank !== undefined && (
-            <span className="text-sm min-w-15 flex flex-col relative">
-              <Belt
-                rank={myRank}
-                href={`/hold`}
-                className="w-full absolute bottom-full"
-              />
-              <Link href={`/hold`} className="text-red-400 font-semibold">
-                {myRank.name}
-                {federationSlug && `, ${federationSlug}`}
-              </Link>
+    <>
+      <div className="flex flex-col max-w-120 w-full">
+        <div className="flex gap-2 items-center justify-between">
+          <header className="text-xl flex gap-2 mt-2 items-center">
+            <Link
+              href="/"
+              className="text-[1.75rem] md:text-[2rem] lg:text-[2.5rem] xl:text-[3rem] leading-tight"
+            >
+              🥋
+            </Link>
+            <span className="text-2xl xs:text-4xl font-extrabold">
+              Karatehold
             </span>
-          )}
-          {federationSlug && !myRank && (
-            <Link
-              className="text-sm leading-none text-red-400 font-semibold"
-              href={"/hold"}
-            >
-              {federationSlug}
-            </Link>
-          )}
-          {mySource && (
-            <Link
-              className="text-xs leading-none text-red-400 font-semibold "
-              href={"/hold"}
-            >
-              {mySource.name}
-            </Link>
-          )}
-        </header>
-        <div className="text-right flex flex-col font-semibold">
-          {(myRank !== undefined || federationSlug || clubSlug) && (
+            {myRank !== undefined && (
+              <span className="text-sm min-w-15 flex flex-col relative">
+                <Belt
+                  rank={myRank}
+                  href={`/hold`}
+                  className="w-full absolute bottom-full"
+                />
+                <Link href={`/hold`} className="text-red-400 font-semibold">
+                  {myRank.name}
+                  {federationSlug && `, ${federationSlug}`}
+                </Link>
+              </span>
+            )}
+            {federationSlug && !myRank && (
+              <Link
+                className="text-sm leading-none text-red-400 font-semibold"
+                href={"/hold"}
+              >
+                {federationSlug}
+              </Link>
+            )}
+            {mySource && (
+              <Link
+                className="text-xs leading-none text-red-400 font-semibold "
+                href={"/hold"}
+              >
+                {mySource.name}
+              </Link>
+            )}
+          </header>
+          <div className="text-right flex flex-col font-semibold">
+            {(myRank !== undefined || federationSlug || clubSlug) && (
+              <Link
+                className="text-xs 2xs:text-sm text-red-400 whitespace-nowrap"
+                href="/hold"
+              >
+                Se alle karatehold
+              </Link>
+            )}
             <Link
               className="text-xs 2xs:text-sm text-red-400 whitespace-nowrap"
-              href="/hold"
+              href="/"
             >
-              Se alle karatehold
+              Se karatetræf
             </Link>
-          )}
-          <Link
-            className="text-xs 2xs:text-sm text-red-400 whitespace-nowrap"
-            href="/"
-          >
-            Se karatetræf
-          </Link>
+          </div>
         </div>
-      </div>
-      {nextWeekOfClasses.length === 0 && (
-        <center className=" font-semibold text-2xl mt-4">
-          Ingen {federationSlug ? federationSlug : ""} karatehold fundet 👊
-        </center>
-      )}
-      <div className="flex flex-col gap-2">
-        {Object.entries(classesByWeekAndWeekday).map(
-          ([weekIndex, eventsByWeekDay]) => (
-            <div key={weekIndex} className="flex gap-1">
-              <div>
-                <h2
-                  className="text-xl font-bold sticky top-1 -mr-0.5 opacity-60 md:text-2xl lg:text-3xl xl:text-4xl"
-                  style={{
-                    writingMode: "vertical-rl",
-                    textOrientation: "upright",
-                    lineHeight: 0.5,
-                    letterSpacing: "-0.3em",
-                  }}
-                >
-                  <span
-                    className="text-[20px]"
-                    style={{ letterSpacing: "-0.25em" }}
+        {nextWeekOfClasses.length === 0 && (
+          <center className=" font-semibold text-2xl mt-4">
+            Ingen {federationSlug ? federationSlug : ""} karatehold fundet 👊
+          </center>
+        )}
+        <div className="flex flex-col gap-2">
+          {Object.entries(classesByWeekAndWeekday).map(
+            ([weekIndex, eventsByWeekDay]) => (
+              <div key={weekIndex} className="flex gap-1">
+                <div>
+                  <h2
+                    className="text-xl font-bold sticky top-1 -mr-0.5 opacity-60 md:text-2xl lg:text-3xl xl:text-4xl"
+                    style={{
+                      writingMode: "vertical-rl",
+                      textOrientation: "upright",
+                      lineHeight: 0.5,
+                      letterSpacing: "-0.3em",
+                    }}
                   >
-                    UGE
-                  </span>
-                  {weekIndex}
-                </h2>
-              </div>
-              <div className="flex flex-col gap-2 flex-1">
-                {Object.entries(eventsByWeekDay).map(
-                  ([weekDayIndex, weekDayClasses]) => (
-                    <div key={weekIndex + "-" + weekDayIndex} className="flex">
-                      <div>
-                        <h2
-                          className="text-md font-bold sticky top-1 md:text-lg lg:text-xl xl:text-2xl"
-                          style={{
-                            writingMode: "vertical-rl",
-                            textOrientation: "upright",
-                            lineHeight: 1.25,
-                            letterSpacing: "-0.25em",
-                          }}
-                        >
-                          {[
-                            "SØNDAG",
-                            "MANDAG",
-                            "TIRSDAG",
-                            "ONSDAG",
-                            "TORSDAG",
-                            "FREDAG",
-                            "LØRDAG",
-                          ][Number(weekDayIndex)]
-                            .toUpperCase()
-                            .split("")
-                            .map((char, index) =>
-                              char === "J" ? (
-                                <span
-                                  key={index}
-                                  style={{ letterSpacing: "-0.0125em" }}
-                                >
-                                  {char}
-                                </span>
-                              ) : (
-                                <span key={index}>{char}</span>
-                              ),
-                            )}
-                        </h2>
-                      </div>
-                      <div className="max-w-full w-full flex-1 flex flex-col flex-wrap gap-2">
-                        {weekDayClasses
-                          // sort alphabetically before sorting by start time
-                          .sort((a, b) =>
-                            a.className.localeCompare(b.className),
-                          )
-                          .sort(
-                            (a, b) =>
-                              new Date(a.nextStart).getTime() -
-                              new Date(b.nextStart).getTime(),
-                          )
-                          // get uniques
-                          .filter((c, i, l) => {
-                            for (let j = 0; j < i; j++) {
-                              if (
-                                c.source === l[j].source &&
-                                c.nextStart.getTime() ===
-                                  l[j].nextStart.getTime() &&
-                                c.className === l[j].className
-                              ) {
-                                return false;
-                              }
-                            }
-                            return true;
-                          })
-                          .map((c) => {
-                            let className = c.className
-                              .replace("(alle aldre)", "")
-                              .replace(", alle grader", "");
-
-                            // if there are more than two words, prevent orphaned words by replacing the last space with a non-breaking space
-                            if (className.split(" ").length > 2) {
-                              className = className.replace(
-                                / (\S+)$/,
-                                "\u00A0$1",
-                              );
-                            }
-
-                            return (
-                              <div
-                                key={
-                                  c.source +
-                                  c.nextStart.toISOString() +
-                                  c.className
+                    <span
+                      className="text-[20px]"
+                      style={{ letterSpacing: "-0.25em" }}
+                    >
+                      UGE
+                    </span>
+                    {weekIndex}
+                  </h2>
+                </div>
+                <div className="flex flex-col gap-2 flex-1">
+                  {Object.entries(eventsByWeekDay).map(
+                    ([weekDayIndex, weekDayClasses]) => (
+                      <div
+                        key={weekIndex + "-" + weekDayIndex}
+                        className="flex"
+                      >
+                        <div>
+                          <h2
+                            className="text-md font-bold sticky top-1 md:text-lg lg:text-xl xl:text-2xl"
+                            style={{
+                              writingMode: "vertical-rl",
+                              textOrientation: "upright",
+                              lineHeight: 1.25,
+                              letterSpacing: "-0.25em",
+                            }}
+                          >
+                            {[
+                              "SØNDAG",
+                              "MANDAG",
+                              "TIRSDAG",
+                              "ONSDAG",
+                              "TORSDAG",
+                              "FREDAG",
+                              "LØRDAG",
+                            ][Number(weekDayIndex)]
+                              .toUpperCase()
+                              .split("")
+                              .map((char, index) =>
+                                char === "J" ? (
+                                  <span
+                                    key={index}
+                                    style={{ letterSpacing: "-0.0125em" }}
+                                  >
+                                    {char}
+                                  </span>
+                                ) : (
+                                  <span key={index}>{char}</span>
+                                ),
+                              )}
+                          </h2>
+                        </div>
+                        <div className="max-w-full w-full flex-1 flex flex-col flex-wrap gap-2">
+                          {weekDayClasses
+                            // sort alphabetically before sorting by start time
+                            .sort((a, b) =>
+                              a.className.localeCompare(b.className),
+                            )
+                            .sort(
+                              (a, b) =>
+                                new Date(a.nextStart).getTime() -
+                                new Date(b.nextStart).getTime(),
+                            )
+                            // get uniques
+                            .filter((c, i, l) => {
+                              for (let j = 0; j < i; j++) {
+                                if (
+                                  c.source === l[j].source &&
+                                  c.nextStart.getTime() ===
+                                    l[j].nextStart.getTime() &&
+                                  c.className === l[j].className
+                                ) {
+                                  return false;
                                 }
-                                className="dark:bg-gray-800 bg-white p-2 flex flex-col leading-0"
-                              >
-                                <div>
-                                  <div className="flex flex-row justify-between items-baseline">
-                                    <div>
-                                      <span className="whitespace-nowrap font-semibold">
-                                        {new Intl.DateTimeFormat("da-DK", {
-                                          timeStyle: "short",
-                                        }).formatRange(c.nextStart, c.nextEnd)}
-                                      </span>{" "}
+                              }
+                              return true;
+                            })
+                            .map((c) => {
+                              let className = c.className
+                                .replace("(alle aldre)", "")
+                                .replace(", alle grader", "");
+
+                              // if there are more than two words, prevent orphaned words by replacing the last space with a non-breaking space
+                              if (className.split(" ").length > 2) {
+                                className = className.replace(
+                                  / (\S+)$/,
+                                  "\u00A0$1",
+                                );
+                              }
+
+                              return (
+                                <div
+                                  key={
+                                    c.source +
+                                    c.nextStart.toISOString() +
+                                    c.className
+                                  }
+                                  className="dark:bg-gray-800 bg-white p-2 flex flex-col leading-0"
+                                >
+                                  <div>
+                                    <div className="flex flex-row justify-between items-baseline">
+                                      <div>
+                                        <span className="whitespace-nowrap font-semibold">
+                                          {new Intl.DateTimeFormat("da-DK", {
+                                            timeStyle: "short",
+                                          }).formatRange(
+                                            c.nextStart,
+                                            c.nextEnd,
+                                          )}
+                                        </span>{" "}
+                                        <Link
+                                          href={
+                                            clubSlug === c.sourceId
+                                              ? `/hold`
+                                              : `/hold/${c.sourceId}`
+                                          }
+                                          className="font-lighter text-xs text-red-400"
+                                        >
+                                          {c.source}
+                                        </Link>
+                                      </div>
                                       <Link
-                                        href={
-                                          clubSlug === c.sourceId
-                                            ? `/hold`
-                                            : `/hold/${c.sourceId.toLowerCase()}`
-                                        }
                                         className="font-lighter text-xs text-red-400"
+                                        href={
+                                          federationSlug === c.federation
+                                            ? `/hold`
+                                            : `/${c.federation}/hold`
+                                        }
                                       >
-                                        {c.source.toLowerCase()}
+                                        {c.federation}
                                       </Link>
                                     </div>
-                                    <Link
-                                      className="font-lighter text-xs text-red-400"
-                                      href={
-                                        federationSlug === c.federation
-                                          ? `/hold`
-                                          : `/${c.federation}/hold`
-                                      }
+                                    <a
+                                      href={c.classesUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className=" text-red-500 leading-none hover:underline font-bold text-xl"
                                     >
-                                      {c.federation}
-                                    </Link>
+                                      {className}
+                                    </a>{" "}
+                                    {"instructors" in c &&
+                                      Array.isArray(c.instructors) &&
+                                      c.instructors.length > 0 && (
+                                        <div className="font-lighter text-xs leading-tight italic">
+                                          v.&nbsp;
+                                          {new Intl.ListFormat("da-DK").format(
+                                            c.instructors,
+                                          )}
+                                        </div>
+                                      )}
                                   </div>
-                                  <a
-                                    href={c.classesUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className=" text-red-500 leading-none hover:underline font-bold text-xl"
-                                  >
-                                    {className}
-                                  </a>{" "}
-                                  {"instructors" in c &&
-                                    Array.isArray(c.instructors) &&
-                                    c.instructors.length > 0 && (
-                                      <div className="font-lighter text-xs leading-tight italic">
-                                        v.&nbsp;
-                                        {new Intl.ListFormat("da-DK").format(
-                                          c.instructors,
-                                        )}
-                                      </div>
-                                    )}
+                                  {"rankRange" in c &&
+                                  c.rankRange &&
+                                  typeof c.rankRange === "object" &&
+                                  ("min" in c.rankRange ||
+                                    "max" in c.rankRange) ? (
+                                    <div
+                                      className="flex flex-row gap-[1%] mt-1 -mx-2 -mb-2 relative"
+                                      style={{
+                                        background: "var(--color-background)",
+                                      }}
+                                    >
+                                      {getDkuRanksFromRankRange(c.rankRange)
+                                        .filter(
+                                          (r, i, l) =>
+                                            l.findIndex(
+                                              (rr) =>
+                                                rr.colors.join() ===
+                                                  r.colors.join() &&
+                                                ("stripes" in rr
+                                                  ? "stripes" in r &&
+                                                    rr.stripes?.join() ===
+                                                      r.stripes?.join()
+                                                  : true),
+                                            ) === i,
+                                        )
+                                        .reverse()
+                                        .map((r) => (
+                                          <Belt
+                                            key={r.index}
+                                            rank={r}
+                                            className="w-[13.44%] relative"
+                                            href={
+                                              myRank === r
+                                                ? `/hold`
+                                                : (`/${c.federation}/hold/${r.slug}` as `/hold`)
+                                            }
+                                          />
+                                        ))}
+                                    </div>
+                                  ) : null}
                                 </div>
-                                {"rankRange" in c &&
-                                c.rankRange &&
-                                typeof c.rankRange === "object" &&
-                                ("min" in c.rankRange ||
-                                  "max" in c.rankRange) ? (
-                                  <div
-                                    className="flex flex-row gap-[1%] mt-1 -mx-2 -mb-2 relative"
-                                    style={{
-                                      background: "var(--color-background)",
-                                    }}
-                                  >
-                                    {getDkuRanksFromRankRange(c.rankRange)
-                                      .filter(
-                                        (r, i, l) =>
-                                          l.findIndex(
-                                            (rr) =>
-                                              rr.colors.join() ===
-                                                r.colors.join() &&
-                                              ("stripes" in rr
-                                                ? "stripes" in r &&
-                                                  rr.stripes?.join() ===
-                                                    r.stripes?.join()
-                                                : true),
-                                          ) === i,
-                                      )
-                                      .reverse()
-                                      .map((r) => (
-                                        <Belt
-                                          key={r.index}
-                                          rank={r}
-                                          className="w-[13.44%] relative"
-                                          href={
-                                            myRank === r
-                                              ? `/hold`
-                                              : (`/${c.federation}/hold/${r.slug}` as `/hold`)
-                                          }
-                                        />
-                                      ))}
-                                  </div>
-                                ) : null}
-                              </div>
-                            );
-                          })}
+                              );
+                            })}
+                        </div>
                       </div>
-                    </div>
-                  ),
-                )}
+                    ),
+                  )}
+                </div>
               </div>
-            </div>
-          ),
-        )}
+            ),
+          )}
+        </div>
       </div>
-    </div>
+      <div className=" mt-20 font-extralight flex flex-col w-full max-w-240 ">
+        <div className="max-w-120 w-full self-center pl-12">
+          <span className=" text-xl text-gray-500">holdkilder:</span>
+        </div>
+        <SourcesList eventsSources={eventsSources} type="classes" />
+      </div>
+    </>
   );
 }
 

@@ -41,7 +41,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col items-center bg-[#f6ebda] px-1">
         {children}
 
-        <span className="text-3xl text-gray-500 self-center mt-4 font-extralight">
+        <span className="text-3xl text-gray-500 self-center mt-8 font-extralight">
           af io
         </span>
         <a

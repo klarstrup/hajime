@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Fragment } from "react";
-import type { getSortedEvents } from "./sources";
+import { eventsSources, type getSortedEvents } from "./sources";
+import { SourcesList } from "./SourcesList";
 import { fuseCompare } from "./utils";
 
 const timeZone = "Europe/Copenhagen";
@@ -34,461 +35,473 @@ export function EventList({
     {} as Record<number, Record<number, typeof events>>,
   );
   return (
-    <div className="flex flex-col max-w-120 w-full">
-      <div className="flex gap-2 items-center justify-between">
-        <header className="text-xl font-extrabold flex gap-2 mt-2 items-center">
-          <Link
-            href="/"
-            className="text-[1.75rem] md:text-[2rem] lg:text-[2.5rem] xl:text-[3rem] leading-tight"
-          >
-            🥋
-          </Link>
-          <span className="text-2xl xs:text-4xl">{title}</span>
-          {federationSlug && (
+    <>
+      <div className="flex flex-col max-w-120 w-full">
+        <div className="flex gap-2 items-center justify-between">
+          <header className="text-xl font-extrabold flex gap-2 mt-2 items-center">
             <Link
-              className="text-sm leading-none text-red-400 font-semibold"
-              href={"/"}
+              href="/"
+              className="text-[1.75rem] md:text-[2rem] lg:text-[2.5rem] xl:text-[3rem] leading-tight"
             >
-              {federationSlug}
+              🥋
             </Link>
-          )}
-        </header>
-        <div className="text-right flex flex-col leading-none font-semibold">
-          {federationSlug ? (
-            <Link
-              className="text-xs 2xs:text-sm text-red-400"
-              href={`/${federationSlug}/hold` as "/"}
-            >
-              Se {federationSlug} karatehold
-            </Link>
-          ) : (
-            <Link className="text-xs 2xs:text-sm text-red-400" href="/hold">
-              Se karatehold
-            </Link>
-          )}
-          {federationSlug ? (
-            <Link className="text-xs 2xs:text-sm text-red-400 " href={"/"}>
-              Se alle karatetræf
-            </Link>
-          ) : (
-            <Link
-              className="text-xs 2xs:text-sm text-red-400 "
-              href={cotemporality === "past" ? `/` : (`/fortid` as `/`)}
-            >
-              {cotemporality === "past" ? "Se karatetræf" : "Se karatetruf"}
-            </Link>
-          )}
-        </div>
-      </div>
-      <div className="flex flex-col gap-2">
-        {(cotemporality === "past"
-          ? Object.entries(eventsByYearAndMonth).reverse()
-          : Object.entries(eventsByYearAndMonth)
-        ).map(([yearIndex, eventsByMonth]) => (
-          <div key={yearIndex} className="flex gap-1">
-            <div>
-              <h2
-                className="text-xl font-bold sticky top-1 -mt-0.5 -mr-0.5 opacity-60 md:text-2xl lg:text-3xl xl:text-4xl"
-                style={{
-                  writingMode: "vertical-rl",
-                  textOrientation: "upright",
-                  lineHeight: 0.5,
-                  letterSpacing: "-0.3em",
-                }}
+            <span className="text-2xl xs:text-4xl">{title}</span>
+            {federationSlug && (
+              <Link
+                className="text-sm leading-none text-red-400 font-semibold"
+                href={"/"}
               >
-                {new Date(Number(yearIndex), 0, 1)
-                  .toLocaleString("da-DK", { year: "numeric" })
-                  .toUpperCase()}
-              </h2>
-            </div>
-            <div className="flex flex-col gap-2 flex-1">
-              {(cotemporality === "past"
-                ? Object.entries(eventsByMonth).reverse()
-                : Object.entries(eventsByMonth)
-              ).map(([monthIndex, monthEvents]) => (
-                <div key={yearIndex + "-" + monthIndex} className="flex">
-                  <div>
-                    <h2
-                      className="text-md font-bold sticky top-1.5 md:text-lg lg:text-xl xl:text-2xl"
-                      style={{
-                        writingMode: "vertical-rl",
-                        textOrientation: "upright",
-                        lineHeight: 1.25,
-                        letterSpacing: "-0.25em",
-                      }}
-                    >
-                      {new Date(Number(yearIndex), Number(monthIndex), 1)
-                        .toLocaleString("da-DK", { month: "long" })
-                        .toUpperCase()
-                        .split("")
-                        .map((char, index) =>
-                          char === "J" ? (
-                            <span
-                              key={index}
-                              style={{ letterSpacing: "-0.0125em" }}
-                            >
-                              {char}
-                            </span>
-                          ) : (
-                            <span key={index}>{char}</span>
-                          ),
-                        )}
-                    </h2>
-                  </div>
-                  <ul className="flex flex-col gap-2 flex-1">
-                    {monthEvents.map((gEvents) => {
-                      const event =
-                        gEvents.find(
-                          (e) => e.sourceId === "kumite-technology",
-                        ) ?? gEvents[0];
-
-                      const uniqueSources = gEvents.filter(
-                        (s, index, list) =>
-                          list.findIndex((x) => x.source === s.source) ===
-                          index,
-                      );
-
-                      const usedSources: typeof uniqueSources = [];
-
-                      let usedIndex = usedSources.findIndex(
-                        (us) => us.sourceId === event.sourceId,
-                      );
-                      if (usedIndex === -1) {
-                        usedIndex = usedSources.push(event) - 1;
-                      }
-
-                      const url =
-                        event.url ||
-                        gEvents.find((e) => e.url?.trim().length)?.url;
-                      let title = event.title
-                        .replaceAll(/\s+/g, " ")
-                        .replaceAll(/\d\d\d\d/g, "")
-                        .trim()
-                        .replace(/ Efterår$/gi, "")
-                        .trim()
-                        .replace(/ Forår$/gi, "")
-                        .trim()
-                        .replace(/ Vinter$/gi, "")
-                        .trim()
-                        .replace(/ Sommer$/gi, "")
-                        .trim()
-                        .replace(/ –$/g, "")
-                        .trim()
-                        .replace(/-$/g, "")
-                        .replaceAll(/\s+/g, " ")
-                        .trim();
-                      // if there are more than two words, prevent orphaned words by replacing the last space with a non-breaking space
-                      if (title.split(" ").length > 2) {
-                        title = title.replace(/ (\S+)$/, "\u00A0$1");
-                      }
-
-                      const federations = gEvents
-                        .filter((e): e is typeof e & { federation: string } =>
-                          Boolean("federation" in e && e.federation),
-                        )
-                        .map((e) => e.federation);
-                      const federationsWithCount = Object.entries(
-                        federations
-                          // Find the most common federation among the events
-                          .reduce((acc: Record<string, number>, fed) => {
-                            if (!acc[fed]) acc[fed] = 0;
-                            acc[fed] += 1;
-                            return acc;
-                          }, {}),
-                      ).sort((a, b) => b[1] - a[1]);
-
-                      let federation: string | undefined;
-                      if (
-                        federations.length > 0 &&
-                        federationsWithCount.length > 0
-                      ) {
-                        federation = federationsWithCount[0][0];
-                        if (
-                          // If the most common federation has the same count as the second most common, it's ambiguous, so unset it.
-                          federationsWithCount[0][1] ===
-                          federationsWithCount[1]?.[1]
-                        ) {
-                          // federation = undefined;
-                        }
-                      }
-                      if (federations.some((fed) => fed === "*")) {
-                        federation = "*";
-                      }
-
-                      if (
-                        federationSlug &&
-                        !federations.some((fed) => fed === federationSlug)
-                      ) {
-                        return null;
-                      }
-
-                      return (
-                        <li
-                          key={
-                            event.id +
-                            event.start?.toISOString() +
-                            event.end?.toISOString()
-                          }
-                          className="dark:bg-gray-800 bg-white p-2 pt-1 flex flex-col attribution-container leading-tight nafuda"
-                        >
-                          <div
-                            style={{ paddingRight: "calc(5*min(10px,2vw))" }}
-                          >
-                            {federation &&
-                              (title.includes("graduering") ||
-                                title.includes("mesterskab") ||
-                                title.toLowerCase().includes("lejr") ||
-                                title.toLowerCase().includes("camp") ||
-                                title.toLowerCase().includes("gasshuku")) && (
-                                <Link
-                                  href={
-                                    federationSlug === federation
-                                      ? `/`
-                                      : (`/${federation}/` as "/")
-                                  }
-                                  className={
-                                    "text-red-400 w-[calc(6*min(10px,2vw))] text-center absolute right-0 " +
-                                    (federation === "*" ? "text-lg" : "text-sm")
-                                  }
-                                >
-                                  {federation === "*" ? "✱" : federation}
-                                </Link>
-                              )}
-                            {url ? (
-                              <a
-                                href={url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-red-500 hover:underline text-xl font-bold"
+                {federationSlug}
+              </Link>
+            )}
+          </header>
+          <div className="text-right flex flex-col leading-none font-semibold">
+            {federationSlug ? (
+              <Link
+                className="text-xs 2xs:text-sm text-red-400"
+                href={`/${federationSlug}/hold` as "/"}
+              >
+                Se {federationSlug} karatehold
+              </Link>
+            ) : (
+              <Link className="text-xs 2xs:text-sm text-red-400" href="/hold">
+                Se karatehold
+              </Link>
+            )}
+            {federationSlug ? (
+              <Link className="text-xs 2xs:text-sm text-red-400 " href={"/"}>
+                Se alle karatetræf
+              </Link>
+            ) : (
+              <Link
+                className="text-xs 2xs:text-sm text-red-400 "
+                href={cotemporality === "past" ? `/` : (`/fortid` as `/`)}
+              >
+                {cotemporality === "past" ? "Se karatetræf" : "Se karatetruf"}
+              </Link>
+            )}
+          </div>
+        </div>
+        <div className="flex flex-col gap-2">
+          {(cotemporality === "past"
+            ? Object.entries(eventsByYearAndMonth).reverse()
+            : Object.entries(eventsByYearAndMonth)
+          ).map(([yearIndex, eventsByMonth]) => (
+            <div key={yearIndex} className="flex gap-1">
+              <div>
+                <h2
+                  className="text-xl font-bold sticky top-1 -mt-0.5 -mr-0.5 opacity-60 md:text-2xl lg:text-3xl xl:text-4xl"
+                  style={{
+                    writingMode: "vertical-rl",
+                    textOrientation: "upright",
+                    lineHeight: 0.5,
+                    letterSpacing: "-0.3em",
+                  }}
+                >
+                  {new Date(Number(yearIndex), 0, 1)
+                    .toLocaleString("da-DK", { year: "numeric" })
+                    .toUpperCase()}
+                </h2>
+              </div>
+              <div className="flex flex-col gap-2 flex-1">
+                {(cotemporality === "past"
+                  ? Object.entries(eventsByMonth).reverse()
+                  : Object.entries(eventsByMonth)
+                ).map(([monthIndex, monthEvents]) => (
+                  <div key={yearIndex + "-" + monthIndex} className="flex">
+                    <div>
+                      <h2
+                        className="text-md font-bold sticky top-1.5 md:text-lg lg:text-xl xl:text-2xl"
+                        style={{
+                          writingMode: "vertical-rl",
+                          textOrientation: "upright",
+                          lineHeight: 1.25,
+                          letterSpacing: "-0.25em",
+                        }}
+                      >
+                        {new Date(Number(yearIndex), Number(monthIndex), 1)
+                          .toLocaleString("da-DK", { month: "long" })
+                          .toUpperCase()
+                          .split("")
+                          .map((char, index) =>
+                            char === "J" ? (
+                              <span
+                                key={index}
+                                style={{ letterSpacing: "-0.0125em" }}
                               >
-                                {title}
-                              </a>
-                            ) : (
-                              <span className="light:text-gray-600  text-xl font-bold">
-                                {title}
+                                {char}
                               </span>
-                            )}
-                            <span className="text-[8px] align-super text-gray-500 attribution -mr-1">
-                              {usedIndex + 1}
-                            </span>
-                          </div>
-                          {gEvents
-                            .filter((e, i, l) =>
-                              l.filter(
-                                (le) =>
-                                  le.start && !isUTCOrLocalMidnight(le.start),
-                              ).length > 0
-                                ? e.start && !isUTCOrLocalMidnight(e.start)
-                                : true,
-                            )
-                            .slice(0, 1)
-                            .map((e) => [
-                              e,
-                              e.start && e.end
-                                ? Intl.DateTimeFormat("da", {
-                                    timeStyle: isUTCOrLocalMidnight(e.start)
-                                      ? undefined
-                                      : "short",
-                                    dateStyle: "medium",
-                                    timeZone,
-                                  }).formatRange(e.start, e.end)
-                                : e.start
+                            ) : (
+                              <span key={index}>{char}</span>
+                            ),
+                          )}
+                      </h2>
+                    </div>
+                    <ul className="flex flex-col gap-2 flex-1">
+                      {monthEvents.map((gEvents) => {
+                        const event =
+                          gEvents.find(
+                            (e) => e.sourceId === "kumite-technology",
+                          ) ?? gEvents[0];
+
+                        const uniqueSources = gEvents.filter(
+                          (s, index, list) =>
+                            list.findIndex((x) => x.source === s.source) ===
+                            index,
+                        );
+
+                        const usedSources: typeof uniqueSources = [];
+
+                        let usedIndex = usedSources.findIndex(
+                          (us) => us.sourceId === event.sourceId,
+                        );
+                        if (usedIndex === -1) {
+                          usedIndex = usedSources.push(event) - 1;
+                        }
+
+                        const url =
+                          event.url ||
+                          gEvents.find((e) => e.url?.trim().length)?.url;
+                        let title = event.title
+                          .replaceAll(/\s+/g, " ")
+                          .replaceAll(/\d\d\d\d/g, "")
+                          .trim()
+                          .replace(/ Efterår$/gi, "")
+                          .trim()
+                          .replace(/ Forår$/gi, "")
+                          .trim()
+                          .replace(/ Vinter$/gi, "")
+                          .trim()
+                          .replace(/ Sommer$/gi, "")
+                          .trim()
+                          .replace(/ –$/g, "")
+                          .trim()
+                          .replace(/-$/g, "")
+                          .replaceAll(/\s+/g, " ")
+                          .trim();
+                        // if there are more than two words, prevent orphaned words by replacing the last space with a non-breaking space
+                        if (title.split(" ").length > 2) {
+                          title = title.replace(/ (\S+)$/, "\u00A0$1");
+                        }
+
+                        const federations = gEvents
+                          .filter((e): e is typeof e & { federation: string } =>
+                            Boolean("federation" in e && e.federation),
+                          )
+                          .map((e) => e.federation);
+                        const federationsWithCount = Object.entries(
+                          federations
+                            // Find the most common federation among the events
+                            .reduce((acc: Record<string, number>, fed) => {
+                              if (!acc[fed]) acc[fed] = 0;
+                              acc[fed] += 1;
+                              return acc;
+                            }, {}),
+                        ).sort((a, b) => b[1] - a[1]);
+
+                        let federation: string | undefined;
+                        if (
+                          federations.length > 0 &&
+                          federationsWithCount.length > 0
+                        ) {
+                          federation = federationsWithCount[0][0];
+                          if (
+                            // If the most common federation has the same count as the second most common, it's ambiguous, so unset it.
+                            federationsWithCount[0][1] ===
+                            federationsWithCount[1]?.[1]
+                          ) {
+                            // federation = undefined;
+                          }
+                        }
+                        if (federations.some((fed) => fed === "*")) {
+                          federation = "*";
+                        }
+
+                        if (
+                          federationSlug &&
+                          !federations.some((fed) => fed === federationSlug)
+                        ) {
+                          return null;
+                        }
+
+                        return (
+                          <li
+                            key={
+                              event.id +
+                              event.start?.toISOString() +
+                              event.end?.toISOString()
+                            }
+                            className="dark:bg-gray-800 bg-white p-2 pt-1 flex flex-col attribution-container leading-tight nafuda"
+                          >
+                            <div
+                              style={{ paddingRight: "calc(5*min(10px,2vw))" }}
+                            >
+                              {federation &&
+                                (title.includes("graduering") ||
+                                  title.includes("mesterskab") ||
+                                  title.toLowerCase().includes("lejr") ||
+                                  title.toLowerCase().includes("camp") ||
+                                  title.toLowerCase().includes("gasshuku")) && (
+                                  <Link
+                                    href={
+                                      federationSlug === federation
+                                        ? `/`
+                                        : (`/${federation}/` as "/")
+                                    }
+                                    className={
+                                      "text-red-400 w-[calc(6*min(10px,2vw))] text-center absolute right-0 " +
+                                      (federation === "*"
+                                        ? "text-lg"
+                                        : "text-sm")
+                                    }
+                                  >
+                                    {federation === "*" ? "✱" : federation}
+                                  </Link>
+                                )}
+                              {url ? (
+                                <a
+                                  href={url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-red-500 hover:underline text-xl font-bold"
+                                >
+                                  {title}
+                                </a>
+                              ) : (
+                                <span className="light:text-gray-600  text-xl font-bold">
+                                  {title}
+                                </span>
+                              )}
+                              <span className="text-[8px] align-super text-gray-500 attribution -mr-1">
+                                {usedIndex + 1}
+                              </span>
+                            </div>
+                            {gEvents
+                              .filter((e, i, l) =>
+                                l.filter(
+                                  (le) =>
+                                    le.start && !isUTCOrLocalMidnight(le.start),
+                                ).length > 0
+                                  ? e.start && !isUTCOrLocalMidnight(e.start)
+                                  : true,
+                              )
+                              .slice(0, 1)
+                              .map((e) => [
+                                e,
+                                e.start && e.end
                                   ? Intl.DateTimeFormat("da", {
                                       timeStyle: isUTCOrLocalMidnight(e.start)
                                         ? undefined
                                         : "short",
-                                      dateStyle: "short",
+                                      dateStyle: "medium",
                                       timeZone,
-                                    }).format(e.start)
-                                  : null,
-                            ])
-                            .filter(
-                              (
-                                eandtext,
-                              ): eandtext is [(typeof gEvents)[0], string] =>
-                                !!eandtext[1],
-                            )
-                            .filter(
-                              ([, etext], index, list) =>
-                                list.findIndex(([, t]) => t === etext) ===
-                                index,
-                            )
-                            .map((e, index) => {
-                              let usedIndex = usedSources.findIndex(
-                                (us) => us.sourceId === e[0].sourceId,
-                              );
-                              if (usedIndex === -1) {
-                                usedIndex = usedSources.push(e[0]) - 1;
-                              }
-                              return (
-                                <span
-                                  key={index}
-                                  className="leading-none opacity-90 font-medium"
-                                  style={{
-                                    paddingRight: "calc(3 * min(10px, 2vw))",
-                                  }}
-                                >
-                                  {e[1]}
-                                  <span className="text-[8px] align-super text-gray-500 attribution -mr-1">
-                                    {usedIndex + 1}
-                                  </span>
-                                </span>
-                              );
-                            })}
-                          {gEvents
-                            .filter(
-                              ({ location }, index, list) =>
-                                location &&
-                                list.findIndex(
-                                  ({ location: l }) =>
-                                    l &&
-                                    fuseCompare(
-                                      l.replaceAll(",", ""),
-                                      location.replaceAll(",", ""),
-                                    ) < 0.42,
-                                ) === index,
-                            )
-                            .map(
-                              (e) =>
-                                [
-                                  e,
-                                  gEvents
-                                    .filter(
-                                      (ge) =>
-                                        e.location &&
-                                        ge.location &&
-                                        fuseCompare(
-                                          ge.location.replaceAll(",", ""),
-                                          e.location.replaceAll(",", ""),
-                                        ) < 0.42,
-                                    )
-                                    .filter((ge) => ge.source)
-                                    .filter(
-                                      (ge, i, l) =>
-                                        l.findIndex(
-                                          (x) => x.source === ge.source,
-                                        ) === i,
-                                    ),
-                                ] as const,
-                            )
-                            .sort(([, a], [, b]) => b.length - a.length)
-                            .reduce(
-                              (
-                                memo: (typeof eventLocationSourcesPair)[],
-                                eventLocationSourcesPair,
-                                index,
-                                list,
-                              ) => {
-                                // If one location has clear consensus just keep that one
-                                const [, locationSources] =
-                                  eventLocationSourcesPair;
-                                const maxLength = Math.max(
-                                  ...list.map(([, ls]) => ls.length),
-                                );
-                                if (locationSources.length === maxLength) {
-                                  memo.push(eventLocationSourcesPair);
-                                }
-                                return memo;
-                              },
-                              [],
-                            )
-                            .map(([e, locationSources], index) => {
-                              return (
-                                <span
-                                  key={index}
-                                  className="text-sm text-gray-400 flex gap-0.5 items-baseline"
-                                  style={{
-                                    paddingRight: "calc(3 * min(10px, 2vw))",
-                                  }}
-                                >
-                                  <span className="text-gray-400 text-[11px]">
-                                    @
-                                  </span>
-                                  <span>
-                                    {e.location}
-                                    {locationSources
-                                      .map((s) => {
-                                        let usedIndex = usedSources.findIndex(
-                                          (us) => us.sourceId === s.sourceId,
-                                        );
-                                        if (usedIndex === -1) {
-                                          usedIndex = usedSources.push(s) - 1;
-                                        }
-                                        return s;
-                                      })
-                                      .sort(
-                                        (a, b) =>
-                                          usedSources.findIndex(
-                                            (us) => us.sourceId === a.sourceId,
-                                          ) -
-                                          usedSources.findIndex(
-                                            (us) => us.sourceId === b.sourceId,
-                                          ),
-                                      )
-                                      .map((s, i) => {
-                                        let usedIndex = usedSources.findIndex(
-                                          (us) => us.sourceId === s.sourceId,
-                                        );
-                                        if (usedIndex === -1) {
-                                          usedIndex = usedSources.push(s) - 1;
-                                        }
-
-                                        return (
-                                          <span
-                                            key={s.sourceId}
-                                            className="text-[8px] align-super text-gray-500 attribution"
-                                          >
-                                            {i > 0 ? "," : ""}
-                                            {usedIndex + 1}
-                                          </span>
-                                        );
-                                      })}
-                                  </span>
-                                </span>
-                              );
-                            })}
-                          <span className="text-xs text-gray-600">
-                            via{" "}
-                            {[...usedSources, ...uniqueSources]
+                                    }).formatRange(e.start, e.end)
+                                  : e.start
+                                    ? Intl.DateTimeFormat("da", {
+                                        timeStyle: isUTCOrLocalMidnight(e.start)
+                                          ? undefined
+                                          : "short",
+                                        dateStyle: "short",
+                                        timeZone,
+                                      }).format(e.start)
+                                    : null,
+                              ])
                               .filter(
-                                (e, i, l) =>
-                                  l.findIndex(
-                                    (x) => x.sourceId === e.sourceId,
-                                  ) === i,
+                                (
+                                  eandtext,
+                                ): eandtext is [(typeof gEvents)[0], string] =>
+                                  !!eandtext[1],
                               )
-                              .map((e, i, l) => (
-                                <Fragment key={i}>
-                                  {l.length > 1 && i === l.length - 1
-                                    ? " og "
-                                    : i > 0
-                                      ? ", "
-                                      : ""}
-                                  {usedSources.includes(e) && (
-                                    <span className="text-[6px] align-super text-gray-500 attribution font-bold">
-                                      {i + 1}
-                                    </span>
-                                  )}
-                                  <a
-                                    href={e.sourceCalendarUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-red-400 hover:underline"
+                              .filter(
+                                ([, etext], index, list) =>
+                                  list.findIndex(([, t]) => t === etext) ===
+                                  index,
+                              )
+                              .map((e, index) => {
+                                let usedIndex = usedSources.findIndex(
+                                  (us) => us.sourceId === e[0].sourceId,
+                                );
+                                if (usedIndex === -1) {
+                                  usedIndex = usedSources.push(e[0]) - 1;
+                                }
+                                return (
+                                  <span
+                                    key={index}
+                                    className="leading-none opacity-90 font-medium"
+                                    style={{
+                                      paddingRight: "calc(3 * min(10px, 2vw))",
+                                    }}
                                   >
-                                    {e.source}
-                                  </a>
-                                </Fragment>
-                              ))}
-                          </span>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              ))}
+                                    {e[1]}
+                                    <span className="text-[8px] align-super text-gray-500 attribution -mr-1">
+                                      {usedIndex + 1}
+                                    </span>
+                                  </span>
+                                );
+                              })}
+                            {gEvents
+                              .filter(
+                                ({ location }, index, list) =>
+                                  location &&
+                                  list.findIndex(
+                                    ({ location: l }) =>
+                                      l &&
+                                      fuseCompare(
+                                        l.replaceAll(",", ""),
+                                        location.replaceAll(",", ""),
+                                      ) < 0.42,
+                                  ) === index,
+                              )
+                              .map(
+                                (e) =>
+                                  [
+                                    e,
+                                    gEvents
+                                      .filter(
+                                        (ge) =>
+                                          e.location &&
+                                          ge.location &&
+                                          fuseCompare(
+                                            ge.location.replaceAll(",", ""),
+                                            e.location.replaceAll(",", ""),
+                                          ) < 0.42,
+                                      )
+                                      .filter((ge) => ge.source)
+                                      .filter(
+                                        (ge, i, l) =>
+                                          l.findIndex(
+                                            (x) => x.source === ge.source,
+                                          ) === i,
+                                      ),
+                                  ] as const,
+                              )
+                              .sort(([, a], [, b]) => b.length - a.length)
+                              .reduce(
+                                (
+                                  memo: (typeof eventLocationSourcesPair)[],
+                                  eventLocationSourcesPair,
+                                  index,
+                                  list,
+                                ) => {
+                                  // If one location has clear consensus just keep that one
+                                  const [, locationSources] =
+                                    eventLocationSourcesPair;
+                                  const maxLength = Math.max(
+                                    ...list.map(([, ls]) => ls.length),
+                                  );
+                                  if (locationSources.length === maxLength) {
+                                    memo.push(eventLocationSourcesPair);
+                                  }
+                                  return memo;
+                                },
+                                [],
+                              )
+                              .map(([e, locationSources], index) => {
+                                return (
+                                  <span
+                                    key={index}
+                                    className="text-sm text-gray-400 flex gap-0.5 items-baseline"
+                                    style={{
+                                      paddingRight: "calc(3 * min(10px, 2vw))",
+                                    }}
+                                  >
+                                    <span className="text-gray-400 text-[11px]">
+                                      @
+                                    </span>
+                                    <span>
+                                      {e.location}
+                                      {locationSources
+                                        .map((s) => {
+                                          let usedIndex = usedSources.findIndex(
+                                            (us) => us.sourceId === s.sourceId,
+                                          );
+                                          if (usedIndex === -1) {
+                                            usedIndex = usedSources.push(s) - 1;
+                                          }
+                                          return s;
+                                        })
+                                        .sort(
+                                          (a, b) =>
+                                            usedSources.findIndex(
+                                              (us) =>
+                                                us.sourceId === a.sourceId,
+                                            ) -
+                                            usedSources.findIndex(
+                                              (us) =>
+                                                us.sourceId === b.sourceId,
+                                            ),
+                                        )
+                                        .map((s, i) => {
+                                          let usedIndex = usedSources.findIndex(
+                                            (us) => us.sourceId === s.sourceId,
+                                          );
+                                          if (usedIndex === -1) {
+                                            usedIndex = usedSources.push(s) - 1;
+                                          }
+
+                                          return (
+                                            <span
+                                              key={s.sourceId}
+                                              className="text-[8px] align-super text-gray-500 attribution"
+                                            >
+                                              {i > 0 ? "," : ""}
+                                              {usedIndex + 1}
+                                            </span>
+                                          );
+                                        })}
+                                    </span>
+                                  </span>
+                                );
+                              })}
+                            <span className="text-xs text-gray-600">
+                              via{" "}
+                              {[...usedSources, ...uniqueSources]
+                                .filter(
+                                  (e, i, l) =>
+                                    l.findIndex(
+                                      (x) => x.sourceId === e.sourceId,
+                                    ) === i,
+                                )
+                                .map((e, i, l) => (
+                                  <Fragment key={i}>
+                                    {l.length > 1 && i === l.length - 1
+                                      ? " og "
+                                      : i > 0
+                                        ? ", "
+                                        : ""}
+                                    {usedSources.includes(e) && (
+                                      <span className="text-[6px] align-super text-gray-500 attribution font-bold">
+                                        {i + 1}
+                                      </span>
+                                    )}
+                                    <a
+                                      href={e.sourceCalendarUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-red-400 hover:underline"
+                                    >
+                                      {e.source}
+                                    </a>
+                                  </Fragment>
+                                ))}
+                            </span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
+      <div className=" mt-20 font-extralight flex flex-col w-full  max-w-240">
+        <div className="max-w-120 w-full self-center pl-12">
+          <span className=" text-xl text-gray-500">træfkilder:</span>
+        </div>
+        <SourcesList eventsSources={eventsSources} type="events" />
+      </div>
+    </>
   );
 }
