@@ -37,9 +37,9 @@ export function SourcesList({
                 typeof source.classesUrl === "string"
                   ? source.classesUrl
                   : type === "events" &&
-                      "eventsUrl" in source &&
-                      typeof source.eventsUrl === "string"
-                    ? source.eventsUrl
+                      "calendarUrl" in source &&
+                      typeof source.calendarUrl === "string"
+                    ? source.calendarUrl
                     : "#"
               }
               className="text-red-500 text-(size:--md-font-size)"
