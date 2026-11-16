@@ -500,7 +500,7 @@ export const eventsSources = [
       ),
   },
   {
-    sourceId: "bushi-karate",
+    sourceId: "bushi-karate-kalender",
     name: "Bushi Karate & Combat Sport",
     federation: "dkarf",
     calendarUrl: "https://www.bushi.dk/kalender--events/kalender",
@@ -512,7 +512,7 @@ export const eventsSources = [
       ),
   },
   {
-    sourceId: "bushi-karate",
+    sourceId: "bushi-karate-events",
     name: "Bushi Karate & Combat Sport",
     federation: "dkarf",
     calendarUrl: "https://www.bushi.dk/kalender--events/events",

@@ -153,7 +153,7 @@ export function EventList({
                         const usedSources: typeof uniqueSources = [];
 
                         let usedIndex = usedSources.findIndex(
-                          (us) => us.sourceId === event.sourceId,
+                          (us) => us.source === event.source,
                         );
                         if (usedIndex === -1) {
                           usedIndex = usedSources.push(event) - 1;
@@ -459,7 +459,7 @@ export function EventList({
                                 .filter(
                                   (e, i, l) =>
                                     l.findIndex(
-                                      (x) => x.sourceId === e.sourceId,
+                                      (x) => x.source === e.source,
                                     ) === i,
                                 )
                                 .map((e, i, l) => (
