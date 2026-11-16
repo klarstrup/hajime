@@ -1533,17 +1533,26 @@ export const getClasses = async () => {
         (source) =>
           "loadClasses" in source &&
           source.loadClasses &&
-          Array.fromAsync(source.loadClasses({ now })).then((classes) =>
-            classes.map((c) => ({
-              ...c,
-              source: source.name,
-              sourceId: source.sourceId,
-              classesUrl:
-                "classesUrl" in source ? source.classesUrl : undefined,
-              federation:
-                "federation" in source ? source.federation : undefined,
-            })),
-          ),
+          Array.fromAsync(source.loadClasses({ now }))
+            .then((classes) =>
+              classes.map((c) => ({
+                ...c,
+                source: source.name,
+                sourceId: source.sourceId,
+                classesUrl:
+                  "classesUrl" in source ? source.classesUrl : undefined,
+                federation:
+                  "federation" in source ? source.federation : undefined,
+              })),
+            )
+            .catch((err) => {
+              console.error(
+                `Error loading classes for source: ${source.sourceId}`,
+                err,
+              );
+
+              return [];
+            }),
       ),
   ).then((classes) => classes.flat().filter(Boolean));
 };

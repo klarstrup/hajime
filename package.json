@@ -11,8 +11,8 @@
     "start": "next start",
     "lint": "eslint .",
     "ts": "bun check",
-    "test": "vitest",
-    "ci": "bunx npm-run-all --parallel ts build lint test"
+    "test": "vitest --run",
+    "ci": "bun run build && bunx npm-run-all --parallel ts lint test"
   },
   "dependencies": {
     "@date-fns/tz": "^1.5.0",
