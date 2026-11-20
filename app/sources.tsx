@@ -977,6 +977,14 @@ export const eventsSources = [
     */
   },
   {
+    sourceId: "osterbro-shotokan-karate",
+    name: "Østerbro Shotokan Karate",
+    federation: "dkarf",
+    calendarUrl: "https://www.2100-shotokan.dk/calendar",
+    classesUrl: "https://www.2100-shotokan.dk/information/traeningstider",
+    // TODO: implement loadEvents for mentoclub getactivities pagination
+  },
+  {
     sourceId: "niva-budoklub",
     name: "Nivå Budoklub",
     federation: "wkb",
