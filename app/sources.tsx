@@ -969,7 +969,7 @@ export const eventsSources = [
   {
     sourceId: "gentofte-shotokan-karate-do-kai",
     name: "Gentofte Shotokan Karate-Do Kai",
-    federation: "hdki",
+    federation: "dkarf",
     calendarUrl: "https://gentoftekarate.dk/cms/Activity.aspx",
     /* // They don't do public events, no reason to fetch them
     loadEvents: (loadParams: LoadParams) =>
