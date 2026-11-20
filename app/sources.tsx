@@ -157,7 +157,7 @@ export interface Request {
   past_events_filter: number;
 }
 
-namespace KarateKlubbenKyokushinkai {
+namespace KlubModul {
   export interface Event {
     id: number;
     title: string;
@@ -189,7 +189,7 @@ namespace KarateKlubbenKyokushinkai {
   }
 
   export enum ClubName {
-    KarateklubbenKyokushinkaiKøbenhavn = "Karateklubben Kyokushinkai København",
+    KlubModulKøbenhavn = "Karateklubben Kyokushinkai København",
   }
 
   export enum MeetingPlace {
@@ -921,7 +921,7 @@ export const eventsSources = [
     loadEvents: async ({ cotemporality, now }: LoadParams) => {
       const start = cotemporality === "past" ? farPast : now;
       const end = cotemporality === "future" ? farFuture : now;
-      return fetchJson<KarateKlubbenKyokushinkai.Event[]>(
+      return fetchJson<KlubModul.Event[]>(
         `https://sportskarate.dk/cms/include/api/calendarj.aspx?start=${start.toISOString()}&end=${end.toISOString()}`,
       ).then((events) =>
         events
@@ -946,7 +946,7 @@ export const eventsSources = [
     loadEvents: async ({ cotemporality, now }: LoadParams) => {
       const start = cotemporality === "past" ? farPast : now;
       const end = cotemporality === "future" ? farFuture : now;
-      return fetchJson<KarateKlubbenKyokushinkai.Event[]>(
+      return fetchJson<KlubModul.Event[]>(
         `https://karateklub.com/cms/include/api/calendarj.aspx?start=${start.toISOString()}&end=${end.toISOString()}`,
       ).then((events) =>
         events.map((e) => ({
@@ -969,7 +969,7 @@ export const eventsSources = [
     loadEvents: async ({ cotemporality, now }: LoadParams) => {
       const start = cotemporality === "past" ? farPast : now;
       const end = cotemporality === "future" ? farFuture : now;
-      return fetchJson<KarateKlubbenKyokushinkai.Event[]>(
+      return fetchJson<KlubModul.Event[]>(
         `https://karate-do-gentofte.dk/cms/include/api/calendarj.aspx?start=${start.toISOString()}&end=${end.toISOString()}`,
       ).then((events) =>
         events.map((e) => ({
@@ -996,7 +996,7 @@ export const eventsSources = [
       const start = cotemporality === "past" ? farPast : now;
       const end = cotemporality === "future" ? farFuture : now;
       return []; // No public events on their calendar i think.
-      return fetchJson<KarateKlubbenKyokushinkai.Event[]>(
+      return fetchJson<KlubModul.Event[]>(
         `https://gentoftekarate.dk/cms/include/api/calendarj.aspx?start=${start.toISOString()}&end=${end.toISOString()}`,
       ).then((events) =>
         events.map((e) => ({
@@ -1019,7 +1019,7 @@ export const eventsSources = [
     loadEvents: async ({ cotemporality, now }: LoadParams) => {
       const start = cotemporality === "past" ? farPast : now;
       const end = cotemporality === "future" ? farFuture : now;
-      return fetchJson<KarateKlubbenKyokushinkai.Event[]>(
+      return fetchJson<KlubModul.Event[]>(
         `https://nbudo.klub-modul.dk/cms/include/api/calendarj.aspx?start=${start.toISOString()}&end=${end.toISOString()}`,
       ).then((events) =>
         events.map((e) => ({
@@ -1045,7 +1045,7 @@ export const eventsSources = [
     loadEvents: async ({ cotemporality, now }: LoadParams) => {
       const start = cotemporality === "past" ? farPast : now;
       const end = cotemporality === "future" ? farFuture : now;
-      const events = await fetchJson<KarateKlubbenKyokushinkai.Event[]>(
+      const events = await fetchJson<KlubModul.Event[]>(
         `https://gladsaxekarateklub.dk/cms/include/api/calendarj.aspx?start=${start.toISOString()}&end=${end.toISOString()}`,
       );
       return events
@@ -1201,7 +1201,7 @@ export const eventsSources = [
     loadEvents: async ({ cotemporality, now }: LoadParams) => {
       const start = cotemporality === "past" ? farPast : now;
       const end = cotemporality === "future" ? farFuture : now;
-      return fetchJson<KarateKlubbenKyokushinkai.Event[]>(
+      return fetchJson<KlubModul.Event[]>(
         `https://saxkarate.dk/cms/include/api/calendarj.aspx?start=${start.toISOString()}&end=${end.toISOString()}`,
       ).then((events) =>
         events.map((e) => ({
