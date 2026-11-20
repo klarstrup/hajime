@@ -340,11 +340,9 @@ export const fetch$ = async (url: string) => cheerio.load(await fetchText(url));
 
 const fetchHoldsportEvents = async (
   {
-    activitiesEndpointUrl,
     clubId,
     contentId,
   }: {
-    activitiesEndpointUrl: string | URL;
     clubId: number;
     contentId: number;
   },
@@ -352,7 +350,9 @@ const fetchHoldsportEvents = async (
 ) => {
   const start = cotemporality === "past" ? farPast : now;
   const end = cotemporality === "future" ? farFuture : now;
-  const eventsUrl = new URL(activitiesEndpointUrl);
+  const eventsUrl = new URL(
+    "https://www.holdsport.net/klub/hvidovre-karateskole/activities",
+  );
   eventsUrl.searchParams.set("club_id", String(clubId));
   eventsUrl.searchParams.set("content_id", String(contentId));
   eventsUrl.searchParams.set("activity_types", "null");
@@ -1187,12 +1187,7 @@ export const eventsSources = [
       "https://www.amagerkarateskole.dk/klub/jinzen-do/sider/h1-style-text-align-center-kalender-h1",
     loadEvents: (loadParams: LoadParams) =>
       fetchHoldsportEvents(
-        {
-          activitiesEndpointUrl:
-            "https://www.amagerkarateskole.dk/klub/jinzen-do/activities",
-          clubId: 27671,
-          contentId: 703630,
-        },
+        { clubId: 27671, contentId: 703630 },
         loadParams,
       ).then((events) =>
         events.filter((e) => e.event_type !== 2 && e.event_type !== 3),
@@ -1206,12 +1201,7 @@ export const eventsSources = [
       "https://www.gilleleje-karate.dk/klub/gilleleje-karate-klub/sider/h1-style-text-align-center-kalender-h1",
     loadEvents: (loadParams: LoadParams) =>
       fetchHoldsportEvents(
-        {
-          activitiesEndpointUrl:
-            "https://www.gilleleje-karate.dk/klub/gilleleje-karate-klub/activities",
-          clubId: 34372,
-          contentId: 2921593,
-        },
+        { clubId: 34372, contentId: 2921593 },
         loadParams,
       ).then((events) => events.filter((e) => e.event_type !== 148927)),
   },
@@ -1223,12 +1213,7 @@ export const eventsSources = [
       "https://www.ak-kbh.dk/klub/ashihara-karate-kobenhavn/sider/aktiviteter",
     loadEvents: (loadParams: LoadParams) =>
       fetchHoldsportEvents(
-        {
-          activitiesEndpointUrl:
-            "https://www.ak-kbh.dk/klub/ashihara-karate-kobenhavn/activities",
-          clubId: 43859,
-          contentId: 3764362,
-        },
+        { clubId: 43859, contentId: 3764362 },
         loadParams,
       ).then((events) =>
         events
@@ -1257,12 +1242,7 @@ export const eventsSources = [
     federation: "dkarf",
     loadEvents: (loadParams: LoadParams) =>
       fetchHoldsportEvents(
-        {
-          activitiesEndpointUrl:
-            "https://www.taifu.dk/klub/taifu-karate-dojo/activities",
-          clubId: 26219,
-          contentId: 3697598,
-        },
+        { clubId: 26219, contentId: 3697598 },
         loadParams,
       ).then((events) => events.filter((e) => e.event_type !== 2)),
   },
