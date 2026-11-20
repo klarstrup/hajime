@@ -418,6 +418,7 @@ export const eventsSources = [
   {
     sourceId: "risskov-karate-skole",
     name: "Risskov Karate Skole",
+    type: "club",
     federation: "iogkf",
     classesUrl: "https://risskovkarateskole.dk/",
     async *loadClasses({ now }: { now: Date }) {
@@ -457,6 +458,7 @@ export const eventsSources = [
   {
     sourceId: "dansk-karate-union-facebook",
     name: "Dansk Karate Union",
+    type: "federation",
     federation: "dku",
     calendarUrl:
       "https://www.facebook.com/profile.php?id=100064868797020&sk=events",
@@ -471,6 +473,7 @@ export const eventsSources = [
   {
     sourceId: "dansk-karate-union",
     name: "Dansk Karate Union",
+    type: "federation",
     federation: "dku",
     calendarUrl: "https://kyokushin.dk/kalender/",
     loadEvents: ({ cotemporality }: { cotemporality: "past" | "future" }) =>
@@ -481,6 +484,7 @@ export const eventsSources = [
   {
     sourceId: "jundokan-kobenhavn",
     name: "Jundokan København",
+    type: "club",
     federation: "ogkk",
     calendarUrl: "https://karatekbh.dk/events/",
     /* // Only classes, no events on their calendar
@@ -493,6 +497,7 @@ export const eventsSources = [
   {
     sourceId: "praesto-karate-klub",
     name: "Præstø Karate Klub",
+    type: "club",
     federation: "ogkk",
     calendarUrl: "https://praestoekarate.dk/begivenheder/",
     classesUrl: "https://praestoekarate.dk/traeningstider/",
@@ -506,12 +511,14 @@ export const eventsSources = [
   {
     sourceId: "skovbo-karate-klub",
     name: "Skovbo Karate Klub",
+    type: "club",
     federation: "ogkk",
     classesUrl: "https://skovbokarate.dk/#hold",
   },
   {
     sourceId: "stevns-karate-klub",
     name: "Stevns Karateklub",
+    type: "club",
     federation: "ogkk",
     calendarUrl: "https://stevnskarateklub.dk/?page_id=92",
     classesUrl: "https://stevnskarateklub.dk/?page_id=54",
@@ -519,6 +526,7 @@ export const eventsSources = [
   {
     sourceId: "faxe-karate-klub",
     name: "Faxe Karate Klub",
+    type: "club",
     federation: "ogkk",
     calendarUrl: "http://faxekarate.dk/?page_id=138",
     classesUrl: "http://faxekarate.dk/?page_id=167",
@@ -526,6 +534,7 @@ export const eventsSources = [
   {
     sourceId: "broderup-karate-klub",
     name: "Brøderup Karate Klub",
+    type: "club",
     federation: "ogkk",
     calendarUrl: "https://broederupkarate.dk/index.php/arrangementer/",
     classesUrl: "https://broederupkarate.dk/index.php/programs/",
@@ -533,12 +542,14 @@ export const eventsSources = [
   {
     sourceId: "vester-hjermitslev-karate-klub",
     name: "Vester Hjermitslev Karate Klub",
+    type: "club",
     federation: "ogkk",
     classesUrl: "https://vhjermitslev.dk/idraetsforening/kreaklubben/",
   },
   {
     sourceId: "karatestævner",
     name: "Karatestævner",
+    type: "platform",
     calendarUrl: "https://xn--karatestvner-edb.dk/",
     loadEvents: () =>
       fetchIcsEvents(`https://karatestævner.dk/eksport/alle-alle.ics`),
@@ -546,6 +557,7 @@ export const eventsSources = [
   {
     sourceId: "hadsund-karate-skole",
     name: "Hadsund Karate Skole",
+    type: "club",
     federation: "dao",
     calendarUrl: "https://ashiharahadsund.dk/kalender/",
     loadEvents: () =>
@@ -567,6 +579,7 @@ export const eventsSources = [
   {
     sourceId: "ashihara-karate-sonderborg",
     name: "Ashihara Karate Sønderborg",
+    type: "club",
     federation: "dao",
     calendarUrl: "https://www.ashihara-sonderborg.dk/",
     loadEvents: () =>
@@ -588,6 +601,7 @@ export const eventsSources = [
   {
     sourceId: "bushi-karate-kalender",
     name: "Bushi Karate",
+    type: "club",
     federation: "dkarf",
     calendarUrl: "https://www.bushi.dk/kalender--events/kalender",
     loadEvents: () =>
@@ -600,6 +614,7 @@ export const eventsSources = [
   {
     sourceId: "bushi-karate-events",
     name: "Bushi Karate",
+    type: "club",
     federation: "dkarf",
     calendarUrl: "https://www.bushi.dk/kalender--events/events",
     loadEvents: async ({ cotemporality }: LoadParams) => {
@@ -689,6 +704,7 @@ export const eventsSources = [
     sourceId: "bs-karate",
     name: "BS Karate",
     federation: "wkb",
+    type: "club",
     calendarUrl: "https://bskarate.dk/events/",
     loadEvents: ({ cotemporality }: LoadParams) =>
       fetchIcsEvents(
@@ -783,6 +799,7 @@ export const eventsSources = [
   {
     sourceId: "karateklubben-kenzoku",
     name: "Karateklubben Kenzoku",
+    type: "club",
     federation: "dku",
     calendarUrl: "https://kenzoku-karate.dk/kalender",
     loadEvents: () =>
@@ -827,6 +844,7 @@ export const eventsSources = [
   {
     sourceId: "roskilde-karate-klub-facebook",
     name: "Roskilde Karate Klub",
+    type: "club",
     federation: "dku",
     calendarUrl:
       "https://www.facebook.com/profile.php?id=100063654665814&sk=events",
@@ -841,6 +859,7 @@ export const eventsSources = [
   {
     sourceId: "roskilde-karate-klub",
     name: "Roskilde Karate Klub",
+    type: "club",
     federation: "dku",
     calendarUrl: "https://roskildekarateklub.dk/events",
     loadEvents: () =>
@@ -924,6 +943,7 @@ export const eventsSources = [
   {
     sourceId: "shobu-ippon-denmark",
     name: "Shobu Ippon Denmark",
+    type: "club",
     federation: "dkarf",
     calendarUrl: "https://shobuippondanmark.dk/?post_type=tribe_events",
     loadEvents: ({ cotemporality }: LoadParams) =>
@@ -944,6 +964,7 @@ export const eventsSources = [
   {
     sourceId: "farum-kyokushin",
     name: "Farum Kyokushin",
+    type: "club",
     federation: "dku",
     calendarUrl: "https://farumkyokushin.dk/kalenderliste/",
     loadEvents: async () => {
@@ -1002,6 +1023,7 @@ export const eventsSources = [
   {
     sourceId: "sportskarate-dk",
     name: "Sportskarate.dk",
+    type: "club",
     federation: "dkarf",
     calendarUrl: "https://sportskarate.dk/cms/Activity.aspx",
     loadEvents: (loadParams: LoadParams) =>
@@ -1012,6 +1034,7 @@ export const eventsSources = [
   {
     sourceId: "karateklubben-kyokushinkai-kobenhavn",
     name: "Karateklubben Kyokushinkai København",
+    type: "club",
     federation: "dku",
     calendarUrl: "https://karateklub.com/cms/Activity.aspx",
     loadEvents: (loadParams: LoadParams) =>
@@ -1020,6 +1043,7 @@ export const eventsSources = [
   {
     sourceId: "karate-do-gentofte",
     name: "Karate-Do Gentofte",
+    type: "club",
     federation: "dkarf",
     calendarUrl: "https://karate-do-gentofte.dk/cms/Activity.aspx",
     loadEvents: (loadParams: LoadParams) =>
@@ -1028,6 +1052,7 @@ export const eventsSources = [
   {
     sourceId: "egedal-karate",
     name: "Egedal Karate",
+    type: "club",
     federation: "gkif",
     calendarUrl: "https://www.egedalkarate.dk/calendar.asp",
     // TODO: loadEvents: build KlubNet support  https://www.intra-kom.dk/klubnet/klubnetinfo.asp
@@ -1035,6 +1060,7 @@ export const eventsSources = [
   {
     sourceId: "gentofte-shotokan-karate-do-kai",
     name: "Gentofte Shotokan Karate-Do Kai",
+    type: "club",
     federation: "dkarf",
     calendarUrl: "https://gentoftekarate.dk/cms/Activity.aspx",
     /* // They don't do public events, no reason to fetch them
@@ -1045,6 +1071,7 @@ export const eventsSources = [
   {
     sourceId: "osterbro-shotokan-karate",
     name: "Østerbro Shotokan Karate",
+    type: "club",
     federation: "dkarf",
     calendarUrl: "https://www.2100-shotokan.dk/calendar",
     classesUrl: "https://www.2100-shotokan.dk/information/traeningstider",
@@ -1053,6 +1080,7 @@ export const eventsSources = [
   {
     sourceId: "alleroed-karate-dojo",
     name: "Allerød Karate Dojo",
+    type: "club",
     federation: "dkarf",
     calendarUrl: "https://www.akd.dk/traening/calendar",
     classesUrl: "https://www.akd.dk/traening/traeningstider-og-holdoversigt",
@@ -1061,6 +1089,7 @@ export const eventsSources = [
   {
     sourceId: "itosu-kai-karate-do-slagelse",
     name: "Itosu-Kai Karate-do Slagelse",
+    type: "club",
     federation: "dkarf",
     calendarUrl: "https://slagelsekarate.dk/calendar",
     // TODO: implement loadEvents for mentoclub getactivities pagination
@@ -1068,6 +1097,7 @@ export const eventsSources = [
   {
     sourceId: "amager-karate-klub",
     name: "Amager Karate Klub",
+    type: "club",
     federation: "dkarf",
     classesUrl: "https://www.amagerkarate.dk/memberportal/frontpage/page/10439",
     // ForeningLet website without a calendar
@@ -1075,6 +1105,7 @@ export const eventsSources = [
   {
     sourceId: "niva-budoklub",
     name: "Nivå Budoklub",
+    type: "club",
     federation: "wkb",
     calendarUrl: "https://nbudo.klub-modul.dk/cms/Activity.aspx",
     loadEvents: (loadParams: LoadParams) =>
@@ -1083,6 +1114,7 @@ export const eventsSources = [
   {
     sourceId: "gladsaxe-karate-klub",
     name: "Gladsaxe Karate Klub",
+    type: "club",
     federation: "dkarf",
     calendarUrl: "https://gladsaxekarateklub.dk/cms/Activity.aspx",
     loadEvents: (loadParams: LoadParams) =>
@@ -1109,6 +1141,7 @@ export const eventsSources = [
   {
     sourceId: "shinryokudan-nansensgade-karate",
     name: "Shinryokudan - Nansensgade Karate",
+    type: "club",
     federation: "dku",
     calendarUrl: "https://www.nansensgadekarate.dk/klubkalender",
     loadEvents: async ({ cotemporality, now }: LoadParams) => {
@@ -1215,6 +1248,7 @@ export const eventsSources = [
   {
     sourceId: "amager-karateskole",
     name: "Amager Karateskole",
+    type: "club",
     federation: "kwo-smo",
     calendarUrl:
       "https://www.amagerkarateskole.dk/klub/jinzen-do/sider/h1-style-text-align-center-kalender-h1",
@@ -1237,6 +1271,7 @@ export const eventsSources = [
   {
     sourceId: "tst-karate-skole",
     name: "TST Karate Skole",
+    type: "club",
     federation: "dwk",
     calendarUrl:
       "https://www.tstkarateskole.dk/klub/tst-karate-skole/sider/h1-style-text-align-center-kalender-h1",
@@ -1261,6 +1296,7 @@ export const eventsSources = [
   {
     sourceId: "keikokan-karate-kobudo-ryu",
     name: "Keikokan Karate Kobudo Ryu",
+    type: "club",
     calendarUrl:
       "https://www.keikokan.dk/klub/keikokan-karate-kobudo-ryu/sider/h1-style-text-align-center-kalender-h1",
     loadEvents: (loadParams: LoadParams) =>
@@ -1272,6 +1308,7 @@ export const eventsSources = [
   {
     sourceId: "gilleleje-karate",
     name: "Gilleleje Karate Klub",
+    type: "club",
     federation: "jks",
     calendarUrl:
       "https://www.gilleleje-karate.dk/klub/gilleleje-karate-klub/sider/h1-style-text-align-center-kalender-h1",
@@ -1284,6 +1321,7 @@ export const eventsSources = [
   {
     sourceId: "ashihara-karate-kobenhavn",
     name: "Ashihara Karate København",
+    type: "club",
     federation: "dao",
     calendarUrl:
       "https://www.ak-kbh.dk/klub/ashihara-karate-kobenhavn/sider/aktiviteter",
@@ -1313,6 +1351,7 @@ export const eventsSources = [
   {
     sourceId: "taifu-karate-dojo",
     name: "Taifu Karate Dojo",
+    type: "club",
     calendarUrl:
       "https://www.taifu.dk/klub/taifu-karate-dojo/sider/aktiviteter",
     federation: "dkarf",
@@ -1325,6 +1364,7 @@ export const eventsSources = [
   {
     sourceId: "kumite-technology",
     name: "Kumite Technology",
+    type: "platform",
     calendarUrl: "https://kumitetechnology.com/en/tournament/?countryCode=DK",
     loadEvents: async ({
       cotemporality,
@@ -1374,6 +1414,7 @@ export const eventsSources = [
   {
     sourceId: "international-okinawan-goju-ryu-karate-do-federation-danmark",
     name: "International Okinawan Goju Ryu Karate-do Federation – Danmark",
+    type: "federation",
     federation: "iogkf",
     calendarUrl: "https://www.iogkf.dk/iogkf-events/",
     loadEvents: async () => {
@@ -1412,6 +1453,7 @@ export const eventsSources = [
   {
     sourceId: "fight-collective",
     name: "Fight Collective",
+    type: "organization",
     federation: "*",
     calendarUrl: "https://fightcollective.dk/events",
     loadEvents: async ({ cotemporality }: LoadParams) =>
@@ -1440,6 +1482,7 @@ export const eventsSources = [
   {
     sourceId: "set-online-karate",
     name: "SET Online Karate",
+    type: "platform",
     federation: "dkarf", // wkf really
     calendarUrl:
       "https://www.sportdata.org/karate/set-online/calendar_main.php",
@@ -1459,6 +1502,7 @@ export const eventsSources = [
   {
     sourceId: "frederiksberg-karateskole",
     name: "Frederiksberg Karateskole",
+    type: "club",
     federation: "dku",
     classesUrl: "https://www.frederiksbergkarateskole.dk/tr%C3%A6ningstider-0",
     async *loadClasses({ now }: { now: Date }) {
