@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import Link from "next/link";
 import "./globals.css";
 
 const radianceSemibold = localFont({
@@ -44,14 +45,22 @@ export default function RootLayout({
         <span className="text-3xl text-gray-500 self-center mt-8 font-extralight">
           af io
         </span>
-        <a
-          href="https://github.com/klarstrup/hajime"
-          className="text-xs text-red-500 self-center mb-4"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          se koden
-        </a>
+        <div className="flex flex-wrap items-center gap-4">
+          <a
+            href="https://github.com/klarstrup/hajime"
+            className="text-xs text-red-500 self-center mb-4"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            se koden
+          </a>
+          <Link
+            href="/kilder"
+            className="text-xs text-red-500 self-center mb-4"
+          >
+            se kilder
+          </Link>
+        </div>
       </body>
     </html>
   );
