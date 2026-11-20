@@ -479,6 +479,64 @@ export const eventsSources = [
       ),
   },
   {
+    sourceId: "jundokan-kobenhavn",
+    name: "Jundokan København",
+    federation: "ogkk",
+    calendarUrl: "https://karatekbh.dk/events/",
+    /* // Only classes, no events on their calendar
+    loadEvents: () =>
+      fetchIcsEvents(
+        `https://calendar.google.com/calendar/ical/karatekbh%40gmail.com/public/basic.ics`,
+      ),
+    */
+  },
+  {
+    sourceId: "praesto-karate-klub",
+    name: "Præstø Karate Klub",
+    federation: "ogkk",
+    calendarUrl: "https://praestoekarate.dk/begivenheder/",
+    classesUrl: "https://praestoekarate.dk/traeningstider/",
+    /* // Only classes, no events on their calendar
+    loadEvents: () =>
+      fetchIcsEvents(
+        `https://calendar.google.com/calendar/ical/praestoekarateklub@gmail.com/public/basic.ics`,
+      ),
+    */
+  },
+  {
+    sourceId: "skovbo-karate-klub",
+    name: "Skovbo Karate Klub",
+    federation: "ogkk",
+    classesUrl: "https://skovbokarate.dk/#hold",
+  },
+  {
+    sourceId: "stevns-karate-klub",
+    name: "Stevns Karateklub",
+    federation: "ogkk",
+    calendarUrl: "https://stevnskarateklub.dk/?page_id=92",
+    classesUrl: "https://stevnskarateklub.dk/?page_id=54",
+  },
+  {
+    sourceId: "faxe-karate-klub",
+    name: "Faxe Karate Klub",
+    federation: "ogkk",
+    calendarUrl: "http://faxekarate.dk/?page_id=138",
+    classesUrl: "http://faxekarate.dk/?page_id=167",
+  },
+  {
+    sourceId: "broderup-karate-klub",
+    name: "Brøderup Karate Klub",
+    federation: "ogkk",
+    calendarUrl: "https://broederupkarate.dk/index.php/arrangementer/",
+    classesUrl: "https://broederupkarate.dk/index.php/programs/",
+  },
+  {
+    sourceId: "vester-hjermitslev-karate-klub",
+    name: "Vester Hjermitslev Karate Klub",
+    federation: "ogkk",
+    classesUrl: "https://vhjermitslev.dk/idraetsforening/kreaklubben/",
+  },
+  {
     sourceId: "karatestævner",
     name: "Karatestævner",
     calendarUrl: "https://xn--karatestvner-edb.dk/",
