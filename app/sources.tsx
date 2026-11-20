@@ -30,7 +30,7 @@ export enum CMS {
   ForeningLet = "ForeningLet",
   Mentoclub = "Mentoclub",
   Holdsport = "Holdsport",
-  Zakobo = "Zakobo"
+  Zakobo = "Zakobo",
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
