@@ -529,7 +529,7 @@ export const eventsSources = [
   },
   {
     sourceId: "bushi-karate-kalender",
-    name: "Bushi Karate & Combat Sport",
+    name: "Bushi Karate",
     federation: "dkarf",
     calendarUrl: "https://www.bushi.dk/kalender--events/kalender",
     loadEvents: () =>
@@ -541,7 +541,7 @@ export const eventsSources = [
   },
   {
     sourceId: "bushi-karate-events",
-    name: "Bushi Karate & Combat Sport",
+    name: "Bushi Karate",
     federation: "dkarf",
     calendarUrl: "https://www.bushi.dk/kalender--events/events",
     loadEvents: async ({ cotemporality }: LoadParams) => {
