@@ -971,9 +971,10 @@ export const eventsSources = [
     name: "Gentofte Shotokan Karate-Do Kai",
     federation: "hdki",
     calendarUrl: "https://gentoftekarate.dk/cms/Activity.aspx",
+    /* // They don't do public events, no reason to fetch them
     loadEvents: (loadParams: LoadParams) =>
-      Promise.resolve([]) ||
       fetchKlubModul("https://gentoftekarate.dk/cms/", loadParams),
+    */
   },
   {
     sourceId: "niva-budoklub",
