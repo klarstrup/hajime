@@ -378,6 +378,26 @@ const fetchHoldsportEvents = async (
   }));
 };
 
+const fetchKlubModul = (cmsUrl: string, { cotemporality, now }: LoadParams) => {
+  const start = cotemporality === "past" ? farPast : now;
+  const end = cotemporality === "future" ? farFuture : now;
+  const calendarjUrl = new URL("/cms/include/api/calendarj.aspx", cmsUrl);
+  calendarjUrl.searchParams.set("start", start.toISOString());
+  calendarjUrl.searchParams.set("end", end.toISOString());
+
+  return fetchJson<KlubModul.Event[]>(calendarjUrl).then((events) =>
+    events.map((e) => ({
+      ...e,
+      location: [e.location, e.address].filter(Boolean).join(", "),
+      linkEvent: e.linkEvent
+        ? new URL(e.linkEvent, cmsUrl).toString()
+        : undefined,
+      start: new Date(e.start),
+      end: new Date(e.end),
+    })),
+  );
+};
+
 const farPast = new Date(2010, 0, 1);
 const farFuture = new Date(2030, 0, 1);
 
@@ -918,160 +938,69 @@ export const eventsSources = [
     name: "Sportskarate.dk",
     federation: "dkarf",
     calendarUrl: "https://sportskarate.dk/cms/Activity.aspx",
-    loadEvents: async ({ cotemporality, now }: LoadParams) => {
-      const start = cotemporality === "past" ? farPast : now;
-      const end = cotemporality === "future" ? farFuture : now;
-      return fetchJson<KlubModul.Event[]>(
-        `https://sportskarate.dk/cms/include/api/calendarj.aspx?start=${start.toISOString()}&end=${end.toISOString()}`,
-      ).then((events) =>
-        events
-          .map((e) => ({
-            ...e,
-            location: [e.location, e.address].filter(Boolean).join(", "),
-            linkEvent: e.linkEvent
-              ? new URL(e.linkEvent, "https://sportskarate.dk/cms/").toString()
-              : undefined,
-            start: new Date(e.start),
-            end: new Date(e.end),
-          }))
-          .filter((e) => !e?.title.includes("Bestilling")),
-      );
-    },
+    loadEvents: (loadParams: LoadParams) =>
+      fetchKlubModul("https://sportskarate.dk/cms/", loadParams).then(
+        (events) => events.filter((e) => !e?.title.includes("Bestilling")),
+      ),
   },
   {
     sourceId: "karateklubben-kyokushinkai-kobenhavn",
     name: "Karateklubben Kyokushinkai København",
     federation: "dku",
     calendarUrl: "https://karateklub.com/cms/Activity.aspx",
-    loadEvents: async ({ cotemporality, now }: LoadParams) => {
-      const start = cotemporality === "past" ? farPast : now;
-      const end = cotemporality === "future" ? farFuture : now;
-      return fetchJson<KlubModul.Event[]>(
-        `https://karateklub.com/cms/include/api/calendarj.aspx?start=${start.toISOString()}&end=${end.toISOString()}`,
-      ).then((events) =>
-        events.map((e) => ({
-          ...e,
-          location: [e.location, e.address].filter(Boolean).join(", "),
-          linkEvent: e.linkEvent
-            ? new URL(e.linkEvent, "https://karateklub.com/cms/").toString()
-            : undefined,
-          start: new Date(e.start),
-          end: new Date(e.end),
-        })),
-      );
-    },
+    loadEvents: (loadParams: LoadParams) =>
+      fetchKlubModul("https://karateklub.com/cms/", loadParams),
   },
   {
     sourceId: "karate-do-gentofte",
     name: "Karate-Do Gentofte",
     federation: "dkarf",
     calendarUrl: "https://karate-do-gentofte.dk/cms/Activity.aspx",
-    loadEvents: async ({ cotemporality, now }: LoadParams) => {
-      const start = cotemporality === "past" ? farPast : now;
-      const end = cotemporality === "future" ? farFuture : now;
-      return fetchJson<KlubModul.Event[]>(
-        `https://karate-do-gentofte.dk/cms/include/api/calendarj.aspx?start=${start.toISOString()}&end=${end.toISOString()}`,
-      ).then((events) =>
-        events.map((e) => ({
-          ...e,
-          location: [e.location, e.address].filter(Boolean).join(", "),
-          linkEvent: e.linkEvent
-            ? new URL(
-                e.linkEvent,
-                "https://karate-do-gentofte.dk/cms/",
-              ).toString()
-            : undefined,
-          start: new Date(e.start),
-          end: new Date(e.end),
-        })),
-      );
-    },
+    loadEvents: (loadParams: LoadParams) =>
+      fetchKlubModul("https://karate-do-gentofte.dk/cms/", loadParams),
   },
   {
     sourceId: "gentofte-shotokan-karate-do-kai",
     name: "Gentofte Shotokan Karate-Do Kai",
     federation: "hdki",
     calendarUrl: "https://gentoftekarate.dk/cms/Activity.aspx",
-    loadEvents: async ({ cotemporality, now }: LoadParams) => {
-      const start = cotemporality === "past" ? farPast : now;
-      const end = cotemporality === "future" ? farFuture : now;
-      return []; // No public events on their calendar i think.
-      return fetchJson<KlubModul.Event[]>(
-        `https://gentoftekarate.dk/cms/include/api/calendarj.aspx?start=${start.toISOString()}&end=${end.toISOString()}`,
-      ).then((events) =>
-        events.map((e) => ({
-          ...e,
-          location: [e.location, e.address].filter(Boolean).join(", "),
-          linkEvent: e.linkEvent
-            ? new URL(e.linkEvent, "https://gentoftekarate.dk/cms/").toString()
-            : undefined,
-          start: new Date(e.start),
-          end: new Date(e.end),
-        })),
-      );
-    },
+    loadEvents: (loadParams: LoadParams) =>
+      Promise.resolve([]) ||
+      fetchKlubModul("https://gentoftekarate.dk/cms/", loadParams),
   },
   {
     sourceId: "niva-budoklub",
     name: "Nivå Budoklub",
     federation: "wkb",
     calendarUrl: "https://nbudo.klub-modul.dk/cms/Activity.aspx",
-    loadEvents: async ({ cotemporality, now }: LoadParams) => {
-      const start = cotemporality === "past" ? farPast : now;
-      const end = cotemporality === "future" ? farFuture : now;
-      return fetchJson<KlubModul.Event[]>(
-        `https://nbudo.klub-modul.dk/cms/include/api/calendarj.aspx?start=${start.toISOString()}&end=${end.toISOString()}`,
-      ).then((events) =>
-        events.map((e) => ({
-          ...e,
-          location: [e.location, e.address].filter(Boolean).join(", "),
-          linkEvent: e.linkEvent
-            ? new URL(
-                e.linkEvent,
-                "https://nbudo.klub-modul.dk/cms/",
-              ).toString()
-            : undefined,
-          start: new Date(e.start),
-          end: new Date(e.end),
-        })),
-      );
-    },
+    loadEvents: (loadParams: LoadParams) =>
+      fetchKlubModul("https://nbudo.klub-modul.dk/cms/", loadParams),
   },
   {
     sourceId: "gladsaxe-karate-klub",
     name: "Gladsaxe Karate Klub",
     federation: "dkarf",
     calendarUrl: "https://gladsaxekarateklub.dk/cms/Activity.aspx",
-    loadEvents: async ({ cotemporality, now }: LoadParams) => {
-      const start = cotemporality === "past" ? farPast : now;
-      const end = cotemporality === "future" ? farFuture : now;
-      const events = await fetchJson<KlubModul.Event[]>(
-        `https://gladsaxekarateklub.dk/cms/include/api/calendarj.aspx?start=${start.toISOString()}&end=${end.toISOString()}`,
-      );
-      return events
-        .map((e) => ({
-          ...e,
-          title: e.title.replace("GKC", "Gladsaxe Karate Cup"),
-          location:
-            [e.location, e.address].filter(Boolean).join(", ") ||
-            (e.title.includes("Kalundborg")
-              ? "Kalundborg Gymnasium og HF, J. Hagemann-Petersens Allé 4, 4400 Kalundborg"
-              : "") ||
-            null,
-          start: new Date(e.start),
-          end: new Date(e.end),
-          linkEvent: e.linkEvent
-            ? new URL(
-                e.linkEvent,
-                "https://gladsaxekarateklub.dk/cms/",
-              ).toString()
-            : undefined,
-        }))
-        .filter(
-          (e) =>
-            !e.title.includes("Weekendlejr") && !e.title.includes("Team GKK"),
-        );
-    },
+    loadEvents: (loadParams: LoadParams) =>
+      fetchKlubModul("https://gladsaxekarateklub.dk/cms/", loadParams).then(
+        (events) =>
+          events
+            .map((e) => ({
+              ...e,
+              title: e.title.replace("GKC", "Gladsaxe Karate Cup"),
+              location:
+                [e.location, e.address].filter(Boolean).join(", ") ||
+                (e.title.includes("Kalundborg")
+                  ? "Kalundborg Gymnasium og HF, J. Hagemann-Petersens Allé 4, 4400 Kalundborg"
+                  : "") ||
+                null,
+            }))
+            .filter(
+              (e) =>
+                !e.title.includes("Weekendlejr") &&
+                !e.title.includes("Team GKK"),
+            ),
+      ),
   },
   {
     sourceId: "shinryokudan-nansensgade-karate",
@@ -1198,23 +1127,8 @@ export const eventsSources = [
     name: "Sax-Karatecenter",
     federation: "iogkf",
     calendarUrl: "https://saxkarate.dk/cms/Activity.aspx",
-    loadEvents: async ({ cotemporality, now }: LoadParams) => {
-      const start = cotemporality === "past" ? farPast : now;
-      const end = cotemporality === "future" ? farFuture : now;
-      return fetchJson<KlubModul.Event[]>(
-        `https://saxkarate.dk/cms/include/api/calendarj.aspx?start=${start.toISOString()}&end=${end.toISOString()}`,
-      ).then((events) =>
-        events.map((e) => ({
-          ...e,
-          location: [e.location, e.address].filter(Boolean).join(", "),
-          linkEvent: e.linkEvent
-            ? new URL(e.linkEvent, "https://saxkarate.dk/cms/").toString()
-            : undefined,
-          start: new Date(e.start),
-          end: new Date(e.end),
-        })),
-      );
-    },
+    loadEvents: (loadParams: LoadParams) =>
+      fetchKlubModul("https://saxkarate.dk/cms/", loadParams),
   },
   {
     sourceId: "tst-karate-skole",
