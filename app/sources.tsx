@@ -25,6 +25,14 @@ import {
   timeRangeRE2,
 } from "./utils";
 
+export enum CMS {
+  Klubmodul = "Klubmodul",
+  ForeningLet = "ForeningLet",
+  Mentoclub = "Mentoclub",
+  Holdsport = "Holdsport",
+  Zakobo = "Zakobo"
+}
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 type HajimeMeta = {
   _h_source: string;
@@ -983,6 +991,28 @@ export const eventsSources = [
     calendarUrl: "https://www.2100-shotokan.dk/calendar",
     classesUrl: "https://www.2100-shotokan.dk/information/traeningstider",
     // TODO: implement loadEvents for mentoclub getactivities pagination
+  },
+  {
+    sourceId: "alleroed-karate-dojo",
+    name: "Allerød Karate Dojo",
+    federation: "dkarf",
+    calendarUrl: "https://www.akd.dk/traening/calendar",
+    classesUrl: "https://www.akd.dk/traening/traeningstider-og-holdoversigt",
+    // TODO: implement loadEvents for mentoclub getactivities pagination
+  },
+  {
+    sourceId: "itosu-kai-karate-do-slagelse",
+    name: "Itosu-Kai Karate-do Slagelse",
+    federation: "dkarf",
+    calendarUrl: "https://slagelsekarate.dk/calendar",
+    // TODO: implement loadEvents for mentoclub getactivities pagination
+  },
+  {
+    sourceId: "amager-karate-klub",
+    name: "Amager Karate Klub",
+    federation: "dkarf",
+    classesUrl: "https://www.amagerkarate.dk/memberportal/frontpage/page/10439",
+    // ForeningLet website without a calendar
   },
   {
     sourceId: "niva-budoklub",
