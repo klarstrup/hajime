@@ -960,6 +960,13 @@ export const eventsSources = [
       fetchKlubModul("https://karate-do-gentofte.dk/cms/", loadParams),
   },
   {
+    sourceId: "egedal-karate",
+    name: "Egedal Karate",
+    federation: "gkif",
+    calendarUrl: "https://www.egedalkarate.dk/calendar.asp",
+    // TODO: loadEvents: build KlubNet support  https://www.intra-kom.dk/klubnet/klubnetinfo.asp
+  },
+  {
     sourceId: "gentofte-shotokan-karate-do-kai",
     name: "Gentofte Shotokan Karate-Do Kai",
     federation: "hdki",
