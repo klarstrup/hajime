@@ -21,19 +21,21 @@ export default function KilderPage() {
                 {"calendarUrl" in source &&
                 source.calendarUrl &&
                 typeof source.calendarUrl === "string" ? (
-                  <a href={source.calendarUrl}>🌐</a>
+                  <a href={source.calendarUrl}>🗓️</a>
                 ) : (
                   "-"
-                )}
+                )}{" "}
+                {"loadEvents" in source ? "🌐" : "-"}
               </td>
               <td align="center">
                 {"classesUrl" in source &&
                 source.classesUrl &&
                 typeof source.classesUrl === "string" ? (
-                  <a href={source.classesUrl}>🌐</a>
+                  <a href={source.classesUrl}>⏱️</a>
                 ) : (
                   "-"
-                )}
+                )}{" "}
+                {"loadClasses" in source ? "🌐" : "-"}
               </td>
               <td>
                 {source.name}
