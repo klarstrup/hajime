@@ -1217,6 +1217,18 @@ export const eventsSources = [
     },
   },
   {
+    sourceId: "tst-karate-skole",
+    name: "TST Karate Skole",
+    federation: "dwk",
+    calendarUrl:
+      "https://www.tstkarateskole.dk/klub/tst-karate-skole/sider/h1-style-text-align-center-kalender-h1",
+    loadEvents: (loadParams: LoadParams) =>
+      fetchHoldsportEvents(
+        { clubId: 19717, contentId: 709571 },
+        loadParams,
+      ).then((events) => events.filter((e) => e.event_type !== 2)),
+  },
+  {
     sourceId: "hvidovre-karateskole",
     name: "Hvidovre Karateskole",
     federation: "iogkf",
