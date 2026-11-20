@@ -1194,6 +1194,52 @@ export const eventsSources = [
       ),
   },
   {
+    sourceId: "sax-karatecenter",
+    name: "Sax-Karatecenter",
+    federation: "iogkf",
+    calendarUrl: "https://saxkarate.dk/cms/Activity.aspx",
+    loadEvents: async ({ cotemporality, now }: LoadParams) => {
+      const start = cotemporality === "past" ? farPast : now;
+      const end = cotemporality === "future" ? farFuture : now;
+      return fetchJson<KarateKlubbenKyokushinkai.Event[]>(
+        `https://saxkarate.dk/cms/include/api/calendarj.aspx?start=${start.toISOString()}&end=${end.toISOString()}`,
+      ).then((events) =>
+        events.map((e) => ({
+          ...e,
+          location: [e.location, e.address].filter(Boolean).join(", "),
+          linkEvent: e.linkEvent
+            ? new URL(e.linkEvent, "https://saxkarate.dk/cms/").toString()
+            : undefined,
+          start: new Date(e.start),
+          end: new Date(e.end),
+        })),
+      );
+    },
+  },
+  {
+    sourceId: "hvidovre-karateskole",
+    name: "Hvidovre Karateskole",
+    federation: "iogkf",
+    calendarUrl:
+      "https://www.holdsport.net/klub/hvidovre-karateskole/sider/kalender",
+    loadEvents: (loadParams: LoadParams) =>
+      fetchHoldsportEvents(
+        { clubId: 20708, contentId: 468935 },
+        loadParams,
+      ).then((events) => events.filter((e) => e.event_type !== 2)),
+  },
+  {
+    sourceId: "keikokan-karate-kobudo-ryu",
+    name: "Keikokan Karate Kobudo Ryu",
+    calendarUrl:
+      "https://www.keikokan.dk/klub/keikokan-karate-kobudo-ryu/sider/h1-style-text-align-center-kalender-h1",
+    loadEvents: (loadParams: LoadParams) =>
+      fetchHoldsportEvents(
+        { clubId: 11214, contentId: 706501 },
+        loadParams,
+      ).then((events) => events.filter((e) => e.event_type !== 2)),
+  },
+  {
     sourceId: "gilleleje-karate",
     name: "Gilleleje Karate Klub",
     federation: "jks",
@@ -1711,6 +1757,7 @@ export const getSortedEvents = async ({
           !title.includes("afslutning") &&
           !title.includes("rengøringsdojo") &&
           !title.includes("juleklip") &&
+          !title.includes("julemiddag") &&
           !title.includes("fællesmøde") &&
           !title.includes("kagami biraki") &&
           !title.includes("opstart") &&
