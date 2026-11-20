@@ -1,9 +1,23 @@
+import Link from "next/link";
 import { eventsSources } from "../sources";
 
 export default function KilderPage() {
   return (
     <div>
       <h1 className="text-3xl font-bold mb-4">Karatekilder</h1>
+      <p>
+        <Link href="/" className="text-red-500">
+          Hajime
+        </Link>{" "}
+        ajourfører hold og træf fra {eventsSources.length} kilder.
+      </p>
+      <p>
+        Automatisk indhenter vi træf fra{" "}
+        {eventsSources.filter((e) => "loadEvents" in e).length} af dem, samt
+        hold fra {eventsSources.filter((e) => "loadClasses" in e).length} af
+        dem.
+      </p>
+      <br />
       <table>
         <thead>
           <tr>
