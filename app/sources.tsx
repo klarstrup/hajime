@@ -1654,7 +1654,10 @@ export const fetchEvents = async ({
   "use cache";
   // a TZDate will stringify with its local time zone representation, which parsers can
   // fail to parse, so we convert it to a standard Date object which always toISOString()'s in Z(UTC)
-  const now = new Date(startOfToday({ in: tz("Europe/Copenhagen") }));
+  const now =
+    cotemporality === "past"
+      ? new Date(startOfTomorrow({ in: tz("Europe/Copenhagen") }))
+      : new Date(startOfYesterday({ in: tz("Europe/Copenhagen") }));
 
   // For debugging
   const anySourceHasOnly = eventsSources.some(
@@ -1902,7 +1905,11 @@ export const getSortedEvents = async ({
         }
         return (
           e.start &&
-          (cotemporality === "past" ? e.start <= now : e.start >= now)
+          (cotemporality === "past"
+            ? e.start <= now
+            : e.end
+              ? e.end >= now
+              : e.start >= now)
         );
       },
     )
