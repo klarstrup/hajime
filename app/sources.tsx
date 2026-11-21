@@ -7,6 +7,8 @@ import {
   isDate,
   startOfDay,
   startOfToday,
+  startOfTomorrow,
+  startOfYesterday,
 } from "date-fns";
 import { isEqual } from "date-fns/fp/isEqual";
 import type { Weekday } from "rrule";
@@ -1762,7 +1764,10 @@ export const getSortedEvents = async ({
   cotemporality: "past" | "future";
 }) => {
   "use cache";
-  const now = new Date(startOfToday({ in: tz("Europe/Copenhagen") }));
+  const now =
+    cotemporality === "past"
+      ? new Date(startOfTomorrow({ in: tz("Europe/Copenhagen") }))
+      : new Date(startOfYesterday({ in: tz("Europe/Copenhagen") }));
 
   const allEvents = await fetchEvents({ cotemporality });
 
