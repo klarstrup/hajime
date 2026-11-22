@@ -12,7 +12,7 @@ import {
 } from "date-fns";
 import { Weekday } from "rrule";
 import { convertIcsCalendar } from "ts-ics";
-import { eventsSources, fetchEvents } from "./sources";
+import { eventsSources } from "./sources";
 import { HoldsportActivity, KlubModul, LoadParams } from "./sourceTypes";
 import {
   fuseCompare,
@@ -301,6 +301,76 @@ function eventsAreCoinciding(
     },
   );
 }
+
+export const fetchEvents = async ({
+  cotemporality,
+}: {
+  cotemporality: "past" | "future";
+}) => {
+  "use cache";
+  // a TZDate will stringify with its local time zone representation, which parsers can
+  // fail to parse, so we convert it to a standard Date object which always toISOString()'s in Z(UTC)
+  const now =
+    cotemporality === "past"
+      ? new Date(startOfTomorrow({ in: tz("Europe/Copenhagen") }))
+      : new Date(startOfYesterday({ in: tz("Europe/Copenhagen") }));
+
+  // For debugging
+  const anySourceHasOnly = eventsSources.some(
+    (source) => "only" in source && source.only,
+  );
+
+  return Promise.all(
+    eventsSources
+      .filter((source) =>
+        anySourceHasOnly ? "only" in source && source.only : true,
+      )
+      .filter((source) =>
+        !anySourceHasOnly ? !("skip" in source) || !source.skip : true,
+      )
+      .map((source) => {
+        if (!("loadEvents" in source)) return [];
+        if (process.env.VERCEL) {
+          console.time(
+            `Loading events for source: ${source.name} ${source.calendarUrl} ${cotemporality}`,
+          );
+        }
+        const events = source
+          .loadEvents({ cotemporality, now })
+          .then((events) =>
+            events.map((e) => ({
+              federation:
+                "federation" in source
+                  ? source.federation
+                  : "federation" in e
+                    ? e.federation
+                    : undefined,
+              ...e,
+              source: source.name,
+              sourceId: source.sourceId,
+              sourceCalendarUrl: source.calendarUrl,
+            })),
+          );
+
+        return events
+          .catch((err) => {
+            console.error(
+              `Error loading events for source: ${source.name}`,
+              err,
+            );
+
+            return [];
+          })
+          .finally(() => {
+            if (process.env.VERCEL) {
+              console.timeEnd(
+                `Loading events for source: ${source.name} ${source.calendarUrl}`,
+              );
+            }
+          });
+      }),
+  ).then((events) => events.flat());
+};
 
 export const getSortedEvents = async ({
   cotemporality,
