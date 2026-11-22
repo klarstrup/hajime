@@ -1,5 +1,5 @@
 import { EventList } from "./EventList";
-import { getSortedEvents } from "./sources";
+import { getSortedEvents } from "./sourceUtils";
 
 export default async function Fremtid() {
   const events = await getSortedEvents({ cotemporality: "future" });

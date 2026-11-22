@@ -1,8 +1,9 @@
 import { getWeek } from "date-fns";
 import Link from "next/link";
 import type { ComponentProps } from "react";
-import { eventsSources, getClasses } from "../sources";
+import { eventsSources } from "../sources";
 import { SourcesList } from "../SourcesList";
+import { getClasses } from "../sourceUtils";
 import { dkuRanks } from "../utils";
 
 const getDkuRanksFromRankRange = (rankRange: {

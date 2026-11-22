@@ -1,11 +1,23 @@
 import { Weekday } from "rrule";
 import {
+  fuseCompare,
   getAgeAndRankFromClassName,
   getNextStartAndEnd,
   getRRuleWeekdaysByFullDanishName,
   isValidTimeRange,
   safeParseTimeRange,
 } from "./utils";
+import {
+    areIntervalsOverlapping,
+  endOfDay,
+  isDate,
+  startOfDay,
+  startOfToday,
+  startOfTomorrow,
+  startOfYesterday,
+} from "date-fns";
+import { eventsSources, fetchEvents } from "./sources";
+import { tz } from "@date-fns/tz";
 
 const allDataSet = <D extends object>(d: D): d is Required<D> =>
   Object.values(d).every((v) => v);
@@ -121,3 +133,398 @@ export function* parseClassesSchedulesLines(
     else resetLastSet();
   }
 }
+
+export const getClasses = async () => {
+  "use cache";
+
+  const now = new Date(startOfToday({ in: tz("Europe/Copenhagen") }));
+
+  const anySourceHasOnly = eventsSources.some(
+    (source) => "only" in source && source.only,
+  );
+
+  return Promise.all(
+    eventsSources
+      .filter((source) =>
+        anySourceHasOnly ? "only" in source && source.only : true,
+      )
+      .filter((source) =>
+        !anySourceHasOnly ? !("skip" in source) || !source.skip : true,
+      )
+      .flatMap(
+        (source) =>
+          "loadClasses" in source &&
+          source.loadClasses &&
+          Array.fromAsync(source.loadClasses({ now }))
+            .then((classes) =>
+              classes.map((c) => ({
+                ...c,
+                source: source.name,
+                sourceId: source.sourceId,
+                classesUrl:
+                  "classesUrl" in source ? source.classesUrl : undefined,
+                federation:
+                  "federation" in source ? source.federation : undefined,
+              })),
+            )
+            .catch((err) => {
+              console.error(
+                `Error loading classes for source: ${source.sourceId}`,
+                err,
+              );
+
+              return [];
+            }),
+      ),
+  ).then((classes) => classes.flat().filter(Boolean));
+};
+
+function eventsAreCoinciding(
+  event1: Awaited<ReturnType<typeof getSortedEvents>>[number][number],
+  event2: Awaited<ReturnType<typeof getSortedEvents>>[number][number],
+) {
+  if (!event1.start) console.warn("Event 1 has no start date", event1);
+  if (!event2.start) console.warn("Event 2 has no start date", event2);
+  return areIntervalsOverlapping(
+    {
+      start: startOfDay(event1.start!, { in: tz("Europe/Copenhagen") }),
+      end:
+        event1.end ?? endOfDay(event1.start!, { in: tz("Europe/Copenhagen") }),
+    },
+    {
+      start: startOfDay(event2.start!, { in: tz("Europe/Copenhagen") }),
+      end:
+        event2.end ?? endOfDay(event2.start!, { in: tz("Europe/Copenhagen") }),
+    },
+  );
+}
+
+export const getSortedEvents = async ({
+  cotemporality,
+}: {
+  cotemporality: "past" | "future";
+}) => {
+  "use cache";
+  const now =
+    cotemporality === "past"
+      ? new Date(startOfTomorrow({ in: tz("Europe/Copenhagen") }))
+      : new Date(startOfYesterday({ in: tz("Europe/Copenhagen") }));
+
+  const allEvents = await fetchEvents({ cotemporality });
+
+  const sortedEvents = allEvents
+    .map((e) => {
+      let title =
+        "summary" in e
+          ? e.summary || null
+          : "title" in e
+            ? e.title
+            : "name" in e
+              ? e.name
+              : "eventname_raw" in e
+                ? e.eventname_raw
+                : // ical events can actually omit the summary field, so we fall back to null if no title is found
+                  (e satisfies never) && null;
+
+      if (title) {
+        title = title
+          .replace(/–/g, "-")
+          .replace(/DAO Graduering/i, "Dangraduering")
+          .replace(/dan graduering/i, "Dangraduering")
+          .replace(/dan-graduering/i, "Dangraduering")
+          .replace(/sortbæltegradueringen/i, "Dangraduering")
+          .replace("DANMARKSMESTERSKABERNE", "Danmarksmesterskaberne")
+          .replace(/ - Holbæk/g, "")
+          .replace(/^DM$/, "Danmarksmesterskaberne")
+          .replace(/^DM /, "Danmarksmesterskaberne ")
+          .replace(/ DM$/, " Danmarksmesterskaberne")
+          .replace(/^Dansk/i, "")
+          .replace(/^Børne/i, "")
+          .replace("SAVE THE DATE", "")
+          .trim()
+          .replace(/^-/, "")
+          .trim();
+      }
+
+      return {
+        ...e,
+        id: String(
+          e.sourceId +
+            "-" +
+            ("uid" in e
+              ? e.uid
+              : "id" in e
+                ? e.id
+                : "fullUrl" in e
+                  ? e.fullUrl
+                  : "url" in e
+                    ? e.url
+                    : (e satisfies never)),
+        ),
+        url:
+          "fullUrl" in e
+            ? e.fullUrl
+            : "url" in e
+              ? e.url
+              : "linkEvent" in e
+                ? e.linkEvent
+                : "entityId" in e && e.entityId
+                  ? `https://kumitetechnology.com/en/tournament/${e.entityId}/`
+                  : /*"origin_url" in e
+                  ? e.origin_url
+                  :*/ undefined,
+        title,
+        start:
+          "structuredContent" in e
+            ? new Date(e.structuredContent.startDate)
+            : "start" in e
+              ? isDate(e.start)
+                ? e.start
+                : isDate(e.start?.date)
+                  ? e.start.date
+                  : undefined
+              : "date" in e
+                ? new Date(e.date)
+                : "start_time" in e
+                  ? new Date(e.start_time * 1000)
+                  : (e satisfies never),
+        end:
+          "structuredContent" in e
+            ? new Date(e.structuredContent.endDate)
+            : "end" in e
+              ? isDate(e.end)
+                ? e.end
+                : e.end?.date
+                  ? new Date(e.end.date)
+                  : undefined
+              : "end_time" in e
+                ? new Date(e.end_time * 1000)
+                : undefined,
+        location:
+          ("address" in e && typeof e.address === "object"
+            ? e.address.fullAddress
+            : "location" in e && typeof e.location === "object" && e.location
+              ? [
+                  e.location.addressTitle,
+                  e.location.addressLine1,
+                  e.location.addressLine2,
+                  e.location.addressCountry,
+                ]
+                  .filter((s) => s.trim())
+                  .join(", ")
+              : "location" in e && typeof e.location === "string"
+                ? e.location
+                : "venue" in e
+                  ? typeof e.venue === "string"
+                    ? e.venue
+                    : e.venue.full_address
+                  : ""
+          )
+            .trim()
+            .replace(/\s+/g, " ")
+            .replace(/, ,/g, ",")
+            .replace(/ ,/g, ",")
+            .replace(/Denmark/gi, "Danmark")
+            .replace("Copenhagen", "København")
+            .replace("Roskilde Karateklub", "Roskilde Karate Klub")
+            .replace(/^Danmark$/, "")
+            .replace(/, Danmark/gi, "")
+            .replace(/, DK/gi, "")
+            .trim() || undefined,
+      };
+    })
+    .filter((e): e is typeof e & { title: string } => Boolean(e.title))
+    .filter(
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      (e, i, l): e is (typeof l)[number] & { start: Date } => {
+        if (!e.start) {
+          console.warn("Event has no start date:", e);
+          return false;
+        }
+        return (
+          e.start &&
+          (cotemporality === "past"
+            ? e.start <= now
+            : e.end
+              ? e.end >= now
+              : e.start >= now)
+        );
+      },
+    )
+    .filter(
+      // roughly filter out training and internal club events for now
+      (e) => {
+        const title = e.title.toLowerCase();
+        const location = (e.location || "").toLowerCase();
+        return (
+          !title.includes("træning") &&
+          !title.includes("tekken") &&
+          !title.includes("prøvetimer") &&
+          !title.includes("lukket") &&
+          !title.includes("bestyrelsesmøde") &&
+          !title.includes("bestyrelsemøde") &&
+          !title.includes("instruktørmøde") &&
+          !title.includes("assistentmøde") &&
+          !title.includes("åben dojo") &&
+          !title.includes("generalforsamling") &&
+          !title.includes("chefinstruktørmøde") &&
+          !title.includes("aspirantsamling") &&
+          !title.includes("julefrokost") &&
+          !title.includes("juletræsfest") &&
+          !title.includes("ferie") &&
+          !title.includes("frivillig fredag") &&
+          !title.includes("aflyst") &&
+          !title.includes("klublejr") &&
+          !title.includes("udskydes") &&
+          !title.includes("placeholder") &&
+          !title.includes("afslutning") &&
+          !title.includes("rengøringsdojo") &&
+          !title.includes("juleklip") &&
+          !title.includes("julemiddag") &&
+          !title.includes("fællesmøde") &&
+          !title.includes("kagami biraki") &&
+          !title.includes("opstart") &&
+          !title.includes("arbejdsdag") &&
+          !title.includes("bestyrelsen") &&
+          !title.includes("fastelavn") &&
+          !title.includes("halloween") &&
+          !title.includes("miniput") &&
+          !title.includes("filmaften") &&
+          !title.includes("klubmesterskab") &&
+          !title.includes("bjj") &&
+          !title.includes("kr. himmelfartsdag") &&
+          !title.includes("pizza og hygge") &&
+          !title.includes("erstatningslokaler") &&
+          !title.includes("store bededag") &&
+          !title.includes("aflysning") &&
+          !title.includes("gæsteinstruktør") &&
+          !title.includes("førstehjælpskursus") &&
+          !title.includes("kristi himmelfartsdag") &&
+          !title.includes("latvia grand prix") &&
+          !title.includes("arawaza cup") &&
+          !title.includes("czech open") &&
+          !title.includes("polish open") &&
+          !title.includes("slovakia grand prix") &&
+          !title.match(/^test$/i) &&
+          !title.match(/^test /i) &&
+          !title.includes("swedish karate open") &&
+          !(
+            (title.includes("graduering") || title.includes("gradering")) &&
+            !title.includes("dangraduering") &&
+            !title.includes("sortbæltegraduering") &&
+            !title.includes("dan graduering")
+          ) &&
+          !location.includes("spanien") &&
+          !location.includes("ungarn") &&
+          !location.includes("finland") &&
+          !location.includes("montesilvano") &&
+          !location.includes("letland") &&
+          !location.includes("tokyo") &&
+          !location.includes("georgia") &&
+          !location.includes("sverige") &&
+          !location.includes("sweden") &&
+          !location.includes("barcelona") &&
+          !location.includes("united kingdom") &&
+          !location.includes("slovakia") &&
+          !location.includes("helsingborg") &&
+          !location.includes("norway") &&
+          !location.includes("malmø") &&
+          !location.includes("tyskland") &&
+          !location.includes("zoom")
+        );
+      },
+    )
+    .sort((a, b) =>
+      cotemporality === "past"
+        ? (b.start?.valueOf() ?? 0) - (a.start?.valueOf() ?? 0)
+        : (a.start?.valueOf() ?? 0) - (b.start?.valueOf() ?? 0),
+    )
+    .sort((a, b) => {
+      // sort by event hours
+      const aLength = a.start
+        ? (a.end || a.start).valueOf() - a.start.valueOf()
+        : 0;
+      const bLength = b.start
+        ? (b.end || b.start).valueOf() - b.start.valueOf()
+        : 0;
+      return bLength - aLength;
+    })
+    .sort((a, b) => a.title.localeCompare(b.title));
+
+  const groupedEvents: [
+    (typeof sortedEvents)[number],
+    ...(typeof sortedEvents)[number][],
+  ][] = [];
+
+  for (const event of sortedEvents) {
+    // if a similar event is already in groupedEvents, add this to the same group
+    const existingGroup = groupedEvents.find((group) =>
+      group.some(
+        (e) =>
+          fuseCompare(e.title, event.title) < 0.3 &&
+          eventsAreCoinciding(e, event) &&
+          (e.location && event.location
+            ? fuseCompare(e.location, event.location) < 0.42
+            : true),
+      ),
+    );
+
+    if (existingGroup) {
+      existingGroup.push(event);
+    } else {
+      groupedEvents.push([event]);
+    }
+  }
+
+  const groupedEvents2 = groupedEvents
+    .map((events) =>
+      events
+        .sort((a, b) =>
+          cotemporality === "past"
+            ? (b.start?.valueOf() ?? 0) - (a.start?.valueOf() ?? 0)
+            : (a.start?.valueOf() ?? 0) - (b.start?.valueOf() ?? 0),
+        )
+        .sort((a, b) => {
+          // sort by event hours
+          const aLength =
+            a.end && a.start ? a.end.valueOf() - a.start.valueOf() : 0;
+          const bLength =
+            b.end && b.start ? b.end.valueOf() - b.start.valueOf() : 0;
+          return aLength - bLength;
+        })
+        .sort((a, b) => {
+          // sort by event days
+          const aDays =
+            a.end && a.start
+              ? Math.ceil(
+                  (endOfDay(a.end, { in: tz("Europe/Copenhagen") }).valueOf() -
+                    startOfDay(a.start, {
+                      in: tz("Europe/Copenhagen"),
+                    }).valueOf()) /
+                    (1000 * 60 * 60 * 24),
+                )
+              : 0;
+          const bDays =
+            b.end && b.start
+              ? Math.ceil(
+                  (endOfDay(b.end, { in: tz("Europe/Copenhagen") }).valueOf() -
+                    startOfDay(b.start, {
+                      in: tz("Europe/Copenhagen"),
+                    }).valueOf()) /
+                    (1000 * 60 * 60 * 24),
+                )
+              : 0;
+
+          return bDays - aDays;
+        }),
+    )
+    .sort(([a], [b]) =>
+      cotemporality === "past"
+        ? (b.start?.valueOf() ?? 0) - (a.start?.valueOf() ?? 0)
+        : (a.start?.valueOf() ?? 0) - (b.start?.valueOf() ?? 0),
+    );
+
+  // console.log(groupedEvents2.map((group) => group.map((e) => e.title)));
+
+  return groupedEvents2;
+};
