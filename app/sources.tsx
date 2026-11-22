@@ -670,6 +670,14 @@ export const eventsSources = (
         ),
     },
     {
+      sourceId: "tokon-hjorring-karate",
+      name: "TOKON Hjørring Karate",
+      type: "club",
+      federation: "dkarf",
+      classesUrl: "https://tokon.mento.club/traening/traeningstider", // http://tokon.dk/
+      // loadClasses: () => // should be possible its an html table
+    },
+    {
       sourceId: "bushi-karate-kalender",
       name: "Bushi Karate",
       type: "club",
