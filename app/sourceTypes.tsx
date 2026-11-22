@@ -1,5 +1,12 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
+import { TZDate } from "@date-fns/tz";
+
+export interface LoadParams {
+  cotemporality: "past" | "future";
+  now: Date | TZDate;
+}
+
 export enum CMS {
   Klubmodul = "Klubmodul",
   ForeningLet = "ForeningLet",

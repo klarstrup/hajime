@@ -1,4 +1,19 @@
+import { tz } from "@date-fns/tz";
+import * as cheerio from "cheerio";
+import {
+  areIntervalsOverlapping,
+  endOfDay,
+  isDate,
+  isEqual,
+  startOfDay,
+  startOfToday,
+  startOfTomorrow,
+  startOfYesterday,
+} from "date-fns";
 import { Weekday } from "rrule";
+import { convertIcsCalendar } from "ts-ics";
+import { eventsSources, fetchEvents } from "./sources";
+import { HoldsportActivity, KlubModul, LoadParams } from "./sourceTypes";
 import {
   fuseCompare,
   getAgeAndRankFromClassName,
@@ -7,17 +22,105 @@ import {
   isValidTimeRange,
   safeParseTimeRange,
 } from "./utils";
-import {
-    areIntervalsOverlapping,
-  endOfDay,
-  isDate,
-  startOfDay,
-  startOfToday,
-  startOfTomorrow,
-  startOfYesterday,
-} from "date-fns";
-import { eventsSources, fetchEvents } from "./sources";
-import { tz } from "@date-fns/tz";
+
+export const fetchText = async (url: string | URL) => (await fetch(url)).text();
+export const fetchJson = async <T,>(url: string | URL) =>
+  (await fetch(url)).json() as Promise<T>;
+export const fetchIcsCalendar = async (url: string | URL) =>
+  convertIcsCalendar(
+    undefined,
+    (await fetchText(url))
+      .replace(
+        /^(DTSTART:\d{8})$/gm,
+        (_, p1) => `DTSTART;VALUE=DATE:${p1.slice(8)}`,
+      )
+      .replace(
+        /^(DTEND:\d{8})$/gm,
+        (_, p1) => `DTEND;VALUE=DATE:${p1.slice(6)}`,
+      ),
+  );
+export const fetchIcsEvents = async (url: string | URL) =>
+  ((await fetchIcsCalendar(url))?.events || []).map((e) => ({
+    ...e,
+    end: e.end?.date
+      ? isEqual(e.end?.date, e.start?.date)
+        ? {
+            ...e.end,
+            date: endOfDay(e.start.date, { in: tz("Europe/Copenhagen") }),
+          }
+        : e.end
+      : {
+          ...e.start,
+          date: endOfDay(e.start.date, { in: tz("Europe/Copenhagen") }),
+        },
+  }));
+export const fetch$ = async (url: string) => cheerio.load(await fetchText(url));
+
+export const fetchHoldsportEvents = async (
+  {
+    clubId,
+    contentId,
+  }: {
+    clubId: number;
+    contentId: number;
+  },
+  { cotemporality, now }: LoadParams,
+) => {
+  const start = cotemporality === "past" ? farPast : now;
+  const end = cotemporality === "future" ? farFuture : now;
+  const eventsUrl = new URL(
+    "https://www.holdsport.net/klub/hvidovre-karateskole/activities",
+  );
+  eventsUrl.searchParams.set("club_id", String(clubId));
+  eventsUrl.searchParams.set("content_id", String(contentId));
+  eventsUrl.searchParams.set("activity_types", "null");
+  eventsUrl.searchParams.set("start", start.toISOString());
+  eventsUrl.searchParams.set("end", end.toISOString());
+  eventsUrl.searchParams.set("timeZone", "Europe/Copenhagen");
+
+  const events = await fetchJson<HoldsportActivity[]>(eventsUrl);
+  return events.map((e) => ({
+    ...e,
+    title: cheerio
+      .load(e.title)(".inner_event_wrapper > div")
+      .eq(0)
+      .text()
+      .replace(cheerio.load(e.title)(".event_time").text(), ""),
+    description: cheerio.load(e.tooltip).text(),
+    start: new Date(e.start),
+    end: e.end ? new Date(e.end) : null,
+    location: cheerio
+      .load(e.tooltip)(".activity_tooltip_subinfo")
+      .has(".fa-location-pin")
+      .text(),
+  }));
+};
+
+export const fetchKlubModul = (
+  cmsUrl: string,
+  { cotemporality, now }: LoadParams,
+) => {
+  const start = cotemporality === "past" ? farPast : now;
+  const end = cotemporality === "future" ? farFuture : now;
+  const calendarjUrl = new URL("/cms/include/api/calendarj.aspx", cmsUrl);
+  calendarjUrl.searchParams.set("start", start.toISOString());
+  calendarjUrl.searchParams.set("end", end.toISOString());
+
+  return fetchJson<KlubModul.Event[]>(calendarjUrl).then((events) =>
+    events.map((e) => ({
+      ...e,
+      location: [e.location, e.address].filter(Boolean).join(", "),
+      linkEvent: e.linkEvent
+        ? new URL(e.linkEvent, cmsUrl).toString()
+        : undefined,
+      start: new Date(e.start),
+      end: new Date(e.end),
+    })),
+  );
+};
+
+const farPast = new Date(2010, 0, 1);
+const farFuture = new Date(2030, 0, 1);
 
 const allDataSet = <D extends object>(d: D): d is Required<D> =>
   Object.values(d).every((v) => v);
