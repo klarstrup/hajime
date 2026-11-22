@@ -678,6 +678,14 @@ export const eventsSources = (
       // loadClasses: () => // should be possible its an html table
     },
     {
+      sourceId: "ishoj-karate-klub",
+      name: "Ishøj Karate Klub",
+      type: "club",
+      federation: "dkarf",
+      classesUrl: "https://www.ishojkarateklub.dk/side.asp?ID=29822",
+      calendarUrl: "https://www.ishojkarateklub.dk/calendar.asp", // klubnet
+    },
+    {
       sourceId: "bushi-karate-kalender",
       name: "Bushi Karate",
       type: "club",
