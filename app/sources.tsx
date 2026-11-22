@@ -686,6 +686,15 @@ export const eventsSources = (
       calendarUrl: "https://www.ishojkarateklub.dk/calendar.asp", // klubnet
     },
     {
+      sourceId: "struer-karate-klub",
+      name: "Struer Karate Klub",
+      type: "club",
+      federation: "dkarf",
+      classesUrl:
+        "https://www.struerkarate.dk/index.php/klub-info/traeningstider",
+      calendarUrl: "https://www.struerkarate.dk/index.php/kalender",
+    },
+    {
       sourceId: "bushi-karate-kalender",
       name: "Bushi Karate",
       type: "club",
