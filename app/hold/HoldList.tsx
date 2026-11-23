@@ -47,7 +47,10 @@ export default async function HoldList({
         : true,
     )
     .filter(({ federation }) =>
-      federationSlug ? federation === federationSlug : true,
+      federation && federationSlug
+        ? // @ts-expect-error Array#includes type is stupid
+          federation?.includes(federationSlug)
+        : true,
     );
 
   const classesByWeekAndWeekday = nextWeekOfClasses.reduce(
