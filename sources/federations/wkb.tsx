@@ -16,7 +16,7 @@ export const wkbSources = [
   {
     sourceId: "bs-karate",
     name: "BS Karate",
-    federation: "wkb",
+    federation: ["wkb"],
     type: "club",
     calendarUrl: "https://bskarate.dk/events/",
     loadEvents: ({ cotemporality }: LoadParams) =>
@@ -113,28 +113,28 @@ export const wkbSources = [
     sourceId: "world-kyokushin-budokai-denmark",
     name: "World Kyokushin Budokai Denmark",
     type: "federation",
-    federation: "wkb",
+    federation: ["wkb"],
     calendarUrl: "https://kyokushin.org/begivenheder/",
   },
   {
     sourceId: "odense-kyokushin-karate",
     name: "Odense Kyokushin Karate",
     type: "club",
-    federation: "wkb",
+    federation: ["wkb"],
     classesUrl: "https://odensekarate.dk/traeningstider/",
   },
   {
     sourceId: "roskilde-karate-og-selvforsvar",
     name: "Roskilde Karate og Selvforsvar",
     type: "club",
-    federation: "wkb",
+    federation: ["wkb"],
     classesUrl: "https://rkos2020.wixsite.com/website/hold",
   },
   {
     sourceId: "niva-budoklub",
     name: "Nivå Budoklub",
     type: "club",
-    federation: "wkb",
+    federation: ["wkb"],
     calendarUrl: "https://nbudo.klub-modul.dk/cms/Activity.aspx",
     loadEvents: (loadParams: LoadParams) =>
       fetchKlubModul("https://nbudo.klub-modul.dk/cms/", loadParams),

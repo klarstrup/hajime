@@ -186,16 +186,23 @@ export function EventList({
                         }
 
                         const federations = gEvents
-                          .filter((e): e is typeof e & { federation: string } =>
-                            Boolean("federation" in e && e.federation),
+                          .filter(
+                            (e): e is typeof e & { federation: string[] } =>
+                              Boolean(
+                                "federation" in e &&
+                                Array.isArray(e.federation) &&
+                                e.federation.length,
+                              ),
                           )
                           .map((e) => e.federation);
                         const federationsWithCount = Object.entries(
                           federations
                             // Find the most common federation among the events
-                            .reduce((acc: Record<string, number>, fed) => {
-                              if (!acc[fed]) acc[fed] = 0;
-                              acc[fed] += 1;
+                            .reduce((acc: Record<string, number>, feds) => {
+                              feds.forEach((fed) => {
+                                if (!acc[fed]) acc[fed] = 0;
+                                acc[fed] += 1;
+                              });
                               return acc;
                             }, {}),
                         ).sort((a, b) => b[1] - a[1]);
@@ -214,13 +221,15 @@ export function EventList({
                             // federation = undefined;
                           }
                         }
-                        if (federations.some((fed) => fed === "*")) {
+                        if (federations.some((feds) => feds.includes("*"))) {
                           federation = "*";
                         }
 
                         if (
                           federationSlug &&
-                          !federations.some((fed) => fed === federationSlug)
+                          !federations.some((feds) =>
+                            feds.includes(federationSlug),
+                          )
                         ) {
                           return null;
                         }

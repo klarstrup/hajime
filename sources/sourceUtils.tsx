@@ -12,8 +12,6 @@ import {
 } from "date-fns";
 import { Weekday } from "rrule";
 import { convertIcsCalendar } from "ts-ics";
-import { eventsSources } from "./sources";
-import { HoldsportActivity, KlubModul, LoadParams } from "./sourceTypes";
 import {
   fuseCompare,
   getAgeAndRankFromClassName,
@@ -22,6 +20,8 @@ import {
   isValidTimeRange,
   safeParseTimeRange,
 } from "../utils";
+import { eventsSources } from "./sources";
+import { HoldsportActivity, KlubModul, LoadParams } from "./sourceTypes";
 
 export const fetchText = async (url: string | URL) => (await fetch(url)).text();
 export const fetchJson = async <T,>(url: string | URL) =>

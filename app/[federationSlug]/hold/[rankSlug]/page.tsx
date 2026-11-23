@@ -4,10 +4,14 @@ import HoldList from "../../../hold/HoldList";
 
 export function generateStaticParams() {
   const federationSlugs = eventsSources
-    .filter((source): source is typeof source & { federation: string } =>
-      Boolean("federation" in source && source.federation),
+    .filter((source): source is typeof source & { federation: string[] } =>
+      Boolean(
+        "federation" in source &&
+        Array.isArray(source.federation) &&
+        source.federation.length,
+      ),
     )
-    .map((source) => source.federation)
+    .flatMap((source) => source.federation)
     .filter((s, i, l) => i === l.findIndex((t) => t === s));
 
   const rankSlugs = dkuRanks.map((rank) => rank.slug);

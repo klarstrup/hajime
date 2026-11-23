@@ -17,13 +17,13 @@ export const eventsSources = (
       sourceId: "jundokan-danmark-ogkk-shibu",
       name: "Jundokan Danmark OGKK Shibu",
       type: "federation",
-      federation: "ogkk",
+      federation: ["ogkk"],
     },
     {
       sourceId: "jundokan-kobenhavn",
       name: "Jundokan København",
       type: "club",
-      federation: "ogkk",
+      federation: ["ogkk", "dkarf"],
       calendarUrl: "https://karatekbh.dk/events/",
       /* // Only classes, no events on their calendar
     loadEvents: () =>
@@ -36,8 +36,8 @@ export const eventsSources = (
       sourceId: "praesto-karate-klub",
       name: "Præstø Karate Klub",
       type: "club",
-      federation: "ogkk",
-      calendarUrl: "https://praestoekarate.dk/begivenheder/",
+      federation: ["ogkk"],
+      calendarUrl: "https://praestoekarate.dk/beg ivenheder/",
       classesUrl: "https://praestoekarate.dk/traeningstider/",
       /* // Only classes, no events on their calendar
     loadEvents: () =>
@@ -50,14 +50,14 @@ export const eventsSources = (
       sourceId: "skovbo-karate-klub",
       name: "Skovbo Karate Klub",
       type: "club",
-      federation: "ogkk",
+      federation: ["ogkk"],
       classesUrl: "https://skovbokarate.dk/#hold",
     },
     {
       sourceId: "stevns-karate-klub",
       name: "Stevns Karateklub",
       type: "club",
-      federation: "ogkk",
+      federation: ["ogkk"],
       calendarUrl: "https://stevnskarateklub.dk/?page_id=92",
       classesUrl: "https://stevnskarateklub.dk/?page_id=54",
     },
@@ -65,7 +65,7 @@ export const eventsSources = (
       sourceId: "faxe-karate-klub",
       name: "Faxe Karate Klub",
       type: "club",
-      federation: "ogkk",
+      federation: ["ogkk"],
       calendarUrl: "http://faxekarate.dk/?page_id=138",
       classesUrl: "http://faxekarate.dk/?page_id=167",
     },
@@ -73,15 +73,16 @@ export const eventsSources = (
       sourceId: "broderup-karate-klub",
       name: "Brøderup Karate Klub",
       type: "club",
-      federation: "ogkk",
-      calendarUrl: "https://broederupkarate.dk/index.php/arrangementer/",
-      classesUrl: "https://broederupkarate.dk/index.php/programs/",
+      federation: ["ogkk"],
+      // their website has been owned
+      // calendarUrl: "https://broederupkarate.dk/index.php/arrangementer/",
+      // classesUrl: "https://broederupkarate.dk/index.php/programs/",
     },
     {
       sourceId: "vester-hjermitslev-karate-klub",
       name: "Vester Hjermitslev Karate Klub",
       type: "club",
-      federation: "ogkk",
+      federation: ["ogkk"],
       classesUrl: "https://vhjermitslev.dk/idraetsforening/kreaklubben/",
     },
     {
@@ -96,7 +97,7 @@ export const eventsSources = (
       sourceId: "hadsund-karate-skole",
       name: "Hadsund Karate Skole",
       type: "club",
-      federation: "dao",
+      federation: ["dao"],
       calendarUrl: "https://ashiharahadsund.dk/kalender/",
       loadEvents: () =>
         fetchIcsEvents(
@@ -118,7 +119,7 @@ export const eventsSources = (
       sourceId: "ashihara-karate-sonderborg",
       name: "Ashihara Karate Sønderborg",
       type: "club",
-      federation: "dao",
+      federation: ["dao"],
       calendarUrl: "https://www.ashihara-sonderborg.dk/",
       loadEvents: () =>
         fetchIcsEvents(
@@ -140,14 +141,14 @@ export const eventsSources = (
       sourceId: "jeff-speakman-kenpo-5-0-himmerland",
       name: "Jeff Speakman’s Kenpo 5.0 - Himmerland",
       type: "club",
-      federation: "jsmaf",
+      federation: ["jsmaf"],
       classesUrl: "https://www.jeffspeakman.dk/2021/05/09/traeningstider/",
     },
     {
       sourceId: "amager-karateskole",
       name: "Amager Karateskole",
       type: "club",
-      federation: "kwo-smo",
+      federation: ["kwo-smo"],
       calendarUrl:
         "https://www.amagerkarateskole.dk/klub/jinzen-do/sider/h1-style-text-align-center-kalender-h1",
       loadEvents: (loadParams: LoadParams) =>
@@ -162,7 +163,7 @@ export const eventsSources = (
       sourceId: "tst-karate-skole",
       name: "TST Karate Skole",
       type: "club",
-      federation: "dwk",
+      federation: ["dwk"],
       calendarUrl:
         "https://www.tstkarateskole.dk/klub/tst-karate-skole/sider/h1-style-text-align-center-kalender-h1",
       loadEvents: (loadParams: LoadParams) =>
@@ -187,7 +188,7 @@ export const eventsSources = (
       sourceId: "gilleleje-karate",
       name: "Gilleleje Karate Klub",
       type: "club",
-      federation: "jks",
+      federation: ["jks"],
       calendarUrl:
         "https://www.gilleleje-karate.dk/klub/gilleleje-karate-klub/sider/h1-style-text-align-center-kalender-h1",
       loadEvents: (loadParams: LoadParams) =>
@@ -200,7 +201,7 @@ export const eventsSources = (
       sourceId: "ashihara-karate-kobenhavn",
       name: "Ashihara Karate København",
       type: "club",
-      federation: "dao",
+      federation: ["dao"],
       calendarUrl:
         "https://www.ak-kbh.dk/klub/ashihara-karate-kobenhavn/sider/aktiviteter",
       loadEvents: (loadParams: LoadParams) =>
@@ -253,16 +254,16 @@ export const eventsSources = (
             .split(/[-T:]/)
             .map(Number);
 
-          const extra: { federation?: string } = {};
+          const extra: { federation?: string[] } = {};
           const info$ = node.info && cheerio.load(node.info);
           if (info$) {
             const infoText = info$.text();
 
             if (infoText.includes("alle er velkomne")) {
-              extra.federation = "*";
+              extra.federation = ["*"];
             }
             if (infoText.includes("a tournament for everyone")) {
-              extra.federation = "*";
+              extra.federation = ["*"];
             }
           }
 
@@ -283,7 +284,7 @@ export const eventsSources = (
       sourceId: "fight-collective",
       name: "Fight Collective",
       type: "organization",
-      federation: "*",
+      federation: ["*"],
       calendarUrl: "https://fightcollective.dk/events",
       loadEvents: async ({ cotemporality }: LoadParams) =>
         fetchJson<FightCollectiveEvent[]>(

@@ -14,7 +14,7 @@ export const iogkfSources = [
     sourceId: "risskov-karate-skole",
     name: "Risskov Karate Skole",
     type: "club",
-    federation: "iogkf",
+    federation: ["iogkf"],
     classesUrl: "https://risskovkarateskole.dk/",
     async *loadClasses({ now }: { now: Date }) {
       const $res = await fetch$("https://risskovkarateskole.dk/");
@@ -53,7 +53,7 @@ export const iogkfSources = [
   {
     sourceId: "sax-karatecenter",
     name: "Sax-Karatecenter",
-    federation: "iogkf",
+    federation: ["iogkf"],
     calendarUrl: "https://saxkarate.dk/cms/Activity.aspx",
     loadEvents: (loadParams: LoadParams) =>
       fetchKlubModul("https://saxkarate.dk/cms/", loadParams),
@@ -61,7 +61,7 @@ export const iogkfSources = [
   {
     sourceId: "hvidovre-karateskole",
     name: "Hvidovre Karateskole",
-    federation: "iogkf",
+    federation: ["iogkf"],
     calendarUrl:
       "https://www.holdsport.net/klub/hvidovre-karateskole/sider/kalender",
     loadEvents: (loadParams: LoadParams) =>
@@ -74,7 +74,7 @@ export const iogkfSources = [
     sourceId: "international-okinawan-goju-ryu-karate-do-federation-danmark",
     name: "International Okinawan Goju Ryu Karate-do Federation – Danmark",
     type: "federation",
-    federation: "iogkf",
+    federation: ["iogkf"],
     calendarUrl: "https://www.iogkf.dk/iogkf-events/",
     loadEvents: async () => {
       const $ = await fetch$("https://www.iogkf.dk/iogkf-events/");
