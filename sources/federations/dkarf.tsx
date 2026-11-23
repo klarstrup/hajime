@@ -494,4 +494,12 @@ export const dkarfSources = [
           })),
       ),
   },
+  {
+    sourceId: "egedal-karate",
+    name: "Egedal Karate",
+    type: "club",
+    federation: "dkarf",
+    calendarUrl: "https://www.egedalkarate.dk/calendar.asp",
+    // TODO: loadEvents: build KlubNet support  https://www.intra-kom.dk/klubnet/klubnetinfo.asp
+  },
 ] as const;

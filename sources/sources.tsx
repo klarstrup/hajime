@@ -138,14 +138,6 @@ export const eventsSources = (
       classesUrl: "https://www.jeffspeakman.dk/2021/05/09/traeningstider/",
     },
     {
-      sourceId: "egedal-karate",
-      name: "Egedal Karate",
-      type: "club",
-      federation: "gkif",
-      calendarUrl: "https://www.egedalkarate.dk/calendar.asp",
-      // TODO: loadEvents: build KlubNet support  https://www.intra-kom.dk/klubnet/klubnetinfo.asp
-    },
-    {
       sourceId: "amager-karateskole",
       name: "Amager Karateskole",
       type: "club",
