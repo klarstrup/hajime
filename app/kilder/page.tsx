@@ -35,7 +35,13 @@ export default function KilderPage() {
                 {"calendarUrl" in source &&
                 source.calendarUrl &&
                 typeof source.calendarUrl === "string" ? (
-                  <a href={source.calendarUrl}>🗓️</a>
+                  <a
+                    href={source.calendarUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    🗓️
+                  </a>
                 ) : (
                   "-"
                 )}{" "}
@@ -45,7 +51,13 @@ export default function KilderPage() {
                 {"classesUrl" in source &&
                 source.classesUrl &&
                 typeof source.classesUrl === "string" ? (
-                  <a href={source.classesUrl}>⏱️</a>
+                  <a
+                    href={source.classesUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    ⏱️
+                  </a>
                 ) : (
                   "-"
                 )}{" "}
