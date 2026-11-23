@@ -14,6 +14,12 @@ import { fetchHoldsportEvents, fetchIcsEvents, fetchJson } from "./sourceUtils";
 export const eventsSources = (
   [
     {
+      sourceId: "jundokan-danmark-ogkk-shibu",
+      name: "Jundokan Danmark OGKK Shibu",
+      type: "federation",
+      federation: "ogkk",
+    },
+    {
       sourceId: "jundokan-kobenhavn",
       name: "Jundokan København",
       type: "club",
