@@ -26,6 +26,7 @@ import {
   safeParseTimeRange,
   timeRangeRE2,
 } from "../utils";
+import { dkuSources } from "./federations/dku";
 
 export const eventsSources = (
   [
@@ -826,5 +827,6 @@ export const eventsSources = (
             })),
         ),
     },
+    ...dkuSources,
   ] as const
 ).toSorted((a, b) => a.name.localeCompare(b.name));
