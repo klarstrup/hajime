@@ -2,14 +2,14 @@ import { tz, TZDate } from "@date-fns/tz";
 import * as cheerio from "cheerio";
 import { endOfDay } from "date-fns";
 import type { Weekday } from "rrule";
-import { nlp } from "./nlp";
+import { nlp } from "../app/nlp";
 import type {
   AllEventsResponse,
   FightCollectiveEvent,
   KumiteTechnologyEventsResponse,
   LoadParams,
   SquareSpace,
-} from "./sourceTypes";
+} from "../sources/sourceTypes";
 import {
   fetch$,
   fetchHoldsportEvents,
@@ -17,7 +17,7 @@ import {
   fetchJson,
   fetchKlubModul,
   parseClassesSchedulesLines,
-} from "./sourceUtils";
+} from "../sources/sourceUtils";
 import {
   danishFullWeekdays,
   danishWeekDayRE,
@@ -27,7 +27,7 @@ import {
   render,
   safeParseTimeRange,
   timeRangeRE2,
-} from "./utils";
+} from "../utils";
 
 export const eventsSources = (
   [

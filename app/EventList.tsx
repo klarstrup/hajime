@@ -1,8 +1,9 @@
+import { SourcesList } from "@/sources/SourcesList";
+import { getSortedEvents } from "@/sources/sourceUtils";
 import Link from "next/link";
 import { Fragment } from "react";
-import { eventsSources, type getSortedEvents } from "./sources";
-import { SourcesList } from "./SourcesList";
-import { fuseCompare } from "./utils";
+import { eventsSources } from "../sources/sources";
+import { fuseCompare } from "../utils";
 
 const timeZone = "Europe/Copenhagen";
 

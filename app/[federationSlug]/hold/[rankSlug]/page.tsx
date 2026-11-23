@@ -1,5 +1,5 @@
-import { eventsSources } from "@/app/sources";
-import { dkuRanks } from "@/app/utils";
+import { eventsSources } from "@/sources/sources";
+import { dkuRanks } from "@/utils";
 import HoldList from "../../../hold/HoldList";
 
 export function generateStaticParams() {

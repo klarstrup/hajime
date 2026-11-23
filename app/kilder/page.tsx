@@ -1,5 +1,5 @@
+import { eventsSources } from "@/sources/sources";
 import Link from "next/link";
-import { eventsSources } from "../sources";
 
 export default function KilderPage() {
   return (

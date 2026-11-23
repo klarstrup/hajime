@@ -1,6 +1,6 @@
 import { EventList } from "../EventList";
-import { eventsSources } from "../sources";
-import { getSortedEvents } from "../sourceUtils";
+import { eventsSources } from "../../sources/sources";
+import { getSortedEvents } from "../../sources/sourceUtils";
 
 export function generateStaticParams() {
   return eventsSources

@@ -21,7 +21,7 @@ import {
   getRRuleWeekdaysByFullDanishName,
   isValidTimeRange,
   safeParseTimeRange,
-} from "./utils";
+} from "../utils";
 
 export const fetchText = async (url: string | URL) => (await fetch(url)).text();
 export const fetchJson = async <T,>(url: string | URL) =>

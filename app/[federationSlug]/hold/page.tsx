@@ -1,4 +1,4 @@
-import { eventsSources } from "@/app/sources";
+import { eventsSources } from "@/sources/sources";
 import HoldList from "../../hold/HoldList";
 
 export function generateStaticParams() {
