@@ -59,7 +59,7 @@ export default function PostNummerRangePicker() {
           value={postnummer}
           onChange={handlePostnummerChange}
         />{" "}
-        {postnummer}
+        <span className="tabular-nums">{postnummer}</span>
       </div>
       <div>
         Spaend:{" "}
@@ -71,7 +71,7 @@ export default function PostNummerRangePicker() {
           value={spaend}
           onChange={handleSpaendChange}
         />{" "}
-        {spaend}
+        <span className="tabular-nums">{spaend}</span>
       </div>
       <div>
         Range: {rangeStart}-{rangeEnd}
