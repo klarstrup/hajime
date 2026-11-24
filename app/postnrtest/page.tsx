@@ -40,7 +40,7 @@ export default function PostNummerRangePicker() {
   }, [postnummer, rangeEnd, rangeStart, spaend]);
 
   return (
-    <div>
+    <div style={{ display: "flex", flexDirection: "column", gap: "1rem", justifyContent: "center", flex: 1, alignItems: "center" }}>
       <div>
         Postnummer:{" "}
         <input
@@ -68,7 +68,7 @@ export default function PostNummerRangePicker() {
       <div>
         Range: {rangeStart}-{rangeEnd}
       </div>
-      <PostnummerMapSVG ref={svgRef} />
+      <PostnummerMapSVG ref={svgRef} style={{ width: "100%", height: "auto" }} />
     </div>
   );
 }
