@@ -554,6 +554,7 @@ export const getSortedEvents = async ({
           !title.includes("rengøringsdojo") &&
           !title.includes("juleklip") &&
           !title.includes("julemiddag") &&
+          !title.includes("nissecup") &&
           !title.includes("fællesmøde") &&
           !title.includes("kagami biraki") &&
           !title.includes("opstart") &&
