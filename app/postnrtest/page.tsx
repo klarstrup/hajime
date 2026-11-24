@@ -5,7 +5,7 @@ import PostnummerMapSVG from "../../postnumre.svg";
 export default function PostNummerRangePicker() {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [postnummer, setPostnummer] = useState(4490);
-  const [spaend, setSpaend] = useState(500);
+  const [spaend, setSpaend] = useState(1000);
 
   const handlePostnummerChange = (event: ChangeEvent<HTMLInputElement>) => {
     setPostnummer(Number(event.target.value));
@@ -23,24 +23,32 @@ export default function PostNummerRangePicker() {
       const svgElement = svgRef.current;
       // color the SVG elements based on the range
       const paths = svgElement.querySelectorAll("path");
-      paths.forEach((path) => {
-        const postalCodeStrings = path
+      for (const path of paths) {
+        const postalCodes = path
           .getAttribute("data-postal-code")
-          ?.split("-");
-        for (const postalCodeString of postalCodeStrings ?? []) {
-          const value = Number(postalCodeString);
-          if (value >= rangeStart && value <= rangeEnd) {
-            path.setAttribute("fill", "red");
-            return;
-          }
-          path.setAttribute("fill", "gray");
+          ?.split("-")
+          .map((s) => Number(s.trim()));
+        for (const postalCode of postalCodes ?? []) {
+          path.setAttribute(
+            "fill",
+            postalCode >= rangeStart && postalCode <= rangeEnd ? "red" : "gray",
+          );
         }
-      });
+      }
     }
   }, [postnummer, rangeEnd, rangeStart, spaend]);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "1rem", justifyContent: "center", flex: 1, alignItems: "center" }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "1rem",
+        justifyContent: "center",
+        flex: 1,
+        alignItems: "center",
+      }}
+    >
       <div>
         Postnummer:{" "}
         <input
@@ -68,7 +76,10 @@ export default function PostNummerRangePicker() {
       <div>
         Range: {rangeStart}-{rangeEnd}
       </div>
-      <PostnummerMapSVG ref={svgRef} style={{ width: "100%", height: "auto" }} />
+      <PostnummerMapSVG
+        ref={svgRef}
+        style={{ width: "100%", height: "auto" }}
+      />
     </div>
   );
 }
