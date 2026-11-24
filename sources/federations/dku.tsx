@@ -53,6 +53,10 @@ export const dkuSources = [
     type: "club",
     federation: ["dku"],
     classesUrl: "https://kakushin.dk/",
+    loadClasses: async function* ({ now }: { now: Date }) {
+      for (const el of (await fetch$("https://kakushin.dk/"))(".card-body"))
+        yield* parseClassesSchedulesLines(render(el).split("\n"), now);
+    },
   },
   {
     sourceId: "ballerup-kyokushin-karate",
