@@ -54,7 +54,7 @@ export default function PostNummerRangePicker() {
         <input
           type="range"
           name="postnummer"
-          min={0}
+          min={1000}
           max={9999}
           value={postnummer}
           onChange={handlePostnummerChange}
