@@ -227,8 +227,8 @@ export const dkarfSources = [
       fetchMentoclub("https://slagelsekarate.dk", loadParams),
   },
   {
-    sourceId: "bosatsu",
-    name: "Bosatsu",
+    sourceId: "bosatsu-itosu-kai-karatedo",
+    name: "Bosatsu Itosu-kai Karatedo",
     type: "club",
     federation: ["dkarf"],
     calendarUrl: "https://www.bosatsu.dk/calendar",
