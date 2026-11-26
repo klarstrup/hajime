@@ -215,7 +215,8 @@ export const dkarfSources = [
     type: "club",
     federation: ["dkarf"],
     calendarUrl: "https://slagelsekarate.dk/calendar",
-    // TODO: implement loadEvents for mentoclub getactivities pagination
+    loadEvents: (loadParams: LoadParams) =>
+      fetchMentoclub("https://slagelsekarate.dk", loadParams),
   },
   {
     sourceId: "bosatsu",
