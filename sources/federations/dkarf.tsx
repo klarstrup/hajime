@@ -173,7 +173,7 @@ export const dkarfSources = [
     sourceId: "karate-do-gentofte",
     name: "Karate-Do Gentofte",
     type: "club",
-    federation: ["dkarf"],
+    federation: ["dkarf", "ijka"],
     calendarUrl: "https://karate-do-gentofte.dk/cms/Activity.aspx",
     loadEvents: (loadParams: LoadParams) =>
       fetchKlubModul("https://karate-do-gentofte.dk/cms/", loadParams),
@@ -193,7 +193,7 @@ export const dkarfSources = [
     sourceId: "osterbro-shotokan-karate",
     name: "Østerbro Shotokan Karate",
     type: "club",
-    federation: ["dkarf"],
+    federation: ["dkarf", "skif"],
     calendarUrl: "https://www.2100-shotokan.dk/calendar",
     classesUrl: "https://www.2100-shotokan.dk/information/traeningstider",
     loadEvents: (loadParams: LoadParams) =>
