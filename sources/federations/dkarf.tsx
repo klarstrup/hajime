@@ -228,6 +228,15 @@ export const dkarfSources = [
       fetchMentoclub("https://www.bosatsu.dk", loadParams),
   },
   {
+    sourceId: "saiko",
+    name: "Saiko",
+    type: "club",
+    federation: ["dkarf", "skif"],
+    calendarUrl: "https://saikoodense.dk/kalender/",
+    // calendarUrl: https://saikoodense.dk/staevnekalender/
+    classesUrl: "https://www.saiko.dk/traeningstider",
+  },
+  {
     sourceId: "amager-karate-klub",
     name: "Amager Karate Klub",
     type: "club",
