@@ -482,15 +482,6 @@ export const eventsSources = (
       websiteUrl: "https://www.ashiharakarategrenaa.dk/",
     },
     {
-      sourceId: "hadsund-karate-skole",
-      name: "Hadsund Karate Skole",
-      zip: "9560",
-      type: "club",
-      federation: ["dao", "dif", "dai"],
-      websiteUrl: "https://ashiharahadsund.dk/",
-      classesUrl: "https://ashiharahadsund.dk/voksenholdet/",
-    },
-    {
       sourceId: "randers-karate-skole",
       name: "Randers Karate Skole",
       zip: "8900",

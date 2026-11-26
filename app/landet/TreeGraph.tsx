@@ -13,7 +13,9 @@ const TreeGraph: typeof ForceGraph3D = (props) => {
           : node.federation
       }
       nodeLabel={(node) => node.name}
-      nodeVal={(node) => (node.type === "federation" ? 10 : 1)}
+      nodeVal={(node) =>
+        node.type === "federation" ? (node.memberCount ?? 10) : 1
+      }
       onNodeClick={(node) => {
         if (node.url) window.open(node.url, "_blank");
       }}

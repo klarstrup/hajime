@@ -2,15 +2,18 @@ import { eventsSources } from "@/sources/sources";
 import { omit } from "next/dist/shared/lib/router/utils/omit";
 import TreeGraphWrapper from "./TreeGraphWrapper";
 
+const ignoredFederations = ["dif", "dai", "dgi", "dkc"];
+
 const clubs = eventsSources
   .filter((source) => source.type === "club")
   .filter((source) => "federation" in source)
   .map((source) => ({
     ...source,
-    federation:
+    federation: (
       source.federation?.flatMap((f) =>
         f === "dkarf" ? ["dkarf", "dif"] : f,
-      ) ?? [],
+      ) ?? []
+    ).filter((f) => !ignoredFederations.includes(f)),
   }));
 const federations = clubs
   .flatMap((source) => source.federation ?? [])
@@ -38,6 +41,9 @@ function treeFromSourcesFederations() {
         name: federation,
         federation,
         type: "federation",
+        memberCount: clubs.filter((club) =>
+          club.federation?.includes(federation),
+        ).length,
       })),
     ],
     links: clubs.flatMap((club) =>
