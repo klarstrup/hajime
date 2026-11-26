@@ -195,6 +195,7 @@ export const eventsSources = (
       sourceId: "jks-danmark",
       name: "Japan Karate Shoto Federation Danmark",
       type: "federation",
+      federation: ["jks"],
       calendarUrl: "https://jkskarate.dk/index.php/kalender",
     },
     {
