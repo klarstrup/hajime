@@ -286,6 +286,16 @@ export const dkarfSources = [
     classesUrl: "https://halsnaeskaratedo.mento.club/traeningstider-2023",
   },
   {
+    sourceId: "holbaek-karate-do",
+    name: "Holbæk Karate-Do",
+    type: "club",
+    federation: ["skif", "dkarf", "dif"],
+    calendarUrl: "https://www.holbaek-karate.dk/calendar",
+    loadEvents: (loadParams: LoadParams) =>
+      fetchMentoclub("https://www.holbaek-karate.dk", loadParams),
+    classesUrl: "https://www.holbaek-karate.dk/traening-54/traeningstider-hkd",
+  },
+  {
     sourceId: "glostrup-karate-klub-yujo-kai",
     name: "Glostrup Karate Klub, Yujo-Kai",
     type: "club",
