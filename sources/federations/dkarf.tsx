@@ -219,11 +219,9 @@ export const dkarfSources = [
     sourceId: "bosatsu",
     name: "Bosatsu",
     type: "club",
-    only: true,
     federation: ["dkarf"],
     calendarUrl: "https://www.bosatsu.dk/calendar",
     classesUrl: "https://www.bosatsu.dk/traeningstider",
-    // TODO: implement loadEvents for mentoclub getactivities pagination
     loadEvents: async ({ cotemporality, now }: LoadParams) => {
       const baseUrl = "https://www.bosatsu.dk";
 
