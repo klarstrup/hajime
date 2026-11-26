@@ -175,6 +175,7 @@ export const eventsSources = (
     {
       sourceId: "keikokan-karate-kobudo-ryu",
       name: "Keikokan Karate Kobudo Ryu",
+      federation: ["dgi"],
       type: "club",
       calendarUrl:
         "https://www.keikokan.dk/klub/keikokan-karate-kobudo-ryu/sider/h1-style-text-align-center-kalender-h1",
