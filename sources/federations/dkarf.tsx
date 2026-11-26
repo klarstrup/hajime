@@ -210,6 +210,7 @@ export const dkarfSources = [
   {
     sourceId: "sportskarate-dk",
     name: "Sportskarate.dk",
+    zip: "9000",
     type: "club",
     federation: ["dkarf"],
     calendarUrl: "https://sportskarate.dk/cms/Activity.aspx",
@@ -221,11 +222,21 @@ export const dkarfSources = [
   {
     sourceId: "karate-do-gentofte",
     name: "Karate-Do Gentofte",
+    zip: "2900",
     type: "club",
     federation: ["dkarf", "ijka"],
     calendarUrl: "https://karate-do-gentofte.dk/cms/Activity.aspx",
     loadEvents: (loadParams: LoadParams) =>
       fetchKlubModul("https://karate-do-gentofte.dk/cms/", loadParams),
+  },
+  {
+    sourceId: "herlev-karateklub",
+    name: "Herlev Karateklub",
+    zip: "2730",
+    type: "club",
+    federation: ["ijka", "jks"],
+    websiteUrl: "https://hkk.dk/da/",
+    classesUrl: "https://hkk.dk/da/?page_id=53",
   },
   {
     sourceId: "gentofte-shotokan-karate-do-kai",
