@@ -97,7 +97,7 @@ export const eventsSources = (
       sourceId: "hadsund-karate-skole",
       name: "Hadsund Karate Skole",
       type: "club",
-      federation: ["dao"],
+      federation: ["dao", "dif", "dai"],
       calendarUrl: "https://ashiharahadsund.dk/kalender/",
       loadEvents: () =>
         fetchIcsEvents(
@@ -160,10 +160,17 @@ export const eventsSources = (
         ),
     },
     {
+      sourceId: "kyokushin-karate-nykobing-sjaelland",
+      name: "Kyokushin Karate Nykøbing Sjælland",
+      type: "club",
+      federation: ["kwo-smo"],
+      classesUrl: "https://kyokushin-karate.dk/cms/TeamOverviewAlt.aspx/",
+    },
+    {
       sourceId: "tst-karate-skole",
       name: "TST Karate Skole",
       type: "club",
-      federation: ["dwk"],
+      federation: ["dwk", "dkarf"],
       calendarUrl:
         "https://www.tstkarateskole.dk/klub/tst-karate-skole/sider/h1-style-text-align-center-kalender-h1",
       loadEvents: (loadParams: LoadParams) =>
@@ -202,7 +209,7 @@ export const eventsSources = (
       sourceId: "ashihara-karate-kobenhavn",
       name: "Ashihara Karate København",
       type: "club",
-      federation: ["dao"],
+      federation: ["dao", "dgi"],
       calendarUrl:
         "https://www.ak-kbh.dk/klub/ashihara-karate-kobenhavn/sider/aktiviteter",
       loadEvents: (loadParams: LoadParams) =>

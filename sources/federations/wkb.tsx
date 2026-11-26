@@ -134,7 +134,7 @@ export const wkbSources = [
     sourceId: "niva-budoklub",
     name: "Nivå Budoklub",
     type: "club",
-    federation: ["wkb"],
+    federation: ["wkb", "dgi"],
     calendarUrl: "https://nbudo.klub-modul.dk/cms/Activity.aspx",
     loadEvents: (loadParams: LoadParams) =>
       fetchKlubModul("https://nbudo.klub-modul.dk/cms/", loadParams),
