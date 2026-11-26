@@ -92,6 +92,8 @@ export const dkarfSources = [
     federation: ["jks", "dkarf"],
     calendarUrl: "https://www.bushi.dk/kalender--events/events",
     loadEvents: async ({ cotemporality }: LoadParams) => {
+      if (!process.env.VERCEL) return [];
+
       if (cotemporality === "past") return [];
 
       const bushi$ = await fetch$(
