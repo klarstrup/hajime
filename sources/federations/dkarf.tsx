@@ -247,6 +247,16 @@ export const dkarfSources = [
     classesUrl: "https://www.shotokan.dk/hold/traeningstider",
   },
   {
+    sourceId: "vordingborg-karateklub",
+    name: "Vordingborg Karateklub",
+    type: "club",
+    federation: ["iogkf", "dkarf", "dif"],
+    calendarUrl: "https://www.vordingborgkarateklub.dk/calendar",
+    loadEvents: (loadParams: LoadParams) =>
+      fetchMentoclub("https://www.vordingborgkarateklub.dk", loadParams),
+    classesUrl: "https://www.vordingborg-karate.dk/traeningen/traeningstider",
+  },
+  {
     sourceId: "glostrup-karate-klub-yujo-kai",
     name: "Glostrup Karate Klub, Yujo-Kai",
     type: "club",
