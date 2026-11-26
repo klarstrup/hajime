@@ -276,6 +276,16 @@ export const dkarfSources = [
       fetchMentoclub("https://kalundborgkarate.mento.club/", loadParams),
   },
   {
+    sourceId: "halsnaes-karate-do",
+    name: "Halsnæs Karate Do - Frederiksværk Crossgym og Kampsport",
+    type: "club",
+    federation: ["skif", "dkarf", "dif", "dgi"],
+    calendarUrl: "https://halsnaeskaratedo.mento.club/calendar",
+    loadEvents: (loadParams: LoadParams) =>
+      fetchMentoclub("https://halsnaeskaratedo.mento.club", loadParams),
+    classesUrl: "https://halsnaeskaratedo.mento.club/traeningstider-2023",
+  },
+  {
     sourceId: "glostrup-karate-klub-yujo-kai",
     name: "Glostrup Karate Klub, Yujo-Kai",
     type: "club",
