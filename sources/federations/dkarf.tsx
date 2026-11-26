@@ -27,6 +27,14 @@ export const dkarfSources = [
     calendarUrl: "https://www.ishojkarateklub.dk/calendar.asp", // klubnet
   },
   {
+    sourceId: "ikast-karate-klub-kaigan",
+    name: "Ikast Karate Klub Kaigan",
+    type: "club",
+    federation: ["dkarf", "dif"],
+    classesUrl: "https://kaigankarate.net/index.php?id=default",
+    calendarUrl: "https://kaigankarate.net/info.php",
+  },
+  {
     sourceId: "struer-karate-klub",
     name: "Struer Karate Klub",
     type: "club",
