@@ -211,7 +211,7 @@ export const dkarfSources = [
     sourceId: "alleroed-karate-dojo",
     name: "Allerød Karate Dojo",
     type: "club",
-    federation: ["dkarf"],
+    federation: ["skif", "dkarf", "dif"],
     calendarUrl: "https://www.akd.dk/traening/calendar",
     classesUrl: "https://www.akd.dk/traening/traeningstider-og-holdoversigt",
     loadEvents: (loadParams: LoadParams) =>
@@ -255,6 +255,15 @@ export const dkarfSources = [
     calendarUrl: "https://saikoodense.dk/kalender/",
     // calendarUrl: https://saikoodense.dk/staevnekalender/
     classesUrl: "https://www.saiko.dk/traeningstider",
+  },
+  {
+    sourceId: "gribskov-karate",
+    name: "Gribskov Karate",
+    type: "club",
+    federation: ["skif", "dkarf", "dif"],
+    calendarUrl: "https://medlem.gribskovkarate.dk/calendar",
+    loadEvents: (loadParams: LoadParams) =>
+      fetchMentoclub("https://medlem.gribskovkarate.dk", loadParams),
   },
   {
     sourceId: "musashi-shotokan-karate-do",

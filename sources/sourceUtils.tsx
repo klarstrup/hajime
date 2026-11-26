@@ -615,6 +615,7 @@ export const getSortedEvents = async ({
           !title.includes("tekken") &&
           !title.includes("juleklip") &&
           !title.includes("julemiddag") &&
+          !title.includes("fælles middag") &&
           !title.includes("nissecup") &&
           !title.includes("hygge") &&
           !title.includes("grill") &&
@@ -635,6 +636,7 @@ export const getSortedEvents = async ({
           !title.includes("erstatningslokaler") &&
           !title.includes("store bededag") &&
           !title.includes("aflysning") &&
+          !title.includes("bus til") &&
           !title.includes("gæsteinstruktør") &&
           !title.includes("førstehjælpskursus") &&
           !title.includes("kristi himmelfartsdag") &&
