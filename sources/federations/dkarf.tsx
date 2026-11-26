@@ -237,6 +237,16 @@ export const dkarfSources = [
       fetchMentoclub("https://www.bosatsu.dk", loadParams),
   },
   {
+    sourceId: "vejle-shotokan-karate-do",
+    name: "Vejle Shotokan Karate-Do",
+    type: "club",
+    federation: ["dkarf", "skif", "dif"],
+    calendarUrl: "https://www.shotokan.dk/calendar",
+    loadEvents: (loadParams: LoadParams) =>
+      fetchMentoclub("https://www.shotokan.dk", loadParams),
+    classesUrl: "https://www.shotokan.dk/hold/traeningstider",
+  },
+  {
     sourceId: "glostrup-karate-klub-yujo-kai",
     name: "Glostrup Karate Klub, Yujo-Kai",
     type: "club",
