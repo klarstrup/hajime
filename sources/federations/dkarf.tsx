@@ -296,6 +296,13 @@ export const dkarfSources = [
     classesUrl: "https://www.holbaek-karate.dk/traening-54/traeningstider-hkd",
   },
   {
+    sourceId: "hoeng-karate-klub",
+    name: "Høng Karate Klub",
+    type: "club",
+    federation: ["dgkf", "dkarf", "dif", "dgi", "dai"],
+    classesUrl: "https://www.hongkarate.dk/",
+  },
+  {
     sourceId: "glostrup-karate-klub-yujo-kai",
     name: "Glostrup Karate Klub, Yujo-Kai",
     type: "club",
