@@ -18,6 +18,7 @@ export const eventsSources = (
       name: "Jundokan Danmark OGKK Shibu",
       type: "federation",
       federation: ["ogkk"],
+      websiteUrl: "https://jundokan.dk/",
     },
     {
       sourceId: "jundokan-kobenhavn",
@@ -197,6 +198,14 @@ export const eventsSources = (
       type: "federation",
       federation: ["jks"],
       calendarUrl: "https://jkskarate.dk/index.php/kalender",
+    },
+    {
+      sourceId: "shotokan-karate-akademi-jka",
+      name: "Shotokan Karate Akademi JKA",
+      type: "club",
+      federation: ["jka"],
+      calendarUrl: "https://www.karate-akademi.dk/kalender/",
+      classesUrl: "https://www.karate-akademi.dk/traeningstider/",
     },
     {
       sourceId: "skanderborg-karate-akademi",

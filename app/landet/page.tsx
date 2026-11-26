@@ -25,11 +25,13 @@ function treeFromSourcesFederations() {
         id: club.sourceId,
         name: club.name,
         url:
-          "classesUrl" in club
-            ? club.classesUrl
-            : "calendarUrl" in club
-              ? club.calendarUrl
-              : undefined,
+          "websiteUrl" in club
+            ? club.websiteUrl
+            : "classesUrl" in club
+              ? club.classesUrl
+              : "calendarUrl" in club
+                ? club.calendarUrl
+                : undefined,
       })),
       ...federations.map((federation) => ({
         id: federation,

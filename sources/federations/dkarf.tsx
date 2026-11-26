@@ -77,7 +77,7 @@ export const dkarfSources = [
     sourceId: "bushi-karate-kalender",
     name: "Bushi Karate",
     type: "club",
-    federation: ["dkarf"],
+    federation: ["jks", "dkarf"],
     calendarUrl: "https://www.bushi.dk/kalender--events/kalender",
     loadEvents: () =>
       fetchIcsEvents(
@@ -90,7 +90,7 @@ export const dkarfSources = [
     sourceId: "bushi-karate-events",
     name: "Bushi Karate",
     type: "club",
-    federation: ["dkarf"],
+    federation: ["jks", "dkarf"],
     calendarUrl: "https://www.bushi.dk/kalender--events/events",
     loadEvents: async ({ cotemporality }: LoadParams) => {
       if (cotemporality === "past") return [];
