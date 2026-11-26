@@ -36,6 +36,26 @@ export const dkarfSources = [
     calendarUrl: "https://kaigankarate.net/info.php",
   },
   {
+    sourceId: "horsholm-karateklub",
+    name: "Hørsholm Karateklub",
+    zip: "2970",
+    type: "club",
+    federation: ["jks", "dkarf", "dif"],
+    calendarUrl: "https://horsholmkarate.dk/kalender.html",
+    classesUrl: "https://horsholmkarate.dk/klubben/tr%25c3%25a6ningstider.html",
+  },
+  {
+    sourceId: "itosu-kai-karate-dragor",
+    name: "Itosu-Kai Karate Dragør",
+    type: "club",
+    only: true,
+    federation: ["dkarf", "dif"],
+    classesUrl: "https://itosukaidragoer.dk/hold-traenerplan-og-kontingent",
+    calendarUrl: "https://itosukaidragoer.dk/cms/activity.aspx",
+    loadEvents: (loadParams: LoadParams) =>
+      fetchKlubModul("https://itosukaidragoer.dk/cms/", loadParams),
+  },
+  {
     sourceId: "struer-karate-klub",
     name: "Struer Karate Klub",
     zip: "7600",
@@ -300,9 +320,9 @@ export const dkarfSources = [
     name: "Holbæk Karate-Do",
     type: "club",
     federation: ["skif", "dkarf", "dif"],
-    calendarUrl: "https://www.holbaek-karate.dk/calendar",
+    calendarUrl: "https://www.holbaek-karate.dk/kalender/calendar",
     loadEvents: (loadParams: LoadParams) =>
-      fetchMentoclub("https://www.holbaek-karate.dk", loadParams),
+      fetchMentoclub("https://www.holbaek-karate.dk/kalender", loadParams),
     classesUrl: "https://www.holbaek-karate.dk/traening-54/traeningstider-hkd",
   },
   {
