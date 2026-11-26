@@ -139,4 +139,12 @@ export const wkbSources = [
     loadEvents: (loadParams: LoadParams) =>
       fetchKlubModul("https://nbudo.klub-modul.dk/cms/", loadParams),
   },
+  {
+    sourceId: "aalborg-kyokushin-karate",
+    name: "Aalborg Kyokushin Karate",
+    type: "club",
+    federation: ["wkb"],
+    websiteUrl: "https://www.facebook.com/AalborgmixedKarate/",
+    classesUrl: "https://www.facebook.com/AalborgmixedKarate/posts/pfbid02Twh2ARbcxFWPFm4jjAXvExk6ae51gcaJ1zu6G9KVUTXXWwiirVHDtAPdvvsU3JKvl",
+  },
 ] as const;
