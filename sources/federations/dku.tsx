@@ -122,8 +122,9 @@ export const dkuSources = [
   {
     sourceId: "karateklubben-kenzoku",
     name: "Karateklubben Kenzoku",
+    zip: "2200",
     type: "club",
-    federation: ["dku"],
+    federation: ["dku", "dgi"],
     calendarUrl: "https://kenzoku-karate.dk/kalender",
     loadEvents: () =>
       fetchIcsEvents(
@@ -167,8 +168,9 @@ export const dkuSources = [
   {
     sourceId: "roskilde-karate-klub-facebook",
     name: "Roskilde Karate Klub",
+    zip: "4000",
     type: "club",
-    federation: ["dku"],
+    federation: ["dku", "dai", "dif"],
     calendarUrl:
       "https://www.facebook.com/profile.php?id=100063654665814&sk=events",
     loadEvents: ({ cotemporality }: LoadParams) =>
@@ -266,8 +268,9 @@ export const dkuSources = [
   {
     sourceId: "farum-kyokushin",
     name: "Farum Kyokushin",
+    zip: "3520",
     type: "club",
-    federation: ["dku"],
+    federation: ["dku", "dai", "dgi"],
     calendarUrl: "https://farumkyokushin.dk/kalenderliste/",
     loadEvents: async () => {
       const farumKyokushin$ = await fetch$(
@@ -325,8 +328,9 @@ export const dkuSources = [
   {
     sourceId: "karateklubben-kyokushinkai-kobenhavn",
     name: "Karateklubben Kyokushinkai København",
+    zip: "2400",
     type: "club",
-    federation: ["dku"],
+    federation: ["dku", "dgi"],
     calendarUrl: "https://karateklub.com/cms/Activity.aspx",
     loadEvents: (loadParams: LoadParams) =>
       fetchKlubModul("https://karateklub.com/cms/", loadParams),
