@@ -56,7 +56,6 @@ export const dkarfSources = [
     sourceId: "itosu-kai-karate-dragor",
     name: "Itosu-Kai Karate Dragør",
     type: "club",
-    only: true,
     federation: ["dkarf", "dif"],
     classesUrl: "https://itosukaidragoer.dk/hold-traenerplan-og-kontingent",
     calendarUrl: "https://itosukaidragoer.dk/cms/activity.aspx",
