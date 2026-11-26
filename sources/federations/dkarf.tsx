@@ -257,6 +257,16 @@ export const dkarfSources = [
     classesUrl: "https://www.saiko.dk/traeningstider",
   },
   {
+    sourceId: "musashi-shotokan-karate-do",
+    name: "Musashi Shotokan Karate-do",
+    type: "club",
+    federation: ["skif", "dkarf", "dif"],
+    calendarUrl: "https://www.musashi.dk/calendar",
+    classesUrl: "https://www.musashi.dk/bliv-medlem/hold-beskrivelser",
+    loadEvents: (loadParams: LoadParams) =>
+      fetchMentoclub("https://www.musashi.dk", loadParams),
+  },
+  {
     sourceId: "amager-karate-klub",
     name: "Amager Karate Klub",
     type: "club",
