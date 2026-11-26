@@ -192,6 +192,25 @@ export const eventsSources = (
         ).then((events) => events.filter((e) => e.event_type !== 2)),
     },
     {
+      sourceId: "jks-danmark",
+      name: "Japan Karate Shoto Federation Danmark",
+      type: "federation",
+      calendarUrl: "https://jkskarate.dk/index.php/kalender",
+    },
+    {
+      sourceId: "skanderborg-karate-akademi",
+      name: "Skanderborg Karate Akademi",
+      type: "club",
+      federation: ["jks", "dkarf"],
+      calendarUrl:
+        "https://www.skanderborg-karate.dk/klub/skanderborg-karate-akademi/sider/h1-style-text-align-center-kalender-h1",
+      loadEvents: (loadParams: LoadParams) =>
+        fetchHoldsportEvents(
+          { clubId: 51478, contentId: 5129561 },
+          loadParams,
+        ).then((events) => events.filter((e) => e.event_type === 4)),
+    },
+    {
       sourceId: "gilleleje-karate",
       name: "Gilleleje Karate Klub",
       type: "club",

@@ -68,7 +68,7 @@ export const dkarfSources = [
     name: "Struer Karate Klub",
     zip: "7600",
     type: "club",
-    federation: ["dkarf"],
+    federation: ["jks", "dkarf", "dif"],
     classesUrl:
       "https://www.struerkarate.dk/index.php/klub-info/traeningstider",
     calendarUrl: "https://www.struerkarate.dk/index.php/kalender",
@@ -339,7 +339,7 @@ export const dkarfSources = [
     sourceId: "hoeng-karate-klub",
     name: "Høng Karate Klub",
     type: "club",
-    federation: ["dgkf", "dkarf", "dif", "dgi", "dai"],
+    federation: ["gkif", "dkarf", "dif", "dgi", "dai"],
     classesUrl: "https://www.hongkarate.dk/",
   },
   {
@@ -453,7 +453,7 @@ export const dkarfSources = [
     sourceId: "egedal-karate",
     name: "Egedal Karate",
     type: "club",
-    federation: ["dkarf"],
+    federation: ["gkif", "dkarf"],
     calendarUrl: "https://www.egedalkarate.dk/calendar.asp",
     // TODO: loadEvents: build KlubNet support  https://www.intra-kom.dk/klubnet/klubnetinfo.asp
   },
