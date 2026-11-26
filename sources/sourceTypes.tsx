@@ -294,3 +294,23 @@ export interface FightCollectiveEvent {
   waitlist_count: number;
   is_full?: boolean;
 }
+
+export namespace Mentoclub {
+  export interface GettrainingsTraining {
+    id: number;
+    title: string;
+    start: string;
+    end: string;
+    color: string;
+    teamid: number;
+    classNames: ClassNames;
+    tip: string;
+    theme: string;
+    ident: null | string;
+  }
+
+  enum ClassNames {
+    CursorPointer = "cursor-pointer",
+    Empty = "",
+  }
+}

@@ -1,10 +1,11 @@
 import { tz } from "@date-fns/tz";
-import { endOfDay } from "date-fns";
-import type { LoadParams } from "../../sources/sourceTypes";
+import { addMonths, addYears, endOfDay } from "date-fns";
+import type { LoadParams, Mentoclub } from "../../sources/sourceTypes";
 import {
   fetch$,
   fetchHoldsportEvents,
   fetchIcsEvents,
+  fetchJson,
   fetchKlubModul,
 } from "../../sources/sourceUtils";
 
@@ -213,6 +214,57 @@ export const dkarfSources = [
     federation: ["dkarf"],
     calendarUrl: "https://slagelsekarate.dk/calendar",
     // TODO: implement loadEvents for mentoclub getactivities pagination
+  },
+  {
+    sourceId: "bosatsu",
+    name: "Bosatsu",
+    type: "club",
+    only: true,
+    federation: ["dkarf"],
+    calendarUrl: "https://www.bosatsu.dk/calendar",
+    classesUrl: "https://www.bosatsu.dk/traeningstider",
+    // TODO: implement loadEvents for mentoclub getactivities pagination
+    loadEvents: async ({ cotemporality, now }: LoadParams) => {
+      const baseUrl = "https://www.bosatsu.dk";
+
+      const from = cotemporality === "future" ? now : new Date(2019, 0);
+      const to = cotemporality === "past" ? now : addYears(now, 1);
+
+      // mentoclub gettraining API only allows fetching ~2 months at a time, so
+      // we need to split the request into multiple 2-month intervals if the range is larger than that.
+      const intervals = [];
+      let currentStart = from;
+      while (currentStart < to) {
+        const currentEnd = addMonths(currentStart, 2);
+        intervals.push({ start: currentStart, end: currentEnd });
+        currentStart = currentEnd;
+      }
+
+      const responses = (
+        await Promise.all(
+          intervals.map(({ start, end }) => {
+            const gettrainingsUrl = new URL("/cms/gettrainings", baseUrl);
+            gettrainingsUrl.searchParams.set("start", start.toISOString());
+            gettrainingsUrl.searchParams.set("end", end.toISOString());
+
+            return fetchJson<Mentoclub.GettrainingsTraining[]>(gettrainingsUrl);
+          }),
+        )
+      )
+        .flat()
+        .map((training) => ({
+          ...training,
+          id: training.id + "-" + training.ident,
+          start: new Date(training.start),
+          end: new Date(training.end),
+          url: training.ident
+            ? new URL(`/event/${training.ident}`, baseUrl).toString()
+            : undefined,
+        }))
+        .filter((training) => training.teamid === -1);
+
+      return responses;
+    },
   },
   {
     sourceId: "amager-karate-klub",
