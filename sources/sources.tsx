@@ -74,9 +74,8 @@ export const eventsSources = (
       name: "Brøderup Karate Klub",
       type: "club",
       federation: ["ogkk"],
-      // their website has been owned
-      // calendarUrl: "https://broederupkarate.dk/index.php/arrangementer/",
-      // classesUrl: "https://broederupkarate.dk/index.php/programs/",
+      calendarUrl: "https://broederupkarate.dk/index.php/arrangementer/",
+      classesUrl: "https://broederupkarate.dk/index.php/programs/",
     },
     {
       sourceId: "vester-hjermitslev-karate-klub",

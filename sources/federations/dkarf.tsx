@@ -202,7 +202,7 @@ export const dkarfSources = [
     type: "club",
     name: "Budokan Karate Solrød",
     federation: ["dkarf", "jka", "dkc"],
-    calendarUrl: "https://budokankaratesolroed.mento.club/calenda",
+    calendarUrl: "https://budokankaratesolroed.mento.club/calendar",
     loadEvents: (loadParams: LoadParams) =>
       fetchMentoclub("https://budokankaratesolroed.mento.club", loadParams),
   },
