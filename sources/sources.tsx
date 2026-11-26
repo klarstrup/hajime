@@ -9,7 +9,12 @@ import type {
   KumiteTechnologyEventsResponse,
   LoadParams,
 } from "./sourceTypes";
-import { fetchHoldsportEvents, fetchIcsEvents, fetchJson } from "./sourceUtils";
+import {
+  fetchHoldsportEvents,
+  fetchIcsEvents,
+  fetchJson,
+  fetchKlubModul,
+} from "./sourceUtils";
 
 export const eventsSources = (
   [
@@ -202,23 +207,160 @@ export const eventsSources = (
     {
       sourceId: "shotokan-karate-akademi-jka",
       name: "Shotokan Karate Akademi JKA",
+      zip: "2300",
       type: "club",
       federation: ["jka"],
       calendarUrl: "https://www.karate-akademi.dk/kalender/",
       classesUrl: "https://www.karate-akademi.dk/traeningstider/",
     },
     {
+      sourceId: "helsingor-karate-do-kai",
+      name: "Helsingør Karate-Do Kai",
+      zip: "3000",
+      type: "club",
+      federation: ["jka", "dkarf"],
+      websiteUrl: "https://www.helsingorkarate.dk/",
+      calendarUrl: "https://www.helsingorkarate.dk/kalender",
+    },
+    {
+      sourceId: "hokuto-kai",
+      name: "Hokuto–Kai",
+      zip: "2605",
+      type: "club",
+      federation: ["jka"],
+      websiteUrl: "https://www.hokuto.dk/",
+      calendarUrl: "https://www.hokuto-kai.dk/kalender",
+      classesUrl: "https://www.hokuto.dk/#hold",
+    },
+    {
+      sourceId: "nippon-karate-do-kai",
+      name: "Nippon Karate-Do Kai",
+      zip: "2720",
+      type: "club",
+      federation: ["jka"],
+      websiteUrl: "https://www.nippon-karate.dk/",
+      classesUrl: "https://www.nippon-karate.dk/index.php/traeningstider",
+    },
+    {
+      sourceId: "ringsted-shotokan-karate-do-kai-jka",
+      name: "Ringsted Shotokan Karate-Do Kai JKA",
+      zip: "4100",
+      type: "club",
+      federation: ["jka"],
+      websiteUrl: "https://www.ringstedshotokan-jka.dk/",
+      classesUrl: "https://www.ringstedshotokan-jka.dk/traeningstider/",
+    },
+    {
+      sourceId: "hillerod-karate-do-kai",
+      name: "Hillerød Karate Do-Kai",
+      zip: "3400",
+      type: "club",
+      federation: ["jka"],
+      websiteUrl: "https://xn--hillerdkarate-gnb.dk/",
+      // Klubmodul
+      calendarUrl: "https://xn--hillerdkarate-gnb.dk/cms/activity.aspx",
+      loadEvents: (loadParams: LoadParams) =>
+        fetchKlubModul("https://xn--hillerdkarate-gnb.dk/cms", loadParams),
+      classesUrl: "https://xn--hillerdkarate-gnb.dk/cms/TeamOverviewplan.aspx",
+    },
+    {
+      sourceId: "odense-karate-do-ichiro-jka",
+      name: "Odense Karate-Do Ichiro JKA",
+      zip: "5000",
+      type: "club",
+      federation: ["jka"],
+      websiteUrl: "https://www.odensesportscentrum.dk/klubber/karate",
+      classesUrl:
+        "https://www.odensesportscentrum.dk/klubber/karate#prov-gratis",
+    },
+    {
+      sourceId: "mujin-kai-shotokan-karate-do-kai",
+      name: "Mujin-kai Shotokan Karate-Do Kai",
+      zip: "2000",
+      type: "club",
+      federation: ["jka"],
+      websiteUrl: "https://www.mujin-kai.dk/",
+      classesUrl: "https://mujin-kai.dk/traening/",
+    },
+    {
+      sourceId: "shinken-karate-do-kai",
+      name: "Shinken Karate-Do Kai",
+      zip: "2400",
+      type: "club",
+      federation: ["jka"],
+      websiteUrl: "https://www.shinken.dk/",
+      calendarUrl: "https://www.shinken.dk/kalender/",
+      classesUrl: "https://www.shinken.dk/shinken/traeningstider/",
+    },
+    {
+      sourceId: "copenhagen-budo-academy",
+      name: "Copenhagen Budo Academy",
+      zip: "2400",
+      type: "club",
+      federation: ["jka"], //????
+      websiteUrl: "https://budo-city.dk/",
+      classesUrl: "https://budo-city.dk/",
+    },
+    {
       sourceId: "skanderborg-karate-akademi",
       name: "Skanderborg Karate Akademi",
+      zip: "8660",
       type: "club",
       federation: ["jks", "dkarf"],
-      calendarUrl:
-        "https://www.skanderborg-karate.dk/klub/skanderborg-karate-akademi/sider/h1-style-text-align-center-kalender-h1",
+      websiteUrl: "https://www.skanderborgkarateakademi.dk/",
+      calendarUrl: "https://www.skanderborgkarateakademi.dk/",
       loadEvents: (loadParams: LoadParams) =>
         fetchHoldsportEvents(
           { clubId: 51478, contentId: 5129561 },
           loadParams,
         ).then((events) => events.filter((e) => e.event_type === 4)),
+    },
+    {
+      sourceId: "skanderborg-shotokan-karate",
+      name: "Skanderborg Shotokan Karate",
+      zip: "8660",
+      type: "club",
+      federation: ["skif", "dkarf"],
+      websiteUrl: "https://skanderborgkarate.dk/",
+    },
+    {
+      sourceId: "neko-ashi-dachi",
+      name: "Neko Ashi Dachi",
+      zip: "4340",
+      type: "club",
+      federation: ["jka"],
+      websiteUrl: "https://undloesekickboxing.klub-modul.dk/default.aspx",
+      calendarUrl: "https://undloese-sport.dk/cms/Activity.aspx",
+      loadEvents: (loadParams: LoadParams) =>
+        fetchKlubModul("https://undloese-sport.dk", loadParams),
+      classesUrl:
+        "https://undloesekickboxing.klub-modul.dk/cms/TeamEnrollmentalt.aspx?TeamNameID=41",
+    },
+    {
+      sourceId: "karate-do-kyohan",
+      name: "Karate-Do Kyohan",
+      type: "club",
+      federation: ["skif"],
+      websiteUrl: "https://karatedokyohan.dk/",
+      classesUrl: "https://karatedokyohan.dk/vores-hold",
+    },
+    {
+      sourceId: "enso-shotokan-karate-dojo",
+      name: "Enso Shotokan Karate Dojo",
+      zip: "6261",
+      type: "club",
+      federation: ["jka"],
+      websiteUrl: "https://www.facebook.com/profile.php?id=61571976262608",
+      classesUrl:
+        "https://www.facebook.com/permalink.php?story_fbid=pfbid0phd8Ed4AtedPhuiV8fsHFKywCC4i7cSgZaDvjQAxzNWM8GBPfF5WaH1qnCqkdBP1l&id=61571976262608",
+    },
+    {
+      sourceId: "hoyo-karate-do-kai",
+      name: "Hoyo Karate-Do Kai",
+      zip: "8700",
+      type: "club",
+      federation: ["jka"],
+      websiteUrl: "https://www.hoyokarate-horsens.dk/",
     },
     {
       sourceId: "gilleleje-karate",
