@@ -196,7 +196,8 @@ export const dkarfSources = [
     federation: ["dkarf"],
     calendarUrl: "https://www.2100-shotokan.dk/calendar",
     classesUrl: "https://www.2100-shotokan.dk/information/traeningstider",
-    // TODO: implement loadEvents for mentoclub getactivities pagination
+    loadEvents: (loadParams: LoadParams) =>
+      fetchMentoclub("https://www.2100-shotokan.dk", loadParams),
   },
   {
     sourceId: "alleroed-karate-dojo",
@@ -205,7 +206,6 @@ export const dkarfSources = [
     federation: ["dkarf"],
     calendarUrl: "https://www.akd.dk/traening/calendar",
     classesUrl: "https://www.akd.dk/traening/traeningstider-og-holdoversigt",
-    // TODO: implement loadEvents for mentoclub getactivities pagination
     loadEvents: (loadParams: LoadParams) =>
       fetchMentoclub("https://www.akd.dk", loadParams),
   },
