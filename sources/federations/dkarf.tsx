@@ -188,6 +188,7 @@ export const dkarfSources = [
   },
   {
     sourceId: "budokan-solrod",
+    type: "club",
     name: "Budokan Karate Solrød",
     federation: ["dkarf", "jka", "dkc"],
     calendarUrl: "https://www.budokan-solrod.dk/events/",
@@ -198,6 +199,7 @@ export const dkarfSources = [
   },
   {
     sourceId: "budokan-solrod-mentoclub",
+    type: "club",
     name: "Budokan Karate Solrød",
     federation: ["dkarf", "jka", "dkc"],
     calendarUrl: "https://budokankaratesolroed.mento.club/calenda",

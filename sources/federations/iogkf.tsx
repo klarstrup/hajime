@@ -52,14 +52,16 @@ export const iogkfSources = [
   },
   {
     sourceId: "sax-karatecenter",
+    type: "club",
     name: "Sax-Karatecenter",
-    federation: ["iogkf"],
+    federation: ["iogkf","dif"],
     calendarUrl: "https://saxkarate.dk/cms/Activity.aspx",
     loadEvents: (loadParams: LoadParams) =>
       fetchKlubModul("https://saxkarate.dk/cms/", loadParams),
   },
   {
     sourceId: "hvidovre-karateskole",
+    type: "club",
     name: "Hvidovre Karateskole",
     federation: ["iogkf"],
     calendarUrl:
