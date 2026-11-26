@@ -125,6 +125,7 @@ export const eventsSources = (
       name: "Ashihara Karate Sønderborg",
       type: "club",
       federation: ["dao"],
+      classesUrl: "https://www.ashihara-sonderborg.dk/teams",
       calendarUrl: "https://www.ashihara-sonderborg.dk/",
       loadEvents: () =>
         fetchIcsEvents(
@@ -380,6 +381,8 @@ export const eventsSources = (
       name: "Ashihara Karate København",
       type: "club",
       federation: ["dao", "dgi"],
+      classesUrl:
+        "https://www.ak-kbh.dk/klub/ashihara-karate-kobenhavn/sider/holdplan",
       calendarUrl:
         "https://www.ak-kbh.dk/klub/ashihara-karate-kobenhavn/sider/aktiviteter",
       loadEvents: (loadParams: LoadParams) =>
@@ -443,6 +446,25 @@ export const eventsSources = (
       federation: ["dao", "dif", "dai"],
       websiteUrl: "https://ashiharahadsund.dk/",
       classesUrl: "https://ashiharahadsund.dk/voksenholdet/",
+    },
+    {
+      sourceId: "randers-karate-skole",
+      name: "Randers Karate Skole",
+      zip: "8900",
+      type: "club",
+      federation: ["dao"],
+      websiteUrl: "http://randerskarateskole.dk/",
+      classesUrl: "http://randerskarateskole.dk/om-rks/traeningstider/",
+    },
+    {
+      sourceId: "viborg-kampsport",
+      name: "Viborg Kampsport - Ashihara Karate Viborg",
+      zip: "8800",
+      type: "club",
+      federation: ["dao"],
+      websiteUrl: "https://www.viborgkampsport.dk/",
+      classesUrl: "https://www.viborgkampsport.dk/hold",
+      calendarUrl: "https://www.viborgkampsport.dk/kalender",
     },
     {
       sourceId: "kumite-technology",
