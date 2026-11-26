@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
     turbopackChunking: {
       generateComponentChunks: true,
     },
+    useCacheTimeout: 300,
   },
   reactCompiler: true,
   cacheComponents: true,
