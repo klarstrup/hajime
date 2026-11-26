@@ -450,6 +450,16 @@ export const getSortedEvents = async ({
                   (e satisfies never) && null;
 
       if (title) {
+        for (const f of e.federation || []) {
+          if (title.toLowerCase().includes(f.toLowerCase())) {
+            title = title
+              .replace(new RegExp(f, "i"), "")
+              .trim()
+              // Remove any leading hyphen after federation removal
+              .replace(/^-/, "");
+          }
+        }
+
         title = title
           .replace(/–/g, "-")
           .replace(/DAO Graduering/i, "Dangraduering")
@@ -467,12 +477,6 @@ export const getSortedEvents = async ({
           .trim()
           .replace(/^-/, "")
           .trim();
-
-        for (const f of e.federation || []) {
-          if (title.toLowerCase().includes(f.toLowerCase())) {
-            title = title.replace(new RegExp(f, "i"), "").trim();
-          }
-        }
       }
 
       return {
@@ -587,8 +591,8 @@ export const getSortedEvents = async ({
         const location = (e.location || "").toLowerCase();
         return (
           !title.includes("træning") &&
-          !title.includes("tekken") &&
-          !title.includes("prøvetimer") &&
+          !title.includes("tilmelding") &&
+          !title.includes("prøvetime") &&
           !title.includes("lukket") &&
           !title.includes("bestyrelsesmøde") &&
           !title.includes("bestyrelsemøde") &&
@@ -608,10 +612,16 @@ export const getSortedEvents = async ({
           !title.includes("placeholder") &&
           !title.includes("afslutning") &&
           !title.includes("rengøringsdojo") &&
+          !title.includes("tekken") &&
           !title.includes("juleklip") &&
           !title.includes("julemiddag") &&
           !title.includes("nissecup") &&
+          !title.includes("hygge") &&
+          !title.includes("grill") &&
+          !title.includes("filmaften") &&
           !title.includes("fællesmøde") &&
+          !title.includes("pizza og hygge") &&
+          !title.includes("lalandia") &&
           !title.includes("kagami biraki") &&
           !title.includes("opstart") &&
           !title.includes("arbejdsdag") &&
@@ -619,11 +629,9 @@ export const getSortedEvents = async ({
           !title.includes("fastelavn") &&
           !title.includes("halloween") &&
           !title.includes("miniput") &&
-          !title.includes("filmaften") &&
           !title.includes("klubmesterskab") &&
           !title.includes("bjj") &&
           !title.includes("kr. himmelfartsdag") &&
-          !title.includes("pizza og hygge") &&
           !title.includes("erstatningslokaler") &&
           !title.includes("store bededag") &&
           !title.includes("aflysning") &&
