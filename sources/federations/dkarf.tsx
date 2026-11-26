@@ -206,6 +206,8 @@ export const dkarfSources = [
     calendarUrl: "https://www.akd.dk/traening/calendar",
     classesUrl: "https://www.akd.dk/traening/traeningstider-og-holdoversigt",
     // TODO: implement loadEvents for mentoclub getactivities pagination
+    loadEvents: (loadParams: LoadParams) =>
+      fetchMentoclub("https://www.akd.dk", loadParams),
   },
   {
     sourceId: "itosu-kai-karate-do-slagelse",

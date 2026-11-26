@@ -467,6 +467,12 @@ export const getSortedEvents = async ({
           .trim()
           .replace(/^-/, "")
           .trim();
+
+        for (const f of e.federation || []) {
+          if (title.toLowerCase().includes(f.toLowerCase())) {
+            title = title.replace(new RegExp(f, "i"), "").trim();
+          }
+        }
       }
 
       return {
