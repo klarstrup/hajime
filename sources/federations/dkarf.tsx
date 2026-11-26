@@ -151,12 +151,20 @@ export const dkarfSources = [
   {
     sourceId: "budokan-solrod",
     name: "Budokan Karate Solrød",
-    federation: ["dkarf"],
+    federation: ["dkarf", "jka", "dkc"],
     calendarUrl: "https://www.budokan-solrod.dk/events/",
     loadEvents: ({ cotemporality }: LoadParams) =>
       fetchIcsEvents(
         `https://www.budokan-solrod.dk/events/?post_type=tribe_events&eventDisplay=list${cotemporality === "past" ? "&tribe_event_display=past" : ""}&ical=1`,
       ),
+  },
+  {
+    sourceId: "budokan-solrod-mentoclub",
+    name: "Budokan Karate Solrød",
+    federation: ["dkarf", "jka", "dkc"],
+    calendarUrl: "https://budokankaratesolroed.mento.club/calenda",
+    loadEvents: (loadParams: LoadParams) =>
+      fetchMentoclub("https://budokankaratesolroed.mento.club", loadParams),
   },
   {
     sourceId: "sportskarate-dk",
