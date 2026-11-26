@@ -1,6 +1,8 @@
 import { tz } from "@date-fns/tz";
 import * as cheerio from "cheerio";
 import {
+  addMonths,
+  addYears,
   areIntervalsOverlapping,
   endOfDay,
   isDate,
@@ -21,7 +23,12 @@ import {
   safeParseTimeRange,
 } from "../utils";
 import { eventsSources } from "./sources";
-import { HoldsportActivity, KlubModul, LoadParams } from "./sourceTypes";
+import type {
+  HoldsportActivity,
+  KlubModul,
+  LoadParams,
+  Mentoclub,
+} from "./sourceTypes";
 
 export const fetchText = async (url: string | URL) => (await fetch(url)).text();
 export const fetchJson = async <T,>(url: string | URL) =>
@@ -117,6 +124,49 @@ export const fetchKlubModul = (
       end: new Date(e.end),
     })),
   );
+};
+
+export const fetchMentoclub = async (
+  baseUrl: string,
+  { cotemporality, now }: LoadParams,
+) => {
+  const from = cotemporality === "future" ? now : new Date(2019, 0);
+  const to = cotemporality === "past" ? now : addYears(now, 1);
+
+  // mentoclub gettraining API only allows fetching ~2 months at a time, so
+  // we need to split the request into multiple 2-month intervals if the range is larger than that.
+  const intervals = [];
+  let currentStart = from;
+  while (currentStart < to) {
+    const currentEnd = addMonths(currentStart, 2);
+    intervals.push({ start: currentStart, end: currentEnd });
+    currentStart = currentEnd;
+  }
+
+  const responses = (
+    await Promise.all(
+      intervals.map(({ start, end }) => {
+        const gettrainingsUrl = new URL("/cms/gettrainings", baseUrl);
+        gettrainingsUrl.searchParams.set("start", start.toISOString());
+        gettrainingsUrl.searchParams.set("end", end.toISOString());
+
+        return fetchJson<Mentoclub.GettrainingsTraining[]>(gettrainingsUrl);
+      }),
+    )
+  )
+    .flat()
+    .map((training) => ({
+      ...training,
+      id: training.id + "-" + training.ident,
+      start: new Date(training.start),
+      end: new Date(training.end),
+      url: training.ident
+        ? new URL(`/event/${training.ident}`, baseUrl).toString()
+        : undefined,
+    }))
+    .filter((training) => training.teamid === -1);
+
+  return responses;
 };
 
 const farPast = new Date(2010, 0, 1);
