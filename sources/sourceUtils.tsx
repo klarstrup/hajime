@@ -140,6 +140,8 @@ export const fetchMentoclub = async (
   baseUrl: string,
   { cotemporality, now }: LoadParams,
 ) => {
+  if (!process.env.VERCEL) return [];
+
   const from = cotemporality === "future" ? now : new Date(2019, 0);
   const to = cotemporality === "past" ? now : addYears(now, 1);
 
