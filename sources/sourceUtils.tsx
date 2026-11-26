@@ -30,9 +30,19 @@ import type {
   Mentoclub,
 } from "./sourceTypes";
 
-export const fetchText = async (url: string | URL) => (await fetch(url)).text();
+export const fetch1 = async (url: string | URL) => {
+  const res = await fetch(url);
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch ${url}: ${res.status} ${res.statusText}`);
+  }
+
+  return res;
+};
+export const fetchText = async (url: string | URL) =>
+  (await fetch1(url)).text();
 export const fetchJson = async <T,>(url: string | URL) =>
-  (await fetch(url)).json() as Promise<T>;
+  (await fetch1(url)).json() as Promise<T>;
 export const fetchIcsCalendar = async (url: string | URL) =>
   convertIcsCalendar(
     undefined,
