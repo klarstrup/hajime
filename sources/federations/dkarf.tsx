@@ -29,6 +29,7 @@ export const dkarfSources = [
   {
     sourceId: "ikast-karate-klub-kaigan",
     name: "Ikast Karate Klub Kaigan",
+    zip: "7430",
     type: "club",
     federation: ["dkarf", "dif"],
     classesUrl: "https://kaigankarate.net/index.php?id=default",
@@ -37,6 +38,7 @@ export const dkarfSources = [
   {
     sourceId: "struer-karate-klub",
     name: "Struer Karate Klub",
+    zip: "7600",
     type: "club",
     federation: ["dkarf"],
     classesUrl:
