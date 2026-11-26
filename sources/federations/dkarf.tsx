@@ -251,9 +251,9 @@ export const dkarfSources = [
     name: "Vordingborg Karateklub",
     type: "club",
     federation: ["iogkf", "dkarf", "dif"],
-    calendarUrl: "https://www.vordingborgkarateklub.dk/calendar",
+    calendarUrl: "https://www.vordingborg-karate.dk/calendar",
     loadEvents: (loadParams: LoadParams) =>
-      fetchMentoclub("https://www.vordingborgkarateklub.dk", loadParams),
+      fetchMentoclub("https://www.vordingborg-karate.dk", loadParams),
     classesUrl: "https://www.vordingborg-karate.dk/traeningen/traeningstider",
   },
   {
@@ -267,10 +267,19 @@ export const dkarfSources = [
     classesUrl: "https://www.braedstrup-shotokan.dk/information",
   },
   {
+    sourceId: "kalundborg-karateklub-dokan",
+    name: "Kalundborg Karateklub Dokan",
+    type: "club",
+    federation: ["skif", "dkarf", "dif"],
+    calendarUrl: "https://kalundborgkarate.mento.club/calendar",
+    loadEvents: (loadParams: LoadParams) =>
+      fetchMentoclub("https://kalundborgkarate.mento.club/", loadParams),
+  },
+  {
     sourceId: "glostrup-karate-klub-yujo-kai",
     name: "Glostrup Karate Klub, Yujo-Kai",
     type: "club",
-    federation: ["dkarf", "skif"],
+    federation: ["skif", "dkarf", "dif"],
     classesUrl:
       "https://www.glostrupkarateklub.dk/info-om-klubben/traeningstider",
     calendarUrl: "https://www.glostrupkarateklub.dk/medlemsinfo/calendar",
