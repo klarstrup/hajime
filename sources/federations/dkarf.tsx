@@ -45,6 +45,14 @@ export const dkarfSources = [
     classesUrl: "https://horsholmkarate.dk/klubben/tr%25c3%25a6ningstider.html",
   },
   {
+    sourceId: "juelsminde-shotokan-karate-do-kai",
+    name: "Juelsminde Shotokan Karate Do-Kai",
+    zip: "7150",
+    type: "club",
+    federation: ["skif", "dkarf", "dif"],
+    classesUrl: "https://www.juelsmindekarate.dk/traeningstider/",
+  },
+  {
     sourceId: "itosu-kai-karate-dragor",
     name: "Itosu-Kai Karate Dragør",
     type: "club",
