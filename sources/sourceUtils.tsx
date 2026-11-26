@@ -619,6 +619,7 @@ export const getSortedEvents = async ({
           !title.includes("nissecup") &&
           !title.includes("hygge") &&
           !title.includes("grill") &&
+          !title.includes("gløgg") &&
           !title.includes("filmaften") &&
           !title.includes("fællesmøde") &&
           !title.includes("pizza og hygge") &&
