@@ -241,7 +241,6 @@ export const dkarfSources = [
     name: "Glostrup Karate Klub, Yujo-Kai",
     type: "club",
     federation: ["dkarf", "skif"],
-    only: true,
     classesUrl:
       "https://www.glostrupkarateklub.dk/info-om-klubben/traeningstider",
     calendarUrl: "https://www.glostrupkarateklub.dk/medlemsinfo/calendar",
