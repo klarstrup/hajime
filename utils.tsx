@@ -2,6 +2,7 @@ import type { CheerioAPI } from "cheerio";
 import * as cheerio from "cheerio";
 import { isValid } from "date-fns";
 import type { AnyNode } from "domhandler";
+import { readFileSync } from "fs";
 import Fuse from "fuse.js";
 import type { Weekday } from "rrule";
 import { RRule } from "rrule";
@@ -189,12 +190,7 @@ export function render(
   }
 
   function leave(element: AnyNode) {
-    if (element.type === "tag") {
-      // console.log({ LEAVING: element.type, tagName: element.tagName })
-      if (isBlockTag(element.tagName)) {
-        text += "\n";
-      }
-    }
+    if (element.type === "tag") if (isBlockTag(element.tagName)) text += "\n";
   }
 
   walk(root, enter, leave);
@@ -206,6 +202,428 @@ export function render(
     .filter(Boolean)
     .join("\n")
     .replace(/\u00AD/g, "");
+}
+
+type TextTree = string | [string, ...string[]] | [TextTree, ...TextTree[]];
+
+// Renders a node to nested lines, putting text from childdren into nested arrays
+// without empty arrays and with arrays that contain a single array or string flattened
+export function renderToNestedLines(
+  node:
+    | CheerioAPI
+    | Document
+    | string
+    | Element
+    | AnyNode
+    | cheerio.Cheerio<AnyNode>,
+): TextTree[] {
+  let root:
+    | AnyNode
+    | Document
+    | Element
+    | null
+    | ReturnType<ReturnType<typeof cheerio.load>>[number] = null;
+  let roots: AnyNode[] | null = null;
+  if (typeof node === "string") {
+    root = cheerio.load(node)("body")[0];
+  } else if (typeof node === "object" && "0" in node) {
+    root = node[0] as AnyNode;
+    roots = Array.from(node as ArrayLike<AnyNode>);
+  } else if (typeof node === "object" && "children" in node && "type" in node) {
+    root = node;
+  }
+
+  if (!root) {
+    throw new Error(
+      "node was not a string, cheerio loaded document, or a cheerio node",
+    );
+  }
+
+  // Inline content is joined into lines (split on <br>); block elements nest.
+  function toTree(block: AnyNode): TextTree | null {
+    const items: TextTree[] = [];
+    let line = "";
+
+    const flush = () => {
+      const text = line
+        .replace(/\u00AD/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+      if (text) items.push(text);
+      line = "";
+    };
+
+    const visit = (node: AnyNode) => {
+      if (node.type === "text") {
+        line += node.data;
+      } else if (node.type === "tag") {
+        if (node.tagName === "br") {
+          flush();
+        } else if (isBlockTag(node.tagName)) {
+          flush();
+          const child = toTree(node);
+          if (child !== null) items.push(child);
+        } else {
+          for (const c of node.children) visit(c);
+        }
+      }
+    };
+
+    if (block.type === "text") visit(block);
+    else if ("children" in block) for (const c of block.children) visit(c);
+    flush();
+
+    if (items.length === 0) return null;
+    if (items.length === 1) return items[0];
+    return items as TextTree;
+  }
+
+  let tree: TextTree | null;
+  if (roots && roots.length > 1) {
+    const trees = roots.map(toTree).filter((t): t is TextTree => t !== null);
+    tree =
+      trees.length === 0
+        ? null
+        : trees.length === 1
+          ? trees[0]
+          : (trees as TextTree);
+  } else {
+    tree = toTree(root as AnyNode);
+  }
+  if (tree === null) return [];
+  return typeof tree === "string" ? [tree] : tree;
+}
+
+export function* parseClassesSchedulesTree(
+  tree: TextTree[],
+  now: Date,
+): Generator<
+  {
+    ageRange: {
+      min: number | null;
+      max: number | null;
+    };
+    rankRange: {
+      min: number | null;
+      max: number | null;
+    };
+    nextStart: Date;
+    nextEnd: Date;
+    weekday: string;
+    className: string;
+  },
+  void,
+  unknown
+> {
+  interface Context {
+    weekdays?: Weekday[];
+    timeRange?: TimeRange;
+    className?: string;
+  }
+
+  // Context flows from a node down into its nested arrays; within a node,
+  // items are read in order, and a class is yielded as soon as an item
+  // completes weekdays + timeRange + className.
+  function* visit(
+    node: TextTree[],
+    inherited: Context,
+  ): ReturnType<typeof parseClassesSchedulesTree> {
+    const data: Context = { ...inherited };
+
+    for (const item of node) {
+      if (Array.isArray(item)) {
+        yield* visit(item, data);
+        continue;
+      }
+
+      const weekdays = getRRuleWeekdaysByFullDanishName(item);
+      const timeRange = safeParseTimeRange(item, now);
+      let lastSet: "timeRange" | "className" | "both" | undefined;
+
+      if (weekdays) data.weekdays = weekdays;
+      if (timeRange) {
+        data.timeRange = timeRange;
+        lastSet = "timeRange";
+      }
+      // Whatever is left after removing weekdays and times names the class,
+      // e.g. "Børn kl. 17–18" -> "Børn"
+      const rest = item
+        .replace(danishWeekDayREG, "")
+        .replace(timeRange ? timeRangeRE : /(?!)/, "")
+        .replace(/\bkl\.?(?=\s|$)/gi, "")
+        .replace(/^[\s:,.–-]+|[\s:,.–-]+$/g, "")
+        .trim();
+      if (rest && (!weekdays || timeRange)) {
+        data.className = rest;
+        lastSet = lastSet ? "both" : "className";
+      }
+
+      const { weekdays: days, timeRange: range, className } = data;
+      if (!lastSet || !days || !range || !className) continue;
+
+      for (const weekday of days) {
+        yield {
+          className,
+          weekday: weekday.toString(),
+          ...getNextStartAndEnd(range, weekday, now),
+          ...getAgeAndRankFromClassName(className),
+        };
+      }
+
+      if (lastSet !== "className") data.timeRange = undefined;
+      if (lastSet !== "timeRange") data.className = undefined;
+    }
+  }
+
+  yield* visit(tree, {});
+}
+
+if (import.meta.vitest) {
+  const { describe, it, expect } = import.meta.vitest;
+
+  describe("renderToNestedLines", () => {
+    it("should render a simple HTML string to nested lines", () => {
+      const html = "<div><p>Hello</p><p>World</p></div>";
+      expect(renderToNestedLines(html)).toEqual(["Hello", "World"]);
+    });
+    it("should keep inline elements on the same line", () => {
+      const html = "<div><p>Hello <span>World <em>!</em></span></p></div>";
+      expect(renderToNestedLines(html)).toEqual(["Hello World !"]);
+    });
+    it("should not split words across inline elements", () => {
+      const html =
+        "<p><strong>Begyndere og ø</strong><span><strong>vede</strong></span></p>";
+      expect(renderToNestedLines(html)).toEqual(["Begyndere og øvede"]);
+    });
+    it("should split lines on <br>", () => {
+      const html =
+        "<p><strong>Kamptræning</strong><br />\n<span>18:00-20:00</span></p>";
+      expect(renderToNestedLines(html)).toEqual(["Kamptræning", "18:00-20:00"]);
+    });
+    it("should nest block elements", () => {
+      const html =
+        "<div><div>Mandag:&nbsp;</div><div><p>Børnehold<br>16:30</p><p>Øvede<br>17:45</p></div></div>";
+      expect(renderToNestedLines(html)).toEqual([
+        "Mandag:",
+        [
+          ["Børnehold", "16:30"],
+          ["Øvede", "17:45"],
+        ],
+      ]);
+    });
+    it("should flatten single nested arrays", () => {
+      expect(renderToNestedLines("<div><p>Hello</p></div>")).toEqual(["Hello"]);
+    });
+    it("should return an empty array for empty content", () => {
+      expect(renderToNestedLines("<div><p> </p></div>")).toEqual([]);
+    });
+    it("should handle multiple cheerio selections", () => {
+      const $ = cheerio.load("<div><p>Hello</p><p>World</p></div>");
+      expect(renderToNestedLines($("p"))).toEqual(["Hello", "World"]);
+    });
+    it("should handle frederiksberg-karateskole HTML structure", async () => {
+      const fk$ = cheerio.load(
+        readFileSync("./frederiksbergkarateskole.dk.html", "utf-8"),
+      )("#main");
+      fk$.find("h1").remove();
+      const result = renderToNestedLines(fk$);
+
+      expect(result).toEqual([
+        [
+          "Mandag:",
+          [
+            ["Børnehold", "16:30–17:30"],
+            ["Begynder og øvede", "17:45–19:45"],
+          ],
+        ],
+        ["Tirsdag:", "Ingen træning"],
+        ["Onsdag:", ["Begyndere og øvede", "17:30–19:30"]],
+        ["Torsdag:", ["Kamptræning", "18:00-20:00"]],
+        [
+          "Fredag:",
+          [
+            ["Teknisk træning for alle", "17:00-18:15"],
+            "(Selvtræning, instruktør ikke garanteret)",
+          ],
+        ],
+        ["Lørdag:", "Lukket"],
+      ]);
+    });
+  });
+  describe("parseClassesSchedulesTree", async () => {
+    it("should handle frederiksberg-karateskole HTML structure", async () => {
+      const fk$ = cheerio.load(
+        readFileSync("./frederiksbergkarateskole.dk.html", "utf-8"),
+      )("body");
+
+      const parsedSchedules = Array.from(
+        parseClassesSchedulesTree(
+          renderToNestedLines(fk$),
+          new Date("2026-11-30T00:30:00.000Z"),
+        ),
+      );
+      expect(parsedSchedules).toEqual([
+        {
+          className: "Børnehold",
+          weekday: "MO",
+          nextStart: new Date("2026-11-30T15:30:00.000Z"),
+          nextEnd: new Date("2026-11-30T16:30:00.000Z"),
+          rankRange: { min: null, max: -11 },
+          ageRange: { min: null, max: null },
+        },
+        {
+          className: "Begynder og øvede",
+          weekday: "MO",
+          nextStart: new Date("2026-11-30T16:45:00.000Z"),
+          nextEnd: new Date("2026-11-30T18:45:00.000Z"),
+          rankRange: { min: -10, max: null },
+          ageRange: { min: null, max: null },
+        },
+        {
+          className: "Begyndere og øvede",
+          weekday: "WE",
+          nextStart: new Date("2026-12-02T16:30:00.000Z"),
+          nextEnd: new Date("2026-12-02T18:30:00.000Z"),
+          rankRange: { min: -10.5, max: null },
+          ageRange: { min: null, max: null },
+        },
+        {
+          className: "Kamptræning",
+          weekday: "TH",
+          nextStart: new Date("2026-12-03T17:00:00.000Z"),
+          nextEnd: new Date("2026-12-03T19:00:00.000Z"),
+          rankRange: { min: -10.5, max: null },
+          ageRange: { min: null, max: null },
+        },
+        {
+          className: "Teknisk træning for alle",
+          weekday: "FR",
+          nextStart: new Date("2026-12-04T16:00:00.000Z"),
+          nextEnd: new Date("2026-12-04T17:15:00.000Z"),
+          rankRange: { min: -10.5, max: null },
+          ageRange: { min: null, max: null },
+        },
+      ]);
+    });
+
+    it("should handle kakushin.dk HTML structure", async () => {
+      const kk$ = cheerio.load(readFileSync("./kakushin.dk.html", "utf-8"))(
+        "body",
+      );
+
+      const parsedSchedules = Array.from(
+        parseClassesSchedulesTree(
+          renderToNestedLines(kk$),
+          new Date("2026-11-30T00:30:00.000Z"),
+        ),
+      );
+      expect(parsedSchedules).toEqual([
+        {
+          className: "Børn",
+          weekday: "TU",
+          nextStart: new Date("2026-12-01T16:00:00.000Z"),
+          nextEnd: new Date("2026-12-01T17:00:00.000Z"),
+          rankRange: { min: null, max: -11 },
+          ageRange: { min: null, max: null },
+        },
+        {
+          className: "Voksne",
+          weekday: "TU",
+          nextStart: new Date("2026-12-01T17:00:00.000Z"),
+          nextEnd: new Date("2026-12-01T19:00:00.000Z"),
+          rankRange: { min: -10.5, max: null },
+          ageRange: { min: null, max: null },
+        },
+        {
+          className: "Børn",
+          weekday: "TH",
+          nextStart: new Date("2026-12-03T16:00:00.000Z"),
+          nextEnd: new Date("2026-12-03T17:00:00.000Z"),
+          rankRange: { min: null, max: -11 },
+          ageRange: { min: null, max: null },
+        },
+        {
+          className: "Voksne",
+          weekday: "TH",
+          nextStart: new Date("2026-12-03T17:00:00.000Z"),
+          nextEnd: new Date("2026-12-03T19:00:00.000Z"),
+          rankRange: { min: -10.5, max: null },
+          ageRange: { min: null, max: null },
+        },
+        {
+          className: "Kamptræning",
+          weekday: "SU",
+          nextStart: new Date("2026-12-06T09:00:00.000Z"),
+          nextEnd: new Date("2026-12-06T11:00:00.000Z"),
+          rankRange: { min: -10.5, max: null },
+          ageRange: { min: null, max: null },
+        },
+      ]);
+    });
+
+    it("should handle bskarate.dk HTML structure", async () => {
+      const bs$ = cheerio.load(readFileSync("./bskarate.dk.html", "utf-8"))(
+        "body",
+      );
+
+      const parsedSchedules = Array.from(
+        parseClassesSchedulesTree(
+          renderToNestedLines(bs$),
+          new Date("2026-11-27T00:30:00.000Z"),
+        ),
+      );
+      expect(parsedSchedules).toEqual([
+        {
+          className: "Børn 4 – 10 år",
+          nextStart: new Date("2026-11-29T09:00:00.000Z"),
+          nextEnd: new Date("2026-11-29T10:15:00.000Z"),
+          rankRange: { min: null, max: -11 },
+          ageRange: { min: 4, max: 10 },
+          weekday: "SU",
+        },
+        {
+          className: "Begynder – 9. kyu",
+          nextStart: new Date("2026-11-30T17:00:00.000Z"),
+          nextEnd: new Date("2026-11-30T18:00:00.000Z"),
+          rankRange: { min: -10.5, max: -9 },
+          ageRange: { min: null, max: null },
+          weekday: "MO",
+        },
+        {
+          className: "Begynder – 9. kyu",
+          nextStart: new Date("2026-12-02T17:00:00.000Z"),
+          nextEnd: new Date("2026-12-02T18:00:00.000Z"),
+          rankRange: { min: -10.5, max: -9 },
+          ageRange: { min: null, max: null },
+          weekday: "WE",
+        },
+        {
+          className: "Øvet (8. kyu og op)",
+          nextStart: new Date("2026-11-30T18:00:00.000Z"),
+          nextEnd: new Date("2026-11-30T19:30:00.000Z"),
+          rankRange: { min: -8, max: null },
+          ageRange: { min: null, max: null },
+          weekday: "MO",
+        },
+        {
+          className: "Øvet (8. kyu og op)",
+          nextStart: new Date("2026-12-02T18:00:00.000Z"),
+          nextEnd: new Date("2026-12-02T19:30:00.000Z"),
+          rankRange: { min: -8, max: null },
+          ageRange: { min: null, max: null },
+          weekday: "WE",
+        },
+        {
+          className: "Kamptræning for alle",
+          nextStart: new Date("2026-11-27T16:30:00.000Z"),
+          nextEnd: new Date("2026-11-27T18:00:00.000Z"),
+          rankRange: { min: -10.5, max: null },
+          ageRange: { min: null, max: null },
+          weekday: "FR",
+        },
+      ]);
+    });
+  });
 }
 
 function walk(

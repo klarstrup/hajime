@@ -3,7 +3,9 @@ import {
   danishFullWeekdays,
   getAgeAndRankFromClassName,
   getRRuleWeekdaysByFullDanishName,
+  parseClassesSchedulesTree,
   render,
+  renderToNestedLines,
   safeParseTimeRange,
   timeRangeRE2,
 } from "../../utils";
@@ -54,8 +56,8 @@ export const dkuSources = [
     federation: ["dku"],
     classesUrl: "https://kakushin.dk/",
     loadClasses: async function* ({ now }: { now: Date }) {
-      for (const el of (await fetch$("https://kakushin.dk/"))(".card-body"))
-        yield* parseClassesSchedulesLines(render(el).split("\n"), now);
+      const kk$ = (await fetch$("https://kakushin.dk/"))(".card-body");
+      yield* parseClassesSchedulesTree(renderToNestedLines(kk$), now);
     },
   },
   {
@@ -454,16 +456,8 @@ export const dkuSources = [
           "https://www.frederiksbergkarateskole.dk/tr%C3%A6ningstider",
         )
       )("#main");
-      fk$.find("h1").remove();
 
-      const holdLines = nlp
-        .readDoc(render(fk$).replace(/(\d+)\./g, "$1[DOT]"))
-        .sentences()
-        .out()
-        .flatMap((s) => s.replace(/\[DOT\]/g, ".").split(/\.?\n/))
-        .map((line) => line.trim().replace(/\:$/, ""));
-
-      yield* parseClassesSchedulesLines(holdLines, now);
+      yield* parseClassesSchedulesTree(renderToNestedLines(fk$), now);
     },
   },
 ] as const;

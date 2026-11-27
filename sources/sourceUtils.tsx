@@ -288,6 +288,7 @@ export function* parseClassesSchedulesLines(
     for (const weekday of weekdays) {
       yield {
         className,
+        weekday: weekday.toString(),
         ...getNextStartAndEnd(timeRange, weekday, now),
         ...getAgeAndRankFromClassName(className),
         ...rest,
