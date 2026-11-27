@@ -340,8 +340,15 @@ export function* parseClassesSchedulesTree(
         continue;
       }
 
+      // Prose (several sentences, or very long) is a note, not schedule data
+      if (item.length > 120 || /[.!?]\s+[A-ZÆØÅ]/.test(item)) continue;
+
       const weekdays = getRRuleWeekdaysByFullDanishName(item);
-      const timeRange = safeParseTimeRange(item, now);
+      // First time range in the line that isn't an age range ("4 – 10 år")
+      const timeMatch = Array.from(
+        item.matchAll(new RegExp(timeRangeRE, "g")),
+      ).find((m) => !/^\s*år/i.test(item.slice(m.index + m[0].length)));
+      const timeRange = timeMatch && safeParseTimeRange(timeMatch[0], now);
       let lastSet: "timeRange" | "className" | "both" | undefined;
 
       if (weekdays) data.weekdays = weekdays;
@@ -353,7 +360,7 @@ export function* parseClassesSchedulesTree(
       // e.g. "Børn kl. 17–18" -> "Børn"
       const rest = item
         .replace(danishWeekDayREG, "")
-        .replace(timeRange ? timeRangeRE : /(?!)/, "")
+        .replace(timeRange && timeMatch ? timeMatch[0] : "", "")
         .replace(/\bkl\.?(?=\s|$)/gi, "")
         .replace(/^[\s:,.–-]+|[\s:,.–-]+$/g, "")
         .trim();
@@ -624,6 +631,133 @@ if (import.meta.vitest) {
           rankRange: { min: -10.5, max: null },
           ageRange: { min: null, max: null },
           weekday: "FR",
+        },
+      ]);
+    });
+    it("should handle farumkyokushin.dk HTML", async () => {
+      const html = readFileSync("./farumkyokushin.dk.html", "utf-8");
+      const parsedSchedules = Array.from(
+        parseClassesSchedulesTree(
+          renderToNestedLines(html),
+          new Date("2026-11-27T00:30:00.000Z"),
+        ),
+      );
+      expect(
+        parsedSchedules.sort(
+          (a, b) => a.nextStart.getTime() - b.nextStart.getTime(),
+        ),
+      ).toEqual([
+        {
+          className: "Karate Kids (øvede)",
+          nextStart: new Date("2026-11-28T09:00:00.000Z"),
+          nextEnd: new Date("2026-11-28T10:30:00.000Z"),
+          rankRange: { min: null, max: -21 },
+          ageRange: { min: 6, max: 8 },
+          weekday: "SA",
+        },
+        {
+          className: "Minimum 10. kyu (til og med 14 år og min. 10. kyu)",
+          weekday: "SA",
+          nextStart: new Date("2026-11-28T10:30:00.000Z"),
+          nextEnd: new Date("2026-11-28T12:00:00.000Z"),
+          rankRange: { min: -10, max: null },
+          ageRange: { min: null, max: 14 },
+        },
+        {
+          className: "Mini Bushi",
+          weekday: "SU",
+          nextStart: new Date("2026-11-29T08:00:00.000Z"),
+          nextEnd: new Date("2026-11-29T09:00:00.000Z"),
+          rankRange: { min: null, max: -21 },
+          ageRange: { min: 3, max: 5 },
+        },
+        {
+          className: "Åbent katahold (fra 15 år og op, alle grader)",
+          weekday: "SU",
+          nextStart: new Date("2026-11-29T09:00:00.000Z"),
+          nextEnd: new Date("2026-11-29T10:00:00.000Z"),
+          rankRange: { min: -10.5, max: null },
+          ageRange: { min: 15, max: null },
+        },
+        {
+          className: "Kamptræning (min. 10. kyu)",
+          weekday: "SU",
+          nextStart: new Date("2026-11-29T10:00:00.000Z"),
+          nextEnd: new Date("2026-11-29T11:30:00.000Z"),
+          rankRange: { min: -10, max: null },
+          ageRange: { min: null, max: null },
+        },
+        {
+          className: "SSS-træning (styrke, Stamina og Stræk)",
+          weekday: "SU",
+          nextStart: new Date("2026-11-29T11:30:00.000Z"),
+          nextEnd: new Date("2026-11-29T12:00:00.000Z"),
+          rankRange: { min: -10.5, max: null },
+          ageRange: { min: null, max: null },
+        },
+        {
+          className: "9. kyu (fra 15 år) samt 8. og 7. kyu (alle aldre)",
+          weekday: "MO",
+          nextStart: new Date("2026-11-30T16:00:00.000Z"),
+          nextEnd: new Date("2026-11-30T17:30:00.000Z"),
+          rankRange: { min: -9, max: -7 },
+          ageRange: { min: null, max: null },
+        },
+        {
+          className: "6., 5., 4. og 3. kyu (alle aldre)",
+          weekday: "MO",
+          nextStart: new Date("2026-11-30T17:30:00.000Z"),
+          nextEnd: new Date("2026-11-30T19:00:00.000Z"),
+          rankRange: { min: -6, max: -3 },
+          ageRange: { min: null, max: null },
+        },
+        {
+          className: "Begyndere og letøvede",
+          weekday: "TU",
+          nextStart: new Date("2026-12-01T16:00:00.000Z"),
+          nextEnd: new Date("2026-12-01T17:15:00.000Z"),
+          rankRange: { min: -10.5, max: null },
+          ageRange: { min: null, max: null },
+        },
+        {
+          className: "2. kyu og højere (fra 15 år og op)",
+          weekday: "TU",
+          nextStart: new Date("2026-12-01T17:15:00.000Z"),
+          nextEnd: new Date("2026-12-01T18:45:00.000Z"),
+          rankRange: { min: -2, max: null },
+          ageRange: { min: 15, max: null },
+        },
+        {
+          className: "Kobudo (minimum 15 år og 6. kyu)",
+          weekday: "TU",
+          nextStart: new Date("2026-12-01T19:00:00.000Z"),
+          nextEnd: new Date("2026-12-01T20:15:00.000Z"),
+          rankRange: { min: -6, max: null },
+          ageRange: { min: 15, max: null },
+        },
+        {
+          className: "Børn og unge (til og med 14 år og min. 10. kyu)",
+          weekday: "WE",
+          nextStart: new Date("2026-12-02T15:30:00.000Z"),
+          nextEnd: new Date("2026-12-02T16:45:00.000Z"),
+          rankRange: { min: -10, max: null },
+          ageRange: { min: null, max: 14 },
+        },
+        {
+          className: "Begyndere og letøvede",
+          weekday: "TH",
+          nextStart: new Date("2026-12-03T16:00:00.000Z"),
+          nextEnd: new Date("2026-12-03T17:15:00.000Z"),
+          rankRange: { min: -10.5, max: null },
+          ageRange: { min: null, max: null },
+        },
+        {
+          className: "Fællestræning (fra 15 år og op, alle grader)",
+          weekday: "TH",
+          nextStart: new Date("2026-12-03T17:15:00.000Z"),
+          nextEnd: new Date("2026-12-03T18:45:00.000Z"),
+          rankRange: { min: -10.5, max: null },
+          ageRange: { min: 15, max: null },
         },
       ]);
     });

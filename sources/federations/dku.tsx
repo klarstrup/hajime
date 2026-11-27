@@ -301,32 +301,12 @@ export const dkuSources = [
     },
     classesUrl: "https://farumkyokushin.dk/traeningstider/",
     async *loadClasses({ now }: { now: Date }) {
-      const $res = await fetch$("https://farumkyokushin.dk/traeningstider/");
-
-      $res(".av_one_half")
-        .parent()
-        .children()
-        .each((_, el) => {
-          if (!$res(el).hasClass("av_one_half")) $res(el).remove();
-        });
-
-      const times = $res(".av_one_half").parent();
-      times.find("br").replaceWith("\n");
-
-      const holdLines = nlp
-        .readDoc(
-          render(times)
-            .replace(/(\d+)\./g, "$1[DOT]")
-            .replace(/(min)\. (\d+)/g, "$1[DOT] $2"),
-        )
-        .sentences()
-        .out()
-        .flatMap((s) => s.replace(/\[DOT\]/g, ".").split(/\.?\n/))
-        .flatMap((line) => line.split(/:/))
-        .map((line) => line.trim());
-
-      // The lines can be weekday names, time range of day, class name and instructors. In that order. Assemble them into structured data.
-      yield* parseClassesSchedulesLines(holdLines, now);
+      yield* parseClassesSchedulesTree(
+        renderToNestedLines(
+          await fetch$("https://farumkyokushin.dk/traeningstider/"),
+        ),
+        now,
+      );
     },
   },
   {
