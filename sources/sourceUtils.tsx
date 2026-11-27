@@ -426,7 +426,7 @@ export const fetchEvents = async ({
           .finally(() => {
             if (process.env.VERCEL) {
               console.timeEnd(
-                `Loading events for source: ${source.name} ${source.calendarUrl}`,
+                `Loading events for source: ${source.name} ${source.calendarUrl} ${cotemporality}`,
               );
             }
           });
