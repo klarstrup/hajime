@@ -231,6 +231,10 @@ export function renderToNestedLines(
     roots = Array.from(node as ArrayLike<AnyNode>);
   } else if (typeof node === "object" && "children" in node && "type" in node) {
     root = node;
+    // might be a cheerio.load returned callable CheerioAPI instance
+  } else if (node instanceof cheerio.load("").constructor) {
+    // @ts-expect-error - TypeScript cannot infer the type of node as a callable Cheerio instance
+    root = node("body")[0];
   }
 
   if (!root) {

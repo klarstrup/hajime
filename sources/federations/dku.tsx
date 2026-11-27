@@ -56,8 +56,10 @@ export const dkuSources = [
     federation: ["dku"],
     classesUrl: "https://kakushin.dk/",
     loadClasses: async function* ({ now }: { now: Date }) {
-      const kk$ = (await fetch$("https://kakushin.dk/"))(".card-body");
-      yield* parseClassesSchedulesTree(renderToNestedLines(kk$), now);
+      yield* parseClassesSchedulesTree(
+        renderToNestedLines(await fetch$("https://kakushin.dk/")),
+        now,
+      );
     },
   },
   {
@@ -451,13 +453,14 @@ export const dkuSources = [
     federation: ["dku"],
     classesUrl: "https://www.frederiksbergkarateskole.dk/tr%C3%A6ningstider-0",
     async *loadClasses({ now }: { now: Date }) {
-      const fk$ = (
-        await fetch$(
-          "https://www.frederiksbergkarateskole.dk/tr%C3%A6ningstider",
-        )
-      )("#main");
-
-      yield* parseClassesSchedulesTree(renderToNestedLines(fk$), now);
+      yield* parseClassesSchedulesTree(
+        renderToNestedLines(
+          await fetch$(
+            "https://www.frederiksbergkarateskole.dk/tr%C3%A6ningstider",
+          ),
+        ),
+        now,
+      );
     },
   },
 ] as const;
