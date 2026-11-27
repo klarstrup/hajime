@@ -11,6 +11,7 @@ const nextConfig: NextConfig = {
     },
     useCacheTimeout: 300,
   },
+  staticPageGenerationTimeout: 300,
   reactCompiler: true,
   cacheComponents: true,
   partialPrefetching: true,
