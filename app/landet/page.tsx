@@ -13,7 +13,9 @@ const clubs = eventsSources
       source.federation?.flatMap((f) =>
         f === "dkarf" ? ["dkarf", "dif"] : f,
       ) ?? []
-    ).filter((f) => !ignoredFederations.includes(f)),
+    )
+      .filter((f) => !ignoredFederations.includes(f))
+      .sort((a, b) => a.localeCompare(b)),
   }));
 const federations = clubs
   .flatMap((source) => source.federation ?? [])
