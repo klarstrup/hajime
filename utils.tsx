@@ -350,12 +350,14 @@ export function parseClassesSchedulesTree(
     ) {
       return null;
     }
-    return (labeled ?? line)
+    return splitInstructors(labeled ?? line);
+  };
+  const splitInstructors = (names: string) =>
+    names
       .replace(/\.$/, "")
-      .split(/\s*,\s*|\s+og\s+/)
+      .split(/\s*[,/]\s*|\s+(?:og|eller)\s+/)
       .map((name) => name.trim())
       .filter(Boolean);
-  };
 
   // Context flows from a node down into its nested arrays; within a node,
   // items are read in order, and a class is added as soon as an item
@@ -408,23 +410,38 @@ export function parseClassesSchedulesTree(
         continue;
       }
 
-      // Prose (several sentences, or very long) is a note, not schedule data
-      if (item.length > 120 || /[.!?]\s+[A-ZÆØÅ]/.test(item)) continue;
-
-      const weekdays = getRRuleWeekdaysByFullDanishName(item);
       // First time range in the line that isn't an age range ("4 – 10 år")
       const timeMatch = Array.from(
         item.matchAll(new RegExp(timeRangeRE, "g")),
       ).find((m) => !/^\s*år/i.test(item.slice(m.index + m[0].length)));
       const timeRange = timeMatch && safeParseTimeRange(timeMatch[0], now);
+
+      // Text after the time as its own sentence names the instructors:
+      // "kl. 18.30 - 20.00. Senpai Leif / Ulrik"
+      const timeEnd = timeMatch ? timeMatch.index + timeMatch[0].length : -1;
+      const trailing = timeRange
+        ? /^\.\s+(\S.*)$/.exec(item.slice(timeEnd))?.[1]
+        : undefined;
+      const line = trailing ? item.slice(0, timeEnd) : item;
+      const lineInstructors = trailing
+        ? (parseInstructors(trailing) ?? splitInstructors(trailing))
+        : undefined;
+
+      // Prose (several sentences, or very long) is a note, not schedule data
+      if (line.length > 120 || /[.!?]\s+[A-ZÆØÅ]/.test(line)) continue;
+
+      const weekdays = getRRuleWeekdaysByFullDanishName(line);
       let lastSet: "timeRange" | "className" | "both" | undefined;
 
       // "Alder: 10-13 år", "Tid: Mandag kl. 17-18", "Pris: …" - the label
       // itself is never a class name
-      const label = /^([a-zæøå][^\s:]*):/i.exec(item)?.[1];
+      const label = /^([a-zæøå][^\s:]*):/i.exec(line)?.[1];
       const isLabeled = !!label && !danishWeekDayRE.test(label);
       // A single descriptive sentence, e.g. "Vi fokuserer særligt på kata."
-      const isSentence = /[a-zæøå]\.$/i.test(item) && item.includes(" ");
+      const isSentence =
+        /[a-zæøå]\.$/i.test(line) &&
+        line.includes(" ") &&
+        !/\b(?:etc|inkl|osv|mm|ca|evt)\.$/i.test(line);
 
       if (weekdays) data.weekdays = weekdays;
       if (timeRange) {
@@ -433,7 +450,7 @@ export function parseClassesSchedulesTree(
       }
       // Whatever is left after removing weekdays and times names the class,
       // e.g. "Børn kl. 17–18" -> "Børn"
-      const rest = item
+      const rest = line
         .replace(danishWeekDayREG, "")
         .replace(timeRange && timeMatch ? timeMatch[0] : "", "")
         .replace(/\bkl\.?(?=\s|$)/gi, "")
@@ -486,6 +503,7 @@ export function parseClassesSchedulesTree(
           ...getNextStartAndEnd(range, weekday, now),
           ageRange: nameHasAge ? ageRange : (data.ageRange ?? ageRange),
           rankRange,
+          ...(lineInstructors && { instructors: lineInstructors }),
         });
       }
 
@@ -1322,6 +1340,72 @@ if (import.meta.vitest) {
           nextEnd: new Date("2026-12-03T17:30:00.000Z"),
           ageRange: { min: null, max: null },
           rankRange: { min: -10.5, max: null },
+        },
+      ]);
+    });
+    it("should handle svendborg-karateskole.dk HTML structure", async () => {
+      const parsedSchedules = renderClasses(
+        readFileSync("./svendborg-karateskole.dk.html", "utf-8"),
+        new Date("2026-11-28T00:30:00.000Z"),
+      );
+      expect(
+        parsedSchedules.sort(
+          (a, b) => a.nextStart.getTime() - b.nextStart.getTime(),
+        ),
+      ).toEqual([
+        {
+          className: "VOKSNE - Begyndere til og med 7. kyu",
+          weekday: "MO",
+          nextStart: new Date("2026-11-30T17:30:00.000Z"),
+          nextEnd: new Date("2026-11-30T19:00:00.000Z"),
+          ageRange: { min: null, max: null },
+          rankRange: { min: -10.5, max: -7 },
+          instructors: ["Senpai Leif", "Ulrik"],
+        },
+        {
+          className: "BØRN (inkl. begyndere)",
+          weekday: "TU",
+          nextStart: new Date("2026-12-01T16:15:00.000Z"),
+          nextEnd: new Date("2026-12-01T17:15:00.000Z"),
+          ageRange: { min: null, max: null },
+          rankRange: { min: -20.5, max: -11 },
+          instructors: ["Senpai Bo", "Tariq"],
+        },
+        {
+          className: "VOKSNE - Øvede 6. kyu etc",
+          weekday: "TU",
+          nextStart: new Date("2026-12-01T17:30:00.000Z"),
+          nextEnd: new Date("2026-12-01T19:00:00.000Z"),
+          ageRange: { min: null, max: null },
+          rankRange: { min: -6, max: null },
+          instructors: ["Sensei Kim", "Senpai Charlotte"],
+        },
+        {
+          className: "KAMPTRÆNING",
+          weekday: "WE",
+          nextStart: new Date("2026-12-02T16:30:00.000Z"),
+          nextEnd: new Date("2026-12-02T18:00:00.000Z"),
+          ageRange: { min: null, max: null },
+          rankRange: { min: -10.5, max: null },
+          instructors: ["Sensei Kim"],
+        },
+        {
+          className: "BØRN (inkl. begyndere)",
+          weekday: "TH",
+          nextStart: new Date("2026-12-03T16:15:00.000Z"),
+          nextEnd: new Date("2026-12-03T17:15:00.000Z"),
+          ageRange: { min: null, max: null },
+          rankRange: { min: -20.5, max: -11 },
+          instructors: ["Senpai Bo", "Tariq"],
+        },
+        {
+          className: "VOKSNE - Fælleshold (inkl. begyndere)",
+          weekday: "TH",
+          nextStart: new Date("2026-12-03T17:30:00.000Z"),
+          nextEnd: new Date("2026-12-03T19:00:00.000Z"),
+          ageRange: { min: null, max: null },
+          rankRange: { min: -10.5, max: null },
+          instructors: ["Nikolaj"],
         },
       ]);
     });

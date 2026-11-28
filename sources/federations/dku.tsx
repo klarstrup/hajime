@@ -108,6 +108,12 @@ export const dkuSources = [
     type: "club",
     federation: ["dku"],
     classesUrl: "https://svendborg-karateskole.dk/#tider",
+    async *loadClasses({ now }: { now: Date }) {
+      yield* renderClasses(
+        await fetch$("https://svendborg-karateskole.dk/"),
+        now,
+      );
+    },
   },
   {
     sourceId: "karateklubben-kenzoku",
