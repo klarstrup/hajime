@@ -301,30 +301,37 @@ export function renderToNestedLines(
 export function* parseClassesSchedulesTree(
   tree: TextTree[],
   now: Date,
-): Generator<
-  {
-    ageRange: {
-      min: number | null;
-      max: number | null;
-    };
-    rankRange: {
-      min: number | null;
-      max: number | null;
-    };
-    nextStart: Date;
-    nextEnd: Date;
-    weekday: string;
-    className: string;
-  },
-  void,
-  unknown
-> {
+): Generator<{
+  ageRange: { min: number | null; max: number | null };
+  rankRange: { min: number | null; max: number | null };
+  nextStart: Date;
+  nextEnd: Date;
+  weekday: string;
+  className: string;
+}> {
   interface Context {
     weekdays?: Weekday[];
     timeRange?: TimeRange;
     className?: string;
     ageRange?: { min: number | null; max: number | null };
+    // The weekdays in effect when className was set, to tell whether a
+    // weekday came between a heading and a nested name
+    classNameWeekdays?: Weekday[];
   }
+
+  // Headings that introduce a schedule rather than name a class
+  const genericHeadings = new Set([
+    "træningstider",
+    "træningstid",
+    "træningsskema",
+    "tider",
+    "tider og priser",
+    "hold",
+    "vores hold",
+    "holdoversigt",
+    "holdplan",
+    "skema",
+  ]);
 
   // Context flows from a node down into its nested arrays; within a node,
   // items are read in order, and a class is yielded as soon as an item
@@ -372,8 +379,27 @@ export function* parseClassesSchedulesTree(
         .replace(/\bkl\.?(?=\s|$)/gi, "")
         .replace(/^[\s:,.–-]+|[\s:,.–-]+$/g, "")
         .trim();
-      if (rest && !isLabeled && !isSentence && (!weekdays || timeRange)) {
-        data.className = rest;
+      if (genericHeadings.has(rest.toLowerCase())) {
+        data.className = undefined;
+        continue;
+      }
+
+      // A leftover that's only a parenthetical is a note: "(opvarming fra 19:00)"
+      const isNote = /^\(.*\)$/.test(rest);
+      if (
+        rest &&
+        !isLabeled &&
+        !isSentence &&
+        !isNote &&
+        (!weekdays || timeRange)
+      ) {
+        // Nested names qualify the heading above them: "Kidzz" > "3-5 år",
+        // unless a weekday came in between: "Træningstider" > "Tirsdag" > "Børn"
+        data.className =
+          inherited.className && inherited.classNameWeekdays === data.weekdays
+            ? `${inherited.className}, ${rest}`
+            : rest;
+        data.classNameWeekdays = data.weekdays;
         lastSet = lastSet ? "both" : "className";
       } else if (!timeRange) {
         // A standalone age line ("Alder: Fra 13 år") applies to its class
@@ -817,6 +843,144 @@ if (import.meta.vitest) {
             nextStart: new Date("2026-11-28T09:00:00.000Z"),
             nextEnd: new Date("2026-11-28T11:00:00.000Z"),
             rankRange: { min: -10, max: null },
+            ageRange: { min: null, max: null },
+          },
+        ].sort((a, b) => a.nextStart.getTime() - b.nextStart.getTime()),
+      );
+    });
+    it("should handle roskildekarateklub.dk HTML structure", async () => {
+      const parsedSchedules = Array.from(
+        parseClassesSchedulesTree(
+          renderToNestedLines(
+            readFileSync("./roskildekarateklub.dk.html", "utf-8"),
+          ),
+          new Date("2026-11-28T00:30:00.000Z"),
+        ),
+      );
+      expect(
+        parsedSchedules.sort(
+          (a, b) => a.nextStart.getTime() - b.nextStart.getTime(),
+        ),
+      ).toEqual(
+        [
+          {
+            className: "Kidzz, 3-5 år",
+            weekday: "TH",
+            nextStart: new Date("2026-12-03T15:30:00.000Z"),
+            nextEnd: new Date("2026-12-03T16:30:00.000Z"),
+            rankRange: { min: null, max: -21 },
+            ageRange: { min: 5, max: 9 },
+          },
+          {
+            className: "Kidzz, 5-7 år",
+            weekday: "TH",
+            nextStart: new Date("2026-12-03T16:30:00.000Z"),
+            nextEnd: new Date("2026-12-03T17:30:00.000Z"),
+            rankRange: { min: null, max: -21 },
+            ageRange: { min: 5, max: 9 },
+          },
+          {
+            className: "Børn, 8-14 år, Begyndere, 10.-9. mon",
+            weekday: "MO",
+            nextStart: new Date("2026-11-30T16:00:00.000Z"),
+            nextEnd: new Date("2026-11-30T17:00:00.000Z"),
+            rankRange: { min: -20.5, max: -19 },
+            ageRange: { min: 8, max: 14 },
+          },
+          {
+            className: "Børn, 8-14 år, Begyndere, 10.-9. mon",
+            weekday: "TH",
+            nextStart: new Date("2026-12-03T17:30:00.000Z"),
+            nextEnd: new Date("2026-12-03T18:30:00.000Z"),
+            rankRange: { min: -20.5, max: -19 },
+            ageRange: { min: 8, max: 14 },
+          },
+          {
+            className: "Børn, 8-14 år, Øvede, 8. mon +",
+            weekday: "MO",
+            nextStart: new Date("2026-11-30T17:00:00.000Z"),
+            nextEnd: new Date("2026-11-30T18:15:00.000Z"),
+            rankRange: { min: -18, max: -11 },
+            ageRange: { min: 8, max: 14 },
+          },
+          {
+            className: "Børn, 8-14 år, Øvede, 8. mon +",
+            weekday: "TH",
+            nextStart: new Date("2026-12-03T17:00:00.000Z"),
+            nextEnd: new Date("2026-12-03T18:30:00.000Z"),
+            rankRange: { min: -18, max: -11 },
+            ageRange: { min: 8, max: 14 },
+          },
+          {
+            className: "Voksne, +14 år, Begyndere, 10.-9. kyu",
+            weekday: "MO",
+            nextStart: new Date("2026-11-30T16:00:00.000Z"),
+            nextEnd: new Date("2026-11-30T17:00:00.000Z"),
+            rankRange: { min: -10.5, max: -9 },
+            ageRange: { min: 14, max: null },
+          },
+          {
+            className: "Voksne, +14 år, Begyndere, 10.-9. kyu",
+            weekday: "WE",
+            nextStart: new Date("2026-12-02T18:00:00.000Z"),
+            nextEnd: new Date("2026-12-02T19:30:00.000Z"),
+            rankRange: { min: -10.5, max: -9 },
+            ageRange: { min: 14, max: null },
+          },
+          {
+            className: "Voksne, +14 år, Let øvede, 8.-5. kyu",
+            weekday: "MO",
+            nextStart: new Date("2026-11-30T17:00:00.000Z"),
+            nextEnd: new Date("2026-11-30T18:15:00.000Z"),
+            rankRange: { min: -8, max: -5 },
+            ageRange: { min: 14, max: null },
+          },
+          {
+            className: "Voksne, +14 år, Let øvede, 8.-5. kyu",
+            weekday: "WE",
+            nextStart: new Date("2026-12-02T18:00:00.000Z"),
+            nextEnd: new Date("2026-12-02T19:30:00.000Z"),
+            rankRange: { min: -8, max: -5 },
+            ageRange: { min: 14, max: null },
+          },
+          {
+            className: "Voksne, +14 år, Øvede, 4. kyu +",
+            weekday: "MO",
+            nextStart: new Date("2026-11-30T18:15:00.000Z"),
+            nextEnd: new Date("2026-11-30T19:30:00.000Z"),
+            rankRange: { min: -4, max: null },
+            ageRange: { min: 14, max: null },
+          },
+          {
+            className: "Voksne, +14 år, Øvede, 4. kyu +",
+            weekday: "WE",
+            nextStart: new Date("2026-12-02T16:30:00.000Z"),
+            nextEnd: new Date("2026-12-02T18:00:00.000Z"),
+            rankRange: { min: -4, max: null },
+            ageRange: { min: 14, max: null },
+          },
+          {
+            className: "Kamphold, For Alle",
+            weekday: "TH",
+            nextStart: new Date("2026-12-03T18:30:00.000Z"),
+            nextEnd: new Date("2026-12-03T20:00:00.000Z"),
+            rankRange: { min: -10.5, max: null },
+            ageRange: { min: null, max: null },
+          },
+          {
+            className: "Katatræning, For øvede",
+            weekday: "SU",
+            nextStart: new Date("2026-11-29T08:30:00.000Z"),
+            nextEnd: new Date("2026-11-29T10:30:00.000Z"),
+            rankRange: { min: -10, max: null },
+            ageRange: { min: null, max: null },
+          },
+          {
+            className: "Kihontræning, For Alle",
+            weekday: "SU",
+            nextStart: new Date("2026-11-29T10:30:00.000Z"),
+            nextEnd: new Date("2026-11-29T11:30:00.000Z"),
+            rankRange: { min: -10.5, max: null },
             ageRange: { min: null, max: null },
           },
         ].sort((a, b) => a.nextStart.getTime() - b.nextStart.getTime()),

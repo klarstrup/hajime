@@ -1,6 +1,5 @@
 import { nlp } from "../../app/nlp";
 import {
-  danishFullWeekdays,
   getRRuleWeekdaysByFullDanishName,
   parseClassesSchedulesTree,
   render,
@@ -135,9 +134,10 @@ export const dkuSources = [
       ),
     classesUrl: "https://kenzoku-karate.dk/hold",
     async *loadClasses({ now }: { now: Date }) {
-      const $res = await fetch$("https://kenzoku-karate.dk/hold");
-
-      yield* parseClassesSchedulesTree(renderToNestedLines($res), now);
+      yield* parseClassesSchedulesTree(
+        renderToNestedLines(await fetch$("https://kenzoku-karate.dk/hold")),
+        now,
+      );
     },
   },
   {
@@ -168,76 +168,12 @@ export const dkuSources = [
       ),
     classesUrl: "https://roskildekarateklub.dk/hold-priser",
     async *loadClasses({ now }: { now: Date }) {
-      const $res = await fetch$("https://roskildekarateklub.dk/hold-priser");
-
-      let times = $res("p")
-        .filter((_, el) => {
-          const text = $res(el).text();
-          return danishFullWeekdays.some((weekday) => text.includes(weekday));
-        })
-        .parent()
-        .parent()
-        .parent();
-
-      times.find("br").replaceWith("\n");
-
-      times = times.filter((i, e) => {
-        const text = $res(e).text();
-        for (let j = 0; j < i; j++)
-          if ($res(times[j]).text() === text) return false;
-
-        return true;
-      });
-
-      const holdLines = times
-        .map(
-          (_, el) =>
-            [
-              $res(el).parent().find("h2").text(),
-              nlp
-                .readDoc(render($res(el)).replace(/(\d+)\./g, "$1[DOT]"))
-                .sentences()
-                .out()
-                .flatMap((s) => s.replace(/\[DOT\]/g, ".").split(/\.?\n/))
-                .flatMap((line) => {
-                  const lineHasWeekday = danishFullWeekdays.find((weekday) =>
-                    line.includes(weekday),
-                  );
-                  if (!lineHasWeekday) return line;
-
-                  return line
-                    .split(new RegExp(lineHasWeekday + ":?"))
-                    .flatMap((part, i, l) =>
-                      i === 0 && l.length > 1 ? [lineHasWeekday, part] : part,
-                    );
-                })
-                .filter((line) => line.trim())
-                .map((line) => line.trim()),
-            ] as const,
-        )
-        .toArray()
-        .filter(Boolean)
-        .reduce(
-          (acc, item) => {
-            if (typeof item === "string") {
-              acc.push([item, []]);
-            } else {
-              acc[acc.length - 1][1].push(...item);
-            }
-            return acc;
-          },
-          [] as [string, string[]][],
-        );
-
-      for (const [superHold, lines] of holdLines) {
-        yield* parseClassesSchedulesLines(
-          lines,
-          now,
-          undefined,
-          undefined,
-          (className) => superHold + ", " + className,
-        );
-      }
+      yield* parseClassesSchedulesTree(
+        renderToNestedLines(
+          await fetch$("https://roskildekarateklub.dk/hold-priser"),
+        ),
+        now,
+      );
     },
   },
   {
