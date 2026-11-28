@@ -297,13 +297,13 @@ export function parseClassesSchedulesTree(
   // "Sensei A og Senpai B", "Instruktør: A, B", "Forskellige instruktører"
   const parseInstructors = (line: string): string[] | null => {
     const labeled = /^instruktø(?:r|rer)\s*:\s*(.+)$/i.exec(line)?.[1];
-    if (
-      !labeled &&
-      !/^(sensei|senpai|senpei|sempai|shihan|hanshi|kyoshi|renshi)\b/i.test(
+    // A title followed by a capitalised name; "Senpai hold" is a class
+    const initial =
+      /^(?:sensei|senpai|senpei|sempai|shihan|hanshi|kyoshi|renshi)\s+(\S)/i.exec(
         line,
-      ) &&
-      !/\binstruktører$/i.test(line)
-    ) {
+      )?.[1];
+    const isTitled = !!initial && initial !== initial.toLowerCase();
+    if (!labeled && !isTitled && !/\binstruktører$/i.test(line)) {
       return null;
     }
     return splitInstructors(labeled ?? line);
@@ -346,12 +346,27 @@ export function parseClassesSchedulesTree(
     return result;
   };
 
+  // A line that can only be a class name: no time, weekday, label,
+  // instructors or prose
+  const isPlainName = (item: TextTree | undefined) =>
+    typeof item === "string" &&
+    !timeRangeRE.test(item) &&
+    !danishWeekDayRE.test(item) &&
+    !parseInstructors(item) &&
+    !/^([a-zæøå][^\s:]*):|^alder\b|^@|^\(.*\)$/i.test(item) &&
+    !/[.!?]\s+[A-ZÆØÅ]/.test(item) &&
+    !/[a-zæøå]\.$/i.test(item) &&
+    !genericHeadings.has(item.toLowerCase());
+
   function visit(node: TextTree[], inherited: Context) {
     const data: Context = { ...inherited };
     // Classes added by the previous line, for instructors listed right after
     let justAdded: ParsedClass[] = [];
+    // Whether this node has named a class itself, or only inherited one
+    let namedHere = false;
 
-    for (const item of zipColumns(node)) {
+    const items = zipColumns(node);
+    for (const [index, item] of items.entries()) {
       const previous = justAdded;
       justAdded = [];
 
@@ -460,6 +475,7 @@ export function parseClassesSchedulesTree(
             ? `${inherited.className}, ${rest}`
             : rest;
         data.classNameWeekdays = data.weekdays;
+        namedHere = true;
         lastSet = lastSet ? "both" : "className";
       } else if (!timeRange) {
         // A standalone age line ("Alder: Fra 13 år") applies to its class
@@ -471,6 +487,14 @@ export function parseClassesSchedulesTree(
 
       const { weekdays: days, timeRange: range, className } = data;
       if (!lastSet || !days || !range || !className) continue;
+      // A time before its name: ["18:00 – 19:00:", "Mon hold"]
+      if (
+        lastSet === "timeRange" &&
+        !namedHere &&
+        isPlainName(items[index + 1])
+      ) {
+        continue;
+      }
 
       const { ageRange, rankRange } = getAgeAndRankFromClassName(className);
       const nameHasAge = ageRange.min !== null || ageRange.max !== null;
@@ -614,10 +638,16 @@ export function getAgeAndRankFromClassName(className: string): {
     rankRange.min = null;
     rankRange.max = -11;
   }
+  // "Mon hold": kids' grades, without naming a specific one
+  if (/\bmon\b/.test(lClassName) && cleanRankMentions.length === 0) {
+    rankRange.min = null;
+    rankRange.max = -11;
+  }
   if (
     lClassName.includes("mini bushi") ||
     lClassName.includes("kidzz") ||
-    lClassName.includes("karate kids")
+    // "Karate Kids", "Kids Hold 1": too young for grades
+    /\bkids\b/.test(lClassName)
   ) {
     rankRange.min = null;
     rankRange.max = -21;
@@ -666,6 +696,17 @@ export function getAgeAndRankFromClassName(className: string): {
     !lClassName.includes("begyndere") &&
     (!rankRange.min || rankRange.min === -10.5) &&
     (!ageRange.max || ageRange.max > 13)
+  ) {
+    rankRange.min = -10;
+  }
+  // "Kyu-grader": a class for kyu grades excludes white belts, unless
+  // beginners are mentioned too ("10.-5. kyu og begyndere"), or it's open to
+  // everyone up to a grade ("til og med 7. kyu")
+  if (
+    /\bkyu\b/.test(lClassName) &&
+    !lClassName.includes("begynd") &&
+    rankRange.min === -10.5 &&
+    rankRange.max === null
   ) {
     rankRange.min = -10;
   }

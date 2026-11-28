@@ -90,6 +90,12 @@ export const dkuSources = [
     type: "club",
     federation: ["dku"],
     classesUrl: "https://www.aabenraakarateklub.dk/traeningstider/",
+    async *loadClasses({ now }: { now: Date }) {
+      yield* await fetchClasses(
+        "https://www.aabenraakarateklub.dk/traeningstider/",
+        now,
+      );
+    },
     calendarUrl: "https://www.aabenraakarateklub.dk/aktiviteter/",
   },
   {

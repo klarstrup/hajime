@@ -1021,6 +1021,90 @@ describe("parseClassesSchedulesTree", async () => {
       },
     ]);
   });
+  it("should handle aabenraakarateklub.dk HTML structure", async () => {
+    const parsedSchedules = renderClasses(
+      fixture("aabenraakarateklub.dk.html"),
+      new Date("2026-11-28T00:30:00.000Z"),
+    );
+    expect(
+      parsedSchedules.sort(
+        (a, b) => a.nextStart.getTime() - b.nextStart.getTime(),
+      ),
+    ).toEqual([
+      {
+        className: "Diverse træning (annonceres på Facebook)",
+        weekday: "SA",
+        nextStart: new Date("2026-11-28T07:00:00.000Z"),
+        nextEnd: new Date("2026-11-28T09:00:00.000Z"),
+        ageRange: { min: null, max: null },
+        rankRange: { min: -10.5, max: null },
+      },
+      {
+        className: "Mon hold",
+        weekday: "MO",
+        nextStart: new Date("2026-11-30T17:00:00.000Z"),
+        nextEnd: new Date("2026-11-30T18:00:00.000Z"),
+        ageRange: { min: null, max: null },
+        rankRange: { min: null, max: -11 },
+      },
+      {
+        className: "Kyu-grader",
+        weekday: "MO",
+        nextStart: new Date("2026-11-30T18:00:00.000Z"),
+        nextEnd: new Date("2026-11-30T19:30:00.000Z"),
+        ageRange: { min: null, max: null },
+        rankRange: { min: -10, max: null },
+      },
+      {
+        className: "Kids Hold 1",
+        weekday: "WE",
+        nextStart: new Date("2026-12-02T16:00:00.000Z"),
+        nextEnd: new Date("2026-12-02T17:00:00.000Z"),
+        ageRange: { min: null, max: null },
+        rankRange: { min: null, max: -21 },
+      },
+      {
+        className: "Mon hold",
+        weekday: "WE",
+        nextStart: new Date("2026-12-02T17:00:00.000Z"),
+        nextEnd: new Date("2026-12-02T18:00:00.000Z"),
+        ageRange: { min: null, max: null },
+        rankRange: { min: null, max: -11 },
+      },
+      {
+        className: "Kyu-grader",
+        weekday: "WE",
+        nextStart: new Date("2026-12-02T18:00:00.000Z"),
+        nextEnd: new Date("2026-12-02T19:30:00.000Z"),
+        ageRange: { min: null, max: null },
+        rankRange: { min: -10, max: null },
+      },
+      {
+        className: "Kids Hold 2",
+        weekday: "TH",
+        nextStart: new Date("2026-12-03T16:00:00.000Z"),
+        nextEnd: new Date("2026-12-03T17:00:00.000Z"),
+        ageRange: { min: null, max: null },
+        rankRange: { min: null, max: -21 },
+      },
+      {
+        className: "Nybegynder hold",
+        weekday: "TH",
+        nextStart: new Date("2026-12-03T17:00:00.000Z"),
+        nextEnd: new Date("2026-12-03T18:00:00.000Z"),
+        ageRange: { min: null, max: null },
+        rankRange: { min: -10.5, max: null },
+      },
+      {
+        className: "Senpai hold",
+        weekday: "TH",
+        nextStart: new Date("2026-12-03T18:00:00.000Z"),
+        nextEnd: new Date("2026-12-03T19:30:00.000Z"),
+        ageRange: { min: null, max: null },
+        rankRange: { min: -10.5, max: null },
+      },
+    ]);
+  });
 });
 
 describe("getRRuleWeekdaysByFullDanishName", () => {
