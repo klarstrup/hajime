@@ -164,6 +164,68 @@ type TextTree = string | [string, ...string[]] | [TextTree, ...TextTree[]];
 
 // Renders a node to nested lines, putting text from childdren into nested arrays
 // without empty arrays and with arrays that contain a single array or string flattened
+// Top-level CSS rules, skipping @media and other at-rule blocks, which only
+// apply some of the time
+function topLevelCssRules(css: string) {
+  const rules: { selectors: string; declarations: string }[] = [];
+  const text = css.replace(/\/\*[\s\S]*?\*\//g, "");
+  let depth = 0;
+  let start = 0;
+  let selectors = "";
+  let inAtRule = false;
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    if (char === "{") {
+      if (depth === 0) {
+        selectors = text.slice(start, i).trim();
+        inAtRule = selectors.startsWith("@");
+        start = i + 1;
+      }
+      depth++;
+    } else if (char === "}") {
+      depth--;
+      if (depth === 0) {
+        if (!inAtRule) {
+          rules.push({ selectors, declarations: text.slice(start, i) });
+        }
+        start = i + 1;
+      }
+    } else if (char === ";" && depth === 0) {
+      // @import, @charset
+      start = i + 1;
+    }
+  }
+  return rules;
+}
+
+// Elements the page hides from visitors: the hidden attribute, inline
+// display:none, or a display:none rule in the page's own stylesheets. Pages
+// keep outdated content around this way.
+function getHiddenNodes(node: AnyNode) {
+  let documentRoot = node;
+  while (documentRoot.parent) documentRoot = documentRoot.parent;
+  const $ = cheerio.load(documentRoot);
+
+  const hidden = new Set<AnyNode>(
+    $(
+      '[hidden], [style*="display:none" i], [style*="display: none" i]',
+    ).toArray(),
+  );
+  for (const style of $("style").toArray()) {
+    for (const rule of topLevelCssRules($(style).text())) {
+      if (!/display\s*:\s*none/i.test(rule.declarations)) continue;
+      for (const selector of rule.selectors.split(",")) {
+        try {
+          for (const el of $(selector.trim()).toArray()) hidden.add(el);
+        } catch {
+          // Selectors cheerio can't match, like :hover
+        }
+      }
+    }
+  }
+  return hidden;
+}
+
 export function renderTextTree(
   node:
     | CheerioAPI
@@ -199,6 +261,8 @@ export function renderTextTree(
     );
   }
 
+  const hidden = getHiddenNodes(root as AnyNode);
+
   // Inline content is joined into lines (split on <br>); block elements nest.
   function toTree(block: AnyNode): TextTree | null {
     const items: TextTree[] = [];
@@ -214,6 +278,7 @@ export function renderTextTree(
     };
 
     const visit = (node: AnyNode) => {
+      if (hidden.has(node)) return;
       if (node.type === "text") {
         line += node.data;
       } else if (node.type === "tag") {
@@ -292,6 +357,10 @@ export function parseClassesSchedulesTree(
     "holdoversigt",
     "holdplan",
     "skema",
+    // Navigation that ends up above everything
+    "skip to content",
+    "spring til indhold",
+    "gå til indhold",
   ]);
 
   // "Sensei A og Senpai B", "Instruktør: A, B", "Forskellige instruktører"
@@ -364,6 +433,8 @@ export function parseClassesSchedulesTree(
     let justAdded: ParsedClass[] = [];
     // Whether this node has named a class itself, or only inherited one
     let namedHere = false;
+    // A name set in this node that no class has used yet
+    let nameUnused = false;
 
     const items = zipColumns(node);
     for (const [index, item] of items.entries()) {
@@ -461,11 +532,21 @@ export function parseClassesSchedulesTree(
 
       // A leftover that's only a parenthetical is a note: "(opvarming fra 19:00)"
       const isNote = /^\(.*\)$/.test(rest);
+      // Prices: "440 kr. halvårligt", "671 DKK"
+      const isPrice = /\d\s*(?:kr\b|dkk\b|,-)/i.test(rest);
+      // Contact details: "middelfart@kyokushin.dk", "www.…", "Tlf. 2624 2171"
+      const isContact = /\S@\S|https?:\/\/|\bwww\.|\btlf\b/i.test(rest);
+      // A name line right after an unused name is a subtitle, venue or the
+      // like: ["Nybegynder", "Idrætslokale 1", "Mandag kl. 18-19.30"]
+      const isSubtitle = nameUnused && !timeRange;
       if (
         rest &&
         !isLabeled &&
         !isSentence &&
         !isNote &&
+        !isPrice &&
+        !isContact &&
+        !isSubtitle &&
         (!weekdays || timeRange)
       ) {
         // Nested names qualify the heading above them: "Kidzz" > "3-5 år",
@@ -476,6 +557,7 @@ export function parseClassesSchedulesTree(
             : rest;
         data.classNameWeekdays = data.weekdays;
         namedHere = true;
+        nameUnused = true;
         lastSet = lastSet ? "both" : "className";
       } else if (!timeRange) {
         // A standalone age line ("Alder: Fra 13 år") applies to its class
@@ -512,11 +594,13 @@ export function parseClassesSchedulesTree(
 
       if (lastSet !== "className") data.timeRange = undefined;
       if (lastSet !== "timeRange") data.className = undefined;
+      nameUnused = false;
       classes.push(...justAdded);
     }
   }
 
   visit(tree, {});
+
   return classes;
 }
 export const renderClasses = (
@@ -605,6 +689,9 @@ export function getAgeAndRankFromClassName(className: string): {
     lClassName,
   )?.[2];
   if (minPrefixAge) ageRange.min = parseInt(minPrefixAge, 10);
+  // "15 år og op", "15 år og opefter"
+  const minSuffixWordAge = /([1-9][0-9]) år og op/i.exec(lClassName)?.[1];
+  if (minSuffixWordAge) ageRange.min = parseInt(minSuffixWordAge, 10);
   const maxAgeMatch = /til og med ([1-9][0-9]) år/i.exec(lClassName)?.[1];
   if (maxAgeMatch) ageRange.max = parseInt(maxAgeMatch, 10);
 
@@ -620,7 +707,7 @@ export function getAgeAndRankFromClassName(className: string): {
 
   // Default ages for named kids' programmes, unless the name gives them
   const hasExplicitAge = ageRange.min !== null || ageRange.max !== null;
-  if (!hasExplicitAge && lClassName.includes("kidzz")) {
+  if (!hasExplicitAge && /\bkidzz?\b/.test(lClassName)) {
     ageRange.min = 5;
     ageRange.max = 9;
   }
@@ -645,7 +732,7 @@ export function getAgeAndRankFromClassName(className: string): {
   }
   if (
     lClassName.includes("mini bushi") ||
-    lClassName.includes("kidzz") ||
+    /\bkidzz?\b/.test(lClassName) ||
     // "Karate Kids", "Kids Hold 1": too young for grades
     /\bkids\b/.test(lClassName)
   ) {

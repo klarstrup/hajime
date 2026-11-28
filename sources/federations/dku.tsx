@@ -82,6 +82,12 @@ export const dkuSources = [
     type: "club",
     federation: ["dku"],
     classesUrl: "https://www.graastenkarateklub.dk/priser/",
+    async *loadClasses({ now }: { now: Date }) {
+      yield* await fetchClasses(
+        "https://www.graastenkarateklub.dk/priser/",
+        now,
+      );
+    },
     calendarUrl: "https://www.graastenkarateklub.dk/kalender/",
   },
   {

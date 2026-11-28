@@ -1105,6 +1105,74 @@ describe("parseClassesSchedulesTree", async () => {
       },
     ]);
   });
+  it("should handle graastenkarateklub.dk HTML structure", async () => {
+    const parsedSchedules = renderClasses(
+      fixture("graastenkarateklub.dk.html"),
+      new Date("2026-11-28T00:30:00.000Z"),
+    );
+    expect(
+      parsedSchedules.sort(
+        (a, b) => a.nextStart.getTime() - b.nextStart.getTime(),
+      ),
+    ).toEqual([
+      {
+        className: "Kidz 5-10 år",
+        weekday: "MO",
+        nextStart: new Date("2026-11-30T16:00:00.000Z"),
+        nextEnd: new Date("2026-11-30T17:00:00.000Z"),
+        ageRange: { min: 5, max: 10 },
+        rankRange: { min: null, max: -21 },
+      },
+      {
+        className: "Børn (10-15 år)",
+        weekday: "MO",
+        nextStart: new Date("2026-11-30T17:00:00.000Z"),
+        nextEnd: new Date("2026-11-30T18:30:00.000Z"),
+        ageRange: { min: 10, max: 15 },
+        rankRange: { min: null, max: -11 },
+      },
+      {
+        className: "Voksne (15 år og op efter)",
+        weekday: "MO",
+        nextStart: new Date("2026-11-30T17:00:00.000Z"),
+        nextEnd: new Date("2026-11-30T18:30:00.000Z"),
+        ageRange: { min: 15, max: null },
+        rankRange: { min: -10.5, max: null },
+      },
+      {
+        className: "Børn (10-15 år)",
+        weekday: "WE",
+        nextStart: new Date("2026-12-02T17:00:00.000Z"),
+        nextEnd: new Date("2026-12-02T18:30:00.000Z"),
+        ageRange: { min: 10, max: 15 },
+        rankRange: { min: null, max: -11 },
+      },
+      {
+        className: "Voksne (15 år og op efter)",
+        weekday: "WE",
+        nextStart: new Date("2026-12-02T17:00:00.000Z"),
+        nextEnd: new Date("2026-12-02T18:30:00.000Z"),
+        ageRange: { min: 15, max: null },
+        rankRange: { min: -10.5, max: null },
+      },
+      {
+        className: "Børn (10-15 år)",
+        weekday: "FR",
+        nextStart: new Date("2026-12-04T17:00:00.000Z"),
+        nextEnd: new Date("2026-12-04T18:30:00.000Z"),
+        ageRange: { min: 10, max: 15 },
+        rankRange: { min: null, max: -11 },
+      },
+      {
+        className: "Voksne (15 år og op efter)",
+        weekday: "FR",
+        nextStart: new Date("2026-12-04T17:00:00.000Z"),
+        nextEnd: new Date("2026-12-04T18:30:00.000Z"),
+        ageRange: { min: 15, max: null },
+        rankRange: { min: -10.5, max: null },
+      },
+    ]);
+  });
 });
 
 describe("getRRuleWeekdaysByFullDanishName", () => {
