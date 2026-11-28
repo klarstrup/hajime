@@ -1,5 +1,5 @@
 import { TZDate } from "@date-fns/tz";
-import { parseClassesSchedulesTree, renderTextTree } from "../../utils";
+import { renderClasses } from "../../utils";
 import type { LoadParams } from "../sourceTypes";
 import { fetch$, fetchHoldsportEvents, fetchKlubModul } from "../sourceUtils";
 
@@ -11,10 +11,7 @@ export const iogkfSources = [
     federation: ["iogkf"],
     classesUrl: "https://risskovkarateskole.dk/",
     async *loadClasses({ now }: { now: Date }) {
-      yield* parseClassesSchedulesTree(
-        renderTextTree(await fetch$("https://risskovkarateskole.dk/")),
-        now,
-      );
+      yield* renderClasses(await fetch$("https://risskovkarateskole.dk/"), now);
     },
   },
   {

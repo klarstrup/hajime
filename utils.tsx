@@ -470,6 +470,10 @@ export function parseClassesSchedulesTree(
   visit(tree, {});
   return classes;
 }
+export const renderClasses = (
+  node: Parameters<typeof renderTextTree>[0],
+  now: Date,
+) => parseClassesSchedulesTree(renderTextTree(node), now);
 
 if (import.meta.vitest) {
   const { describe, it, expect } = import.meta.vitest;
