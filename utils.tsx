@@ -208,7 +208,7 @@ type TextTree = string | [string, ...string[]] | [TextTree, ...TextTree[]];
 
 // Renders a node to nested lines, putting text from childdren into nested arrays
 // without empty arrays and with arrays that contain a single array or string flattened
-export function renderToNestedLines(
+export function renderTextTree(
   node:
     | CheerioAPI
     | Document
@@ -474,29 +474,29 @@ export function parseClassesSchedulesTree(
 if (import.meta.vitest) {
   const { describe, it, expect } = import.meta.vitest;
 
-  describe("renderToNestedLines", () => {
+  describe("renderTextTree", () => {
     it("should render a simple HTML string to nested lines", () => {
       const html = "<div><p>Hello</p><p>World</p></div>";
-      expect(renderToNestedLines(html)).toEqual(["Hello", "World"]);
+      expect(renderTextTree(html)).toEqual(["Hello", "World"]);
     });
     it("should keep inline elements on the same line", () => {
       const html = "<div><p>Hello <span>World <em>!</em></span></p></div>";
-      expect(renderToNestedLines(html)).toEqual(["Hello World !"]);
+      expect(renderTextTree(html)).toEqual(["Hello World !"]);
     });
     it("should not split words across inline elements", () => {
       const html =
         "<p><strong>Begyndere og ø</strong><span><strong>vede</strong></span></p>";
-      expect(renderToNestedLines(html)).toEqual(["Begyndere og øvede"]);
+      expect(renderTextTree(html)).toEqual(["Begyndere og øvede"]);
     });
     it("should split lines on <br>", () => {
       const html =
         "<p><strong>Kamptræning</strong><br />\n<span>18:00-20:00</span></p>";
-      expect(renderToNestedLines(html)).toEqual(["Kamptræning", "18:00-20:00"]);
+      expect(renderTextTree(html)).toEqual(["Kamptræning", "18:00-20:00"]);
     });
     it("should nest block elements", () => {
       const html =
         "<div><div>Mandag:&nbsp;</div><div><p>Børnehold<br>16:30</p><p>Øvede<br>17:45</p></div></div>";
-      expect(renderToNestedLines(html)).toEqual([
+      expect(renderTextTree(html)).toEqual([
         "Mandag:",
         [
           ["Børnehold", "16:30"],
@@ -505,20 +505,20 @@ if (import.meta.vitest) {
       ]);
     });
     it("should flatten single nested arrays", () => {
-      expect(renderToNestedLines("<div><p>Hello</p></div>")).toEqual(["Hello"]);
+      expect(renderTextTree("<div><p>Hello</p></div>")).toEqual(["Hello"]);
     });
     it("should return an empty array for empty content", () => {
-      expect(renderToNestedLines("<div><p> </p></div>")).toEqual([]);
+      expect(renderTextTree("<div><p> </p></div>")).toEqual([]);
     });
     it("should handle multiple cheerio selections", () => {
       const $ = cheerio.load("<div><p>Hello</p><p>World</p></div>");
-      expect(renderToNestedLines($("p"))).toEqual(["Hello", "World"]);
+      expect(renderTextTree($("p"))).toEqual(["Hello", "World"]);
     });
     it("should handle frederiksberg-karateskole HTML structure", async () => {
       const fk$ = cheerio.load(
         readFileSync("./frederiksbergkarateskole.dk.html", "utf-8"),
       )("#main");
-      const result = renderToNestedLines(fk$);
+      const result = renderTextTree(fk$);
 
       expect(result).toEqual([
         "Træningstider",
@@ -548,7 +548,7 @@ if (import.meta.vitest) {
   describe("parseClassesSchedulesTree", async () => {
     it("should handle frederiksberg-karateskole HTML structure", async () => {
       const parsedSchedules = parseClassesSchedulesTree(
-        renderToNestedLines(
+        renderTextTree(
           readFileSync("./frederiksbergkarateskole.dk.html", "utf-8"),
         ),
         new Date("2026-11-30T00:30:00.000Z"),
@@ -599,7 +599,7 @@ if (import.meta.vitest) {
 
     it("should handle kakushin.dk HTML structure", async () => {
       const parsedSchedules = parseClassesSchedulesTree(
-        renderToNestedLines(readFileSync("./kakushin.dk.html", "utf-8")),
+        renderTextTree(readFileSync("./kakushin.dk.html", "utf-8")),
         new Date("2026-11-30T00:30:00.000Z"),
       );
       expect(parsedSchedules).toEqual([
@@ -648,7 +648,7 @@ if (import.meta.vitest) {
 
     it("should handle bskarate.dk HTML structure", async () => {
       const parsedSchedules = parseClassesSchedulesTree(
-        renderToNestedLines(readFileSync("./bskarate.dk.html", "utf-8")),
+        renderTextTree(readFileSync("./bskarate.dk.html", "utf-8")),
         new Date("2026-11-27T00:30:00.000Z"),
       );
       expect(parsedSchedules).toEqual([
@@ -704,7 +704,7 @@ if (import.meta.vitest) {
     });
     it("should handle farumkyokushin.dk HTML", async () => {
       const parsedSchedules = parseClassesSchedulesTree(
-        renderToNestedLines(readFileSync("./farumkyokushin.dk.html", "utf-8")),
+        renderTextTree(readFileSync("./farumkyokushin.dk.html", "utf-8")),
         new Date("2026-11-27T00:30:00.000Z"),
       );
       expect(
@@ -828,7 +828,7 @@ if (import.meta.vitest) {
     });
     it("should handle kenzoku-karate.dk HTML structure", async () => {
       const parsedSchedules = parseClassesSchedulesTree(
-        renderToNestedLines(readFileSync("./kenzoku-karate.dk.html", "utf-8")),
+        renderTextTree(readFileSync("./kenzoku-karate.dk.html", "utf-8")),
         new Date("2026-11-27T00:30:00.000Z"),
       );
       expect(
@@ -874,9 +874,7 @@ if (import.meta.vitest) {
     });
     it("should handle roskildekarateklub.dk HTML structure", async () => {
       const parsedSchedules = parseClassesSchedulesTree(
-        renderToNestedLines(
-          readFileSync("./roskildekarateklub.dk.html", "utf-8"),
-        ),
+        renderTextTree(readFileSync("./roskildekarateklub.dk.html", "utf-8")),
         new Date("2026-11-28T00:30:00.000Z"),
       );
       expect(
@@ -1010,9 +1008,7 @@ if (import.meta.vitest) {
     });
     it("should handle nansensgadekarate.dk HTML structure", async () => {
       const parsedSchedules = parseClassesSchedulesTree(
-        renderToNestedLines(
-          readFileSync("./nansensgadekarate.dk.html", "utf-8"),
-        ),
+        renderTextTree(readFileSync("./nansensgadekarate.dk.html", "utf-8")),
         new Date("2026-11-28T00:30:00.000Z"),
       );
       expect(
@@ -1163,9 +1159,7 @@ if (import.meta.vitest) {
     });
     it("should handle risskovkarateskole.dk HTML structure", async () => {
       const parsedSchedules = parseClassesSchedulesTree(
-        renderToNestedLines(
-          readFileSync("./risskovkarateskole.dk.html", "utf-8"),
-        ),
+        renderTextTree(readFileSync("./risskovkarateskole.dk.html", "utf-8")),
         new Date("2026-11-28T00:30:00.000Z"),
       );
       expect(

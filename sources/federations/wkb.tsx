@@ -1,4 +1,4 @@
-import { parseClassesSchedulesTree, renderToNestedLines } from "../../utils";
+import { parseClassesSchedulesTree, renderTextTree } from "../../utils";
 import type { LoadParams } from "../sourceTypes";
 import { fetch$, fetchIcsEvents, fetchKlubModul } from "../sourceUtils";
 
@@ -21,7 +21,7 @@ export const wkbSources = [
     classesUrl: "https://www.bskarate.dk/tider-og-priser/",
     async *loadClasses({ now }: { now: Date }) {
       yield* parseClassesSchedulesTree(
-        renderToNestedLines(
+        renderTextTree(
           await fetch$("https://www.bskarate.dk/tider-og-priser/"),
         ),
         now,

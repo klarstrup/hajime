@@ -1,4 +1,4 @@
-import { parseClassesSchedulesTree, renderToNestedLines } from "../../utils";
+import { parseClassesSchedulesTree, renderTextTree } from "../../utils";
 import type {
   AllEventsResponse,
   LoadParams,
@@ -46,7 +46,7 @@ export const dkuSources = [
     classesUrl: "https://kakushin.dk/",
     loadClasses: async function* ({ now }: { now: Date }) {
       yield* parseClassesSchedulesTree(
-        renderToNestedLines(await fetch$("https://kakushin.dk/")),
+        renderTextTree(await fetch$("https://kakushin.dk/")),
         now,
       );
     },
@@ -126,7 +126,7 @@ export const dkuSources = [
     classesUrl: "https://kenzoku-karate.dk/hold",
     async *loadClasses({ now }: { now: Date }) {
       yield* parseClassesSchedulesTree(
-        renderToNestedLines(await fetch$("https://kenzoku-karate.dk/hold")),
+        renderTextTree(await fetch$("https://kenzoku-karate.dk/hold")),
         now,
       );
     },
@@ -160,7 +160,7 @@ export const dkuSources = [
     classesUrl: "https://roskildekarateklub.dk/hold-priser",
     async *loadClasses({ now }: { now: Date }) {
       yield* parseClassesSchedulesTree(
-        renderToNestedLines(
+        renderTextTree(
           await fetch$("https://roskildekarateklub.dk/hold-priser"),
         ),
         now,
@@ -200,7 +200,7 @@ export const dkuSources = [
     classesUrl: "https://farumkyokushin.dk/traeningstider/",
     async *loadClasses({ now }: { now: Date }) {
       yield* parseClassesSchedulesTree(
-        renderToNestedLines(
+        renderTextTree(
           await fetch$("https://farumkyokushin.dk/traeningstider/"),
         ),
         now,
@@ -266,11 +266,12 @@ export const dkuSources = [
     },
     classesUrl: "https://www.nansensgadekarate.dk/traeningstider",
     async *loadClasses({ now }: { now: Date }) {
-      const $res = await fetch$(
-        "https://www.nansensgadekarate.dk/traeningstider",
+      yield* parseClassesSchedulesTree(
+        renderTextTree(
+          await fetch$("https://www.nansensgadekarate.dk/traeningstider"),
+        ),
+        now,
       );
-
-      yield* parseClassesSchedulesTree(renderToNestedLines($res("body")), now);
     },
   },
   {
@@ -281,7 +282,7 @@ export const dkuSources = [
     classesUrl: "https://www.frederiksbergkarateskole.dk/tr%C3%A6ningstider-0",
     async *loadClasses({ now }: { now: Date }) {
       yield* parseClassesSchedulesTree(
-        renderToNestedLines(
+        renderTextTree(
           await fetch$(
             "https://www.frederiksbergkarateskole.dk/tr%C3%A6ningstider",
           ),
