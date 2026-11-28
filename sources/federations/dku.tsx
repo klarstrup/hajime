@@ -61,6 +61,12 @@ export const dkuSources = [
     type: "club",
     federation: ["dku"],
     classesUrl: "https://www.ensopeople.org/kopi-af-karate",
+    async *loadClasses({ now }: { now: Date }) {
+      yield* renderClasses(
+        await fetch$("https://www.ensopeople.org/kopi-af-karate"),
+        now,
+      );
+    },
   },
   {
     sourceId: "kyokushin-karate-billund",

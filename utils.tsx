@@ -66,9 +66,17 @@ const rruleWeekdaysByFullDanishName: Record<string, Weekday> = {
   fredag: RRule.FR,
   lørdag: RRule.SA,
   søndag: RRule.SU,
+  monday: RRule.MO,
+  tuesday: RRule.TU,
+  wednesday: RRule.WE,
+  thursday: RRule.TH,
+  friday: RRule.FR,
+  saturday: RRule.SA,
+  sunday: RRule.SU,
 };
+// Danish and English, singular and plural ("mandage", "Tuesdays")
 export const danishWeekDayRE =
-  /\b(mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)e?\b/i;
+  /\b(mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag|monday|tuesday|wednesday|thursday|friday|saturday|sunday)(?:e|s)?\b/i;
 const danishWeekDayREG = new RegExp(
   danishWeekDayRE.source,
   danishWeekDayRE.flags + "g",
@@ -80,7 +88,12 @@ export const getRRuleWeekdaysByFullDanishName = (
 ): [Weekday, ...Weekday[]] | null => {
   const weekdays = Array.from(
     new Set<string>(line.match(danishWeekDayREG) || []),
-  ).map((match) => rruleWeekdaysByFullDanishName[match.toLowerCase()]);
+  ).map(
+    (match) =>
+      rruleWeekdaysByFullDanishName[
+        match.toLowerCase().replace(/(?<=dag)e$|(?<=day)s$/, "")
+      ],
+  );
   if (weekdays.length === 0) return null;
   return weekdays as [Weekday, ...Weekday[]];
 };
@@ -201,7 +214,7 @@ export function render(
     .map((line) => line.trim())
     .filter(Boolean)
     .join("\n")
-    .replace(/\u00AD/g, "");
+    .replace(/[\u00AD\u200B-\u200D\uFEFF]/g, "");
 }
 
 type TextTree = string | [string, ...string[]] | [TextTree, ...TextTree[]];
@@ -250,7 +263,7 @@ export function renderTextTree(
 
     const flush = () => {
       const text = line
-        .replace(/\u00AD/g, "")
+        .replace(/[\u00AD\u200B-\u200D\uFEFF]/g, "")
         .replace(/\s+/g, " ")
         .trim();
       if (text) items.push(text);
@@ -355,7 +368,7 @@ export function parseClassesSchedulesTree(
   const splitInstructors = (names: string) =>
     names
       .replace(/\.$/, "")
-      .split(/\s*[,/]\s*|\s+(?:og|eller)\s+/)
+      .split(/\s*[,/]\s*|\s+(?:og|eller|and|or)\s+/)
       .map((name) => name.trim())
       .filter(Boolean);
 
@@ -422,10 +435,21 @@ export function parseClassesSchedulesTree(
       const trailing = timeRange
         ? /^\.\s+(\S.*)$/.exec(item.slice(timeEnd))?.[1]
         : undefined;
-      const line = trailing ? item.slice(0, timeEnd) : item;
+      let line = trailing ? item.slice(0, timeEnd) : item;
+
+      // A venue ("… @Bokselokalet, Nørrebrohallen", or "@Rört" on its own)
+      // isn't part of the class
+      line = line.replace(/(?:^|\s)@\S.*$/, "").trim();
+      if (!line) continue;
+
+      // "Fight class with Senpai Kristoffer"
+      const withMatch = /\s+(?:with|med)\s+(.+)$/i.exec(line);
+      const withInstructors = withMatch && parseInstructors(withMatch[1]);
+      if (withMatch && withInstructors) line = line.slice(0, withMatch.index);
+
       const lineInstructors = trailing
         ? (parseInstructors(trailing) ?? splitInstructors(trailing))
-        : undefined;
+        : (withInstructors ?? undefined);
 
       // Prose (several sentences, or very long) is a note, not schedule data
       if (line.length > 120 || /[.!?]\s+[A-ZÆØÅ]/.test(line)) continue;
@@ -450,9 +474,18 @@ export function parseClassesSchedulesTree(
       }
       // Whatever is left after removing weekdays and times names the class,
       // e.g. "Børn kl. 17–18" -> "Børn"
-      const rest = line
-        .replace(danishWeekDayREG, "")
-        .replace(timeRange && timeMatch ? timeMatch[0] : "", "")
+      // When a weekday comes before the time, that's the schedule, and a
+      // weekday after it is part of the name: "Friday 16:15-18:45 – Friday Fight"
+      const [beforeTime, afterTime] =
+        timeRange && timeMatch
+          ? [line.slice(0, timeMatch.index), line.slice(timeEnd)]
+          : [line, ""];
+      const scheduleFirst = danishWeekDayRE.test(beforeTime);
+      const rest = (
+        beforeTime.replace(danishWeekDayREG, "") +
+        " " +
+        (scheduleFirst ? afterTime : afterTime.replace(danishWeekDayREG, ""))
+      )
         .replace(/\bkl\.?(?=\s|$)/gi, "")
         .replace(/\s+/g, " ")
         // Connectors left dangling once weekdays and times are removed:
@@ -1406,6 +1439,54 @@ if (import.meta.vitest) {
           ageRange: { min: null, max: null },
           rankRange: { min: -10.5, max: null },
           instructors: ["Nikolaj"],
+        },
+      ]);
+    });
+    it("should handle ensopeople.org HTML structure", async () => {
+      const parsedSchedules = renderClasses(
+        readFileSync("./ensopeople.org.html", "utf-8"),
+        new Date("2026-11-28T00:30:00.000Z"),
+      );
+      expect(
+        parsedSchedules.sort(
+          (a, b) => a.nextStart.getTime() - b.nextStart.getTime(),
+        ),
+      ).toEqual([
+        {
+          className: "Sunday Fight",
+          weekday: "SU",
+          nextStart: new Date("2026-11-29T12:30:00.000Z"),
+          nextEnd: new Date("2026-11-29T13:30:00.000Z"),
+          ageRange: { min: null, max: null },
+          rankRange: { min: -10.5, max: null },
+          instructors: ["Senpai Henrik"],
+        },
+        {
+          className: "All round karate",
+          weekday: "TU",
+          nextStart: new Date("2026-12-01T18:30:00.000Z"),
+          nextEnd: new Date("2026-12-01T20:00:00.000Z"),
+          ageRange: { min: null, max: null },
+          rankRange: { min: -10.5, max: null },
+          instructors: ["Senpai Tina", "Senpai Tobias"],
+        },
+        {
+          className: "Fight class",
+          weekday: "TH",
+          nextStart: new Date("2026-12-03T18:30:00.000Z"),
+          nextEnd: new Date("2026-12-03T20:00:00.000Z"),
+          ageRange: { min: null, max: null },
+          rankRange: { min: -10.5, max: null },
+          instructors: ["Senpai Kristoffer"],
+        },
+        {
+          className: "Friday Fight",
+          weekday: "FR",
+          nextStart: new Date("2026-12-04T15:15:00.000Z"),
+          nextEnd: new Date("2026-12-04T17:45:00.000Z"),
+          ageRange: { min: null, max: null },
+          rankRange: { min: -10.5, max: null },
+          instructors: ["Senpai Tobias"],
         },
       ]);
     });
