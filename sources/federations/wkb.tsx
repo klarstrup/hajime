@@ -20,9 +20,12 @@ export const wkbSources = [
       ),
     classesUrl: "https://www.bskarate.dk/tider-og-priser/",
     async *loadClasses({ now }: { now: Date }) {
-      const $res = await fetch$("https://www.bskarate.dk/tider-og-priser/");
-
-      yield* parseClassesSchedulesTree(renderToNestedLines($res), now);
+      yield* parseClassesSchedulesTree(
+        renderToNestedLines(
+          await fetch$("https://www.bskarate.dk/tider-og-priser/"),
+        ),
+        now,
+      );
     },
   },
   {

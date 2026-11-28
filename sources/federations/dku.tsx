@@ -1,7 +1,6 @@
 import { nlp } from "../../app/nlp";
 import {
   danishFullWeekdays,
-  getAgeAndRankFromClassName,
   getRRuleWeekdaysByFullDanishName,
   parseClassesSchedulesTree,
   render,
@@ -137,36 +136,8 @@ export const dkuSources = [
     classesUrl: "https://kenzoku-karate.dk/hold",
     async *loadClasses({ now }: { now: Date }) {
       const $res = await fetch$("https://kenzoku-karate.dk/hold");
-      const times = $res(".contentgroup__text-wrapper:nth(2)")
-        .parent()
-        .parent()
-        .parent()
-        .parent()
-        .parent()
-        .parent()
-        .find(".contentgroup__text-wrapper");
-      times.find("br").replaceWith("\n");
 
-      for (let i = 0; i < times.length; i++) {
-        const holdLines = render(times.eq(i)).split("\n");
-
-        const className = holdLines[0];
-        yield* parseClassesSchedulesLines(
-          holdLines.slice(1),
-          now,
-          {
-            className: () => className,
-            ageRange: (line) => {
-              const lineAgeRange = getAgeAndRankFromClassName(line).ageRange;
-
-              return lineAgeRange.min !== null || lineAgeRange.max !== null
-                ? lineAgeRange
-                : null;
-            },
-          },
-          { ageRange: getAgeAndRankFromClassName(className).ageRange },
-        );
-      }
+      yield* parseClassesSchedulesTree(renderToNestedLines($res), now);
     },
   },
   {

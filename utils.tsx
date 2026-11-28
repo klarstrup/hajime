@@ -323,6 +323,7 @@ export function* parseClassesSchedulesTree(
     weekdays?: Weekday[];
     timeRange?: TimeRange;
     className?: string;
+    ageRange?: { min: number | null; max: number | null };
   }
 
   // Context flows from a node down into its nested arrays; within a node,
@@ -351,6 +352,14 @@ export function* parseClassesSchedulesTree(
       const timeRange = timeMatch && safeParseTimeRange(timeMatch[0], now);
       let lastSet: "timeRange" | "className" | "both" | undefined;
 
+      // "Alder: 10-13 år", "Tid: Mandag kl. 17-18", "Pris: …" - the label
+      // itself is never a class name
+      const label = /^([^\s:]+):/.exec(item)?.[1];
+      const isLabeled = !!label && !danishWeekDayRE.test(label);
+      // A single descriptive sentence, e.g. "Vi fokuserer særligt på kata."
+      const isSentence = /[a-zæøå]\.$/i.test(item) && item.includes(" ");
+
+
       if (weekdays) data.weekdays = weekdays;
       if (timeRange) {
         data.timeRange = timeRange;
@@ -364,20 +373,30 @@ export function* parseClassesSchedulesTree(
         .replace(/\bkl\.?(?=\s|$)/gi, "")
         .replace(/^[\s:,.–-]+|[\s:,.–-]+$/g, "")
         .trim();
-      if (rest && (!weekdays || timeRange)) {
+      if (rest && !isLabeled && !isSentence && (!weekdays || timeRange)) {
         data.className = rest;
         lastSet = lastSet ? "both" : "className";
+      } else if (!timeRange) {
+        // A standalone age line ("Alder: Fra 13 år") applies to its class
+        const lineAge = getAgeAndRankFromClassName(item).ageRange;
+        if (lineAge.min !== null || lineAge.max !== null) {
+          data.ageRange = lineAge;
+        }
       }
 
       const { weekdays: days, timeRange: range, className } = data;
       if (!lastSet || !days || !range || !className) continue;
+
+      const { ageRange, rankRange } = getAgeAndRankFromClassName(className);
+      const nameHasAge = ageRange.min !== null || ageRange.max !== null;
 
       for (const weekday of days) {
         yield {
           className,
           weekday: weekday.toString(),
           ...getNextStartAndEnd(range, weekday, now),
-          ...getAgeAndRankFromClassName(className),
+          ageRange: nameHasAge ? ageRange : (data.ageRange ?? ageRange),
+          rankRange,
         };
       }
 
@@ -760,6 +779,58 @@ if (import.meta.vitest) {
           ageRange: { min: 15, max: null },
         },
       ]);
+    });
+    it("should handle kenzoku-karate.dk HTML structure", async () => {
+      const bs$ = cheerio.load(
+        readFileSync("./kenzoku-karate.dk.html", "utf-8"),
+      )("body");
+
+      const parsedSchedules = Array.from(
+        parseClassesSchedulesTree(
+          renderToNestedLines(bs$),
+          new Date("2026-11-27T00:30:00.000Z"),
+        ),
+      );
+      expect(
+        parsedSchedules.sort(
+          (a, b) => a.nextStart.getTime() - b.nextStart.getTime(),
+        ),
+      ).toEqual(
+        [
+          {
+            className: "Børnehold",
+            weekday: "MO",
+            nextStart: new Date("2026-11-30T16:00:00.000Z"),
+            nextEnd: new Date("2026-11-30T17:00:00.000Z"),
+            rankRange: { min: null, max: -11 },
+            ageRange: { min: 10, max: 13 },
+          },
+          {
+            className: "For alle",
+            weekday: "MO",
+            nextStart: new Date("2026-11-30T17:30:00.000Z"),
+            nextEnd: new Date("2026-11-30T19:00:00.000Z"),
+            rankRange: { min: -10.5, max: null },
+            ageRange: { min: 13, max: null },
+          },
+          {
+            className: "For alle",
+            weekday: "WE",
+            nextStart: new Date("2026-12-02T17:30:00.000Z"),
+            nextEnd: new Date("2026-12-02T19:00:00.000Z"),
+            rankRange: { min: -10.5, max: null },
+            ageRange: { min: 13, max: null },
+          },
+          {
+            className: "Øvede",
+            weekday: "SA",
+            nextStart: new Date("2026-11-28T09:00:00.000Z"),
+            nextEnd: new Date("2026-11-28T11:00:00.000Z"),
+            rankRange: { min: -10, max: null },
+            ageRange: { min: null, max: null },
+          },
+        ].sort((a, b) => a.nextStart.getTime() - b.nextStart.getTime()),
+      );
     });
   });
 }
