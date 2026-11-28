@@ -298,10 +298,7 @@ export function renderToNestedLines(
   return typeof tree === "string" ? [tree] : tree;
 }
 
-export function* parseClassesSchedulesTree(
-  tree: TextTree[],
-  now: Date,
-): Generator<{
+interface ParsedClass {
   ageRange: { min: number | null; max: number | null };
   rankRange: { min: number | null; max: number | null };
   nextStart: Date;
@@ -309,11 +306,13 @@ export function* parseClassesSchedulesTree(
   weekday: string;
   className: string;
   instructors?: string[];
-}> {
-  type ParsedClass =
-    ReturnType<typeof parseClassesSchedulesTree> extends Generator<infer T>
-      ? T
-      : never;
+}
+
+export function parseClassesSchedulesTree(
+  tree: TextTree[],
+  now: Date,
+): ParsedClass[] {
+  const classes: ParsedClass[] = [];
 
   interface Context {
     weekdays?: Weekday[];
@@ -359,30 +358,27 @@ export function* parseClassesSchedulesTree(
   };
 
   // Context flows from a node down into its nested arrays; within a node,
-  // items are read in order, and a class is completed as soon as an item
-  // completes weekdays + timeRange + className. A completed class is held
-  // back one line, so instructors listed right after it can be attached.
-  function* visit(
-    node: TextTree[],
-    inherited: Context,
-  ): ReturnType<typeof parseClassesSchedulesTree> {
+  // items are read in order, and a class is added as soon as an item
+  // completes weekdays + timeRange + className.
+  function visit(node: TextTree[], inherited: Context) {
     const data: Context = { ...inherited };
-    const pending: ParsedClass[] = [];
+    // Classes added by the previous line, for instructors listed right after
+    let justAdded: ParsedClass[] = [];
 
     for (const item of node) {
+      const previous = justAdded;
+      justAdded = [];
+
       if (Array.isArray(item)) {
-        yield* pending.splice(0);
-        yield* visit(item, data);
+        visit(item, data);
         continue;
       }
 
       const instructors = parseInstructors(item);
       if (instructors) {
-        for (const parsed of pending) parsed.instructors = instructors;
-        yield* pending.splice(0);
+        for (const parsed of previous) parsed.instructors = instructors;
         continue;
       }
-      yield* pending.splice(0);
 
       // Prose (several sentences, or very long) is a note, not schedule data
       if (item.length > 120 || /[.!?]\s+[A-ZÆØÅ]/.test(item)) continue;
@@ -452,7 +448,7 @@ export function* parseClassesSchedulesTree(
       const nameHasAge = ageRange.min !== null || ageRange.max !== null;
 
       for (const weekday of days) {
-        pending.push({
+        justAdded.push({
           className,
           weekday: weekday.toString(),
           ...getNextStartAndEnd(range, weekday, now),
@@ -463,12 +459,12 @@ export function* parseClassesSchedulesTree(
 
       if (lastSet !== "className") data.timeRange = undefined;
       if (lastSet !== "timeRange") data.className = undefined;
+      classes.push(...justAdded);
     }
-
-    yield* pending;
   }
 
-  yield* visit(tree, {});
+  visit(tree, {});
+  return classes;
 }
 
 if (import.meta.vitest) {
@@ -547,13 +543,11 @@ if (import.meta.vitest) {
   });
   describe("parseClassesSchedulesTree", async () => {
     it("should handle frederiksberg-karateskole HTML structure", async () => {
-      const parsedSchedules = Array.from(
-        parseClassesSchedulesTree(
-          renderToNestedLines(
-            readFileSync("./frederiksbergkarateskole.dk.html", "utf-8"),
-          ),
-          new Date("2026-11-30T00:30:00.000Z"),
+      const parsedSchedules = parseClassesSchedulesTree(
+        renderToNestedLines(
+          readFileSync("./frederiksbergkarateskole.dk.html", "utf-8"),
         ),
+        new Date("2026-11-30T00:30:00.000Z"),
       );
       expect(parsedSchedules).toEqual([
         {
@@ -600,11 +594,9 @@ if (import.meta.vitest) {
     });
 
     it("should handle kakushin.dk HTML structure", async () => {
-      const parsedSchedules = Array.from(
-        parseClassesSchedulesTree(
-          renderToNestedLines(readFileSync("./kakushin.dk.html", "utf-8")),
-          new Date("2026-11-30T00:30:00.000Z"),
-        ),
+      const parsedSchedules = parseClassesSchedulesTree(
+        renderToNestedLines(readFileSync("./kakushin.dk.html", "utf-8")),
+        new Date("2026-11-30T00:30:00.000Z"),
       );
       expect(parsedSchedules).toEqual([
         {
@@ -651,11 +643,9 @@ if (import.meta.vitest) {
     });
 
     it("should handle bskarate.dk HTML structure", async () => {
-      const parsedSchedules = Array.from(
-        parseClassesSchedulesTree(
-          renderToNestedLines(readFileSync("./bskarate.dk.html", "utf-8")),
-          new Date("2026-11-27T00:30:00.000Z"),
-        ),
+      const parsedSchedules = parseClassesSchedulesTree(
+        renderToNestedLines(readFileSync("./bskarate.dk.html", "utf-8")),
+        new Date("2026-11-27T00:30:00.000Z"),
       );
       expect(parsedSchedules).toEqual([
         {
@@ -709,13 +699,9 @@ if (import.meta.vitest) {
       ]);
     });
     it("should handle farumkyokushin.dk HTML", async () => {
-      const parsedSchedules = Array.from(
-        parseClassesSchedulesTree(
-          renderToNestedLines(
-            readFileSync("./farumkyokushin.dk.html", "utf-8"),
-          ),
-          new Date("2026-11-27T00:30:00.000Z"),
-        ),
+      const parsedSchedules = parseClassesSchedulesTree(
+        renderToNestedLines(readFileSync("./farumkyokushin.dk.html", "utf-8")),
+        new Date("2026-11-27T00:30:00.000Z"),
       );
       expect(
         parsedSchedules.sort(
@@ -837,13 +823,9 @@ if (import.meta.vitest) {
       ]);
     });
     it("should handle kenzoku-karate.dk HTML structure", async () => {
-      const parsedSchedules = Array.from(
-        parseClassesSchedulesTree(
-          renderToNestedLines(
-            readFileSync("./kenzoku-karate.dk.html", "utf-8"),
-          ),
-          new Date("2026-11-27T00:30:00.000Z"),
-        ),
+      const parsedSchedules = parseClassesSchedulesTree(
+        renderToNestedLines(readFileSync("./kenzoku-karate.dk.html", "utf-8")),
+        new Date("2026-11-27T00:30:00.000Z"),
       );
       expect(
         parsedSchedules.sort(
@@ -887,13 +869,11 @@ if (import.meta.vitest) {
       );
     });
     it("should handle roskildekarateklub.dk HTML structure", async () => {
-      const parsedSchedules = Array.from(
-        parseClassesSchedulesTree(
-          renderToNestedLines(
-            readFileSync("./roskildekarateklub.dk.html", "utf-8"),
-          ),
-          new Date("2026-11-28T00:30:00.000Z"),
+      const parsedSchedules = parseClassesSchedulesTree(
+        renderToNestedLines(
+          readFileSync("./roskildekarateklub.dk.html", "utf-8"),
         ),
+        new Date("2026-11-28T00:30:00.000Z"),
       );
       expect(
         parsedSchedules.sort(
@@ -1025,13 +1005,11 @@ if (import.meta.vitest) {
       );
     });
     it("should handle nansensgadekarate.dk HTML structure", async () => {
-      const parsedSchedules = Array.from(
-        parseClassesSchedulesTree(
-          renderToNestedLines(
-            readFileSync("./nansensgadekarate.dk.html", "utf-8"),
-          ),
-          new Date("2026-11-28T00:30:00.000Z"),
+      const parsedSchedules = parseClassesSchedulesTree(
+        renderToNestedLines(
+          readFileSync("./nansensgadekarate.dk.html", "utf-8"),
         ),
+        new Date("2026-11-28T00:30:00.000Z"),
       );
       expect(
         parsedSchedules.sort(
