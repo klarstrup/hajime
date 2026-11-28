@@ -105,6 +105,12 @@ export const dkuSources = [
     type: "club",
     federation: ["dku"],
     classesUrl: "https://middelfartkarate.dk/traeningstider/",
+    async *loadClasses({ now }: { now: Date }) {
+      yield* await fetchClasses(
+        "https://middelfartkarate.dk/traeningstider/",
+        now,
+      );
+    },
     calendarUrl: "https://middelfartkarate.dk/events/",
     // loadEvents: should be trivial
   },

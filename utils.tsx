@@ -460,7 +460,10 @@ export function parseClassesSchedulesTree(
       // "Alder: 10-13 år", "Tid: Mandag kl. 17-18", "Pris: …" - the label
       // itself is never a class name
       const label = /^([a-zæøå][^\s:]*):/i.exec(line)?.[1];
-      const isLabeled = !!label && !danishWeekDayRE.test(label);
+      const isLabeled =
+        (!!label && !danishWeekDayRE.test(label)) ||
+        // "Alder fra 6 -10 år", without the colon
+        /^alder\b/i.test(line);
       // A single descriptive sentence, e.g. "Vi fokuserer særligt på kata."
       const isSentence =
         /[a-zæøå]\.$/i.test(line) &&
@@ -972,7 +975,7 @@ if (import.meta.vitest) {
             nextStart: new Date("2026-12-03T15:30:00.000Z"),
             nextEnd: new Date("2026-12-03T16:30:00.000Z"),
             rankRange: { min: null, max: -21 },
-            ageRange: { min: 5, max: 9 },
+            ageRange: { min: 3, max: 5 },
           },
           {
             className: "Kidzz, 5-7 år",
@@ -980,7 +983,7 @@ if (import.meta.vitest) {
             nextStart: new Date("2026-12-03T16:30:00.000Z"),
             nextEnd: new Date("2026-12-03T17:30:00.000Z"),
             rankRange: { min: null, max: -21 },
-            ageRange: { min: 5, max: 9 },
+            ageRange: { min: 5, max: 7 },
           },
           {
             className: "Børn, 8-14 år, Begyndere, 10.-9. mon",
@@ -1490,6 +1493,82 @@ if (import.meta.vitest) {
         },
       ]);
     });
+    it("should handle middelfartkarate.dk HTML structure", async () => {
+      const parsedSchedules = renderClasses(
+        readFileSync("./middelfartkarate.dk.html", "utf-8"),
+        new Date("2026-11-28T00:30:00.000Z"),
+      );
+      expect(
+        parsedSchedules.sort(
+          (a, b) => a.nextStart.getTime() - b.nextStart.getTime(),
+        ),
+      ).toEqual([
+        {
+          className: "Kidzz",
+          weekday: "MO",
+          nextStart: new Date("2026-11-30T16:00:00.000Z"),
+          nextEnd: new Date("2026-11-30T17:00:00.000Z"),
+          ageRange: { min: 5, max: 9 },
+          rankRange: { min: null, max: -21 },
+        },
+        {
+          className: "Nybegynder Kidzz 6-10 år",
+          weekday: "MO",
+          nextStart: new Date("2026-11-30T16:00:00.000Z"),
+          nextEnd: new Date("2026-11-30T17:00:00.000Z"),
+          ageRange: { min: 6, max: 10.5 },
+          rankRange: { min: null, max: -21 },
+        },
+        {
+          className: "Juniormix",
+          weekday: "MO",
+          nextStart: new Date("2026-11-30T17:00:00.000Z"),
+          nextEnd: new Date("2026-11-30T18:00:00.000Z"),
+          ageRange: { min: null, max: null },
+          rankRange: { min: -10.5, max: null },
+        },
+        {
+          className: "Nybegynder børn og voksen",
+          weekday: "MO",
+          nextStart: new Date("2026-11-30T17:00:00.000Z"),
+          nextEnd: new Date("2026-11-30T18:00:00.000Z"),
+          ageRange: { min: null, max: null },
+          rankRange: { min: null, max: -11 },
+        },
+        {
+          className: "Øvede voksenhold",
+          weekday: "MO",
+          nextStart: new Date("2026-11-30T18:15:00.000Z"),
+          nextEnd: new Date("2026-11-30T19:30:00.000Z"),
+          ageRange: { min: null, max: null },
+          rankRange: { min: -10, max: null },
+        },
+        {
+          className: "Juniormix",
+          weekday: "TH",
+          nextStart: new Date("2026-12-03T17:00:00.000Z"),
+          nextEnd: new Date("2026-12-03T18:00:00.000Z"),
+          ageRange: { min: null, max: null },
+          rankRange: { min: -10.5, max: null },
+        },
+        {
+          className: "Nybegynder børn og voksen",
+          weekday: "TH",
+          nextStart: new Date("2026-12-03T17:00:00.000Z"),
+          nextEnd: new Date("2026-12-03T18:00:00.000Z"),
+          ageRange: { min: null, max: null },
+          rankRange: { min: null, max: -11 },
+        },
+        {
+          className: "Øvede voksenhold",
+          weekday: "TH",
+          nextStart: new Date("2026-12-03T18:15:00.000Z"),
+          nextEnd: new Date("2026-12-03T19:30:00.000Z"),
+          ageRange: { min: null, max: null },
+          rankRange: { min: -10, max: null },
+        },
+      ]);
+    });
   });
 }
 
@@ -1587,11 +1666,13 @@ export function getAgeAndRankFromClassName(className: string): {
     ageRange.max = null;
   }
 
-  if (lClassName.includes("kidzz")) {
+  // Default ages for named kids' programmes, unless the name gives them
+  const hasExplicitAge = ageRange.min !== null || ageRange.max !== null;
+  if (!hasExplicitAge && lClassName.includes("kidzz")) {
     ageRange.min = 5;
     ageRange.max = 9;
   }
-  if (lClassName.includes("karate kids")) {
+  if (!hasExplicitAge && lClassName.includes("karate kids")) {
     ageRange.min = 6;
     ageRange.max = 8;
   }
