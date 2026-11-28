@@ -1,12 +1,4 @@
-import { nlp } from "../../app/nlp";
-import {
-  getRRuleWeekdaysByFullDanishName,
-  parseClassesSchedulesTree,
-  render,
-  renderToNestedLines,
-  safeParseTimeRange,
-  timeRangeRE2,
-} from "../../utils";
+import { parseClassesSchedulesTree, renderToNestedLines } from "../../utils";
 import type {
   AllEventsResponse,
   LoadParams,
@@ -17,7 +9,6 @@ import {
   fetchIcsEvents,
   fetchJson,
   fetchKlubModul,
-  parseClassesSchedulesLines,
 } from "../sourceUtils";
 
 export const dkuSources = [
@@ -279,58 +270,7 @@ export const dkuSources = [
         "https://www.nansensgadekarate.dk/traeningstider",
       );
 
-      const times = $res(".page-section")
-        .filter((_, el) => $res(el).text().includes("Kamphold"))
-        .eq(0);
-      times.find("br").replaceWith("\n");
-
-      const holdLines = nlp
-        .readDoc(render(times).replace(/(\d+)\./g, "$1[DOT]"))
-        .sentences()
-        .out()
-        .flatMap((s) => s.replace(/\[DOT\]/g, ".").split(/\.?\n/))
-        // split [HH:MM]: [CLASS] strings into separate lines
-        .flatMap((line) => line.split(timeRangeRE2))
-        .map((line) => line.trim().replace(/^: ?/, "").replace(/\.$/, ""))
-        .filter(Boolean);
-
-      yield* parseClassesSchedulesLines(
-        holdLines.map((l) => l.replace("Kamphold torsdag", "Kamphold")),
-        now,
-        {
-          className: (line, now, data) => {
-            if (
-              data.className ||
-              !data.weekdays ||
-              !data.timeRange ||
-              safeParseTimeRange(line, now) ||
-              getRRuleWeekdaysByFullDanishName(line)
-            )
-              return null;
-
-            return line;
-          },
-          instructors: (line, now, data) => {
-            if (
-              !data.className ||
-              data.className === line ||
-              !data.weekdays ||
-              !data.timeRange ||
-              safeParseTimeRange(line, now) ||
-              getRRuleWeekdaysByFullDanishName(line)
-            )
-              return null;
-
-            return line.split(",").flatMap((s) => s.trim().split(" og "));
-          },
-        },
-        undefined,
-        undefined,
-        (data) => {
-          data.instructors = undefined;
-          data.className = undefined;
-        },
-      );
+      yield* parseClassesSchedulesTree(renderToNestedLines($res("body")), now);
     },
   },
   {

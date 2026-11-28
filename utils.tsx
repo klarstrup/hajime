@@ -308,7 +308,13 @@ export function* parseClassesSchedulesTree(
   nextEnd: Date;
   weekday: string;
   className: string;
+  instructors?: string[];
 }> {
+  type ParsedClass =
+    ReturnType<typeof parseClassesSchedulesTree> extends Generator<infer T>
+      ? T
+      : never;
+
   interface Context {
     weekdays?: Weekday[];
     timeRange?: TimeRange;
@@ -333,20 +339,50 @@ export function* parseClassesSchedulesTree(
     "skema",
   ]);
 
+  // "Sensei A og Senpai B", "Instruktør: A, B", "Forskellige instruktører"
+  const parseInstructors = (line: string): string[] | null => {
+    const labeled = /^instruktø(?:r|rer)\s*:\s*(.+)$/i.exec(line)?.[1];
+    if (
+      !labeled &&
+      !/^(sensei|senpai|senpei|sempai|shihan|hanshi|kyoshi|renshi)\b/i.test(
+        line,
+      ) &&
+      !/\binstruktører$/i.test(line)
+    ) {
+      return null;
+    }
+    return (labeled ?? line)
+      .replace(/\.$/, "")
+      .split(/\s*,\s*|\s+og\s+/)
+      .map((name) => name.trim())
+      .filter(Boolean);
+  };
+
   // Context flows from a node down into its nested arrays; within a node,
-  // items are read in order, and a class is yielded as soon as an item
-  // completes weekdays + timeRange + className.
+  // items are read in order, and a class is completed as soon as an item
+  // completes weekdays + timeRange + className. A completed class is held
+  // back one line, so instructors listed right after it can be attached.
   function* visit(
     node: TextTree[],
     inherited: Context,
   ): ReturnType<typeof parseClassesSchedulesTree> {
     const data: Context = { ...inherited };
+    const pending: ParsedClass[] = [];
 
     for (const item of node) {
       if (Array.isArray(item)) {
+        yield* pending.splice(0);
         yield* visit(item, data);
         continue;
       }
+
+      const instructors = parseInstructors(item);
+      if (instructors) {
+        for (const parsed of pending) parsed.instructors = instructors;
+        yield* pending.splice(0);
+        continue;
+      }
+      yield* pending.splice(0);
 
       // Prose (several sentences, or very long) is a note, not schedule data
       if (item.length > 120 || /[.!?]\s+[A-ZÆØÅ]/.test(item)) continue;
@@ -361,7 +397,7 @@ export function* parseClassesSchedulesTree(
 
       // "Alder: 10-13 år", "Tid: Mandag kl. 17-18", "Pris: …" - the label
       // itself is never a class name
-      const label = /^([^\s:]+):/.exec(item)?.[1];
+      const label = /^([a-zæøå][^\s:]*):/i.exec(item)?.[1];
       const isLabeled = !!label && !danishWeekDayRE.test(label);
       // A single descriptive sentence, e.g. "Vi fokuserer særligt på kata."
       const isSentence = /[a-zæøå]\.$/i.test(item) && item.includes(" ");
@@ -416,18 +452,20 @@ export function* parseClassesSchedulesTree(
       const nameHasAge = ageRange.min !== null || ageRange.max !== null;
 
       for (const weekday of days) {
-        yield {
+        pending.push({
           className,
           weekday: weekday.toString(),
           ...getNextStartAndEnd(range, weekday, now),
           ageRange: nameHasAge ? ageRange : (data.ageRange ?? ageRange),
           rankRange,
-        };
+        });
       }
 
       if (lastSet !== "className") data.timeRange = undefined;
       if (lastSet !== "timeRange") data.className = undefined;
     }
+
+    yield* pending;
   }
 
   yield* visit(tree, {});
@@ -982,6 +1020,161 @@ if (import.meta.vitest) {
             nextEnd: new Date("2026-11-29T11:30:00.000Z"),
             rankRange: { min: -10.5, max: null },
             ageRange: { min: null, max: null },
+          },
+        ].sort((a, b) => a.nextStart.getTime() - b.nextStart.getTime()),
+      );
+    });
+    it("should handle nansensgadekarate.dk HTML structure", async () => {
+      const parsedSchedules = Array.from(
+        parseClassesSchedulesTree(
+          renderToNestedLines(
+            readFileSync("./nansensgadekarate.dk.html", "utf-8"),
+          ),
+          new Date("2026-11-28T00:30:00.000Z"),
+        ),
+      );
+      expect(
+        parsedSchedules.sort(
+          (a, b) => a.nextStart.getTime() - b.nextStart.getTime(),
+        ),
+      ).toEqual(
+        [
+          {
+            className: "Børn - Fra blåt bælte (8. mon) og op",
+            weekday: "MO",
+            nextStart: new Date("2026-11-30T15:45:00.000Z"),
+            nextEnd: new Date("2026-11-30T16:45:00.000Z"),
+            rankRange: { min: -18, max: -11 },
+            ageRange: { min: null, max: null },
+            instructors: ["Senpai Jens Madsen"],
+          },
+          {
+            className: "Voksenhold 10.-5. kyu og begyndere",
+            weekday: "MO",
+            nextStart: new Date("2026-11-30T16:55:00.000Z"),
+            nextEnd: new Date("2026-11-30T18:05:00.000Z"),
+            rankRange: { min: -10, max: -5 },
+            ageRange: { min: null, max: null },
+            instructors: ["Sensei Rasmus Rasmussen", "Senpai Mikkel Døcker"],
+          },
+          {
+            className: "Voksenhold fra 4. kyu",
+            weekday: "MO",
+            nextStart: new Date("2026-11-30T18:05:00.000Z"),
+            nextEnd: new Date("2026-11-30T19:30:00.000Z"),
+            rankRange: { min: -4, max: null },
+            ageRange: { min: null, max: null },
+            instructors: ["Shihan Allan Døcker", "senpai Per Ole Lind"],
+          },
+          {
+            className: "Kamphold",
+            weekday: "TU",
+            nextStart: new Date("2026-12-01T16:00:00.000Z"),
+            nextEnd: new Date("2026-12-01T17:30:00.000Z"),
+            rankRange: { min: -10.5, max: null },
+            ageRange: { min: null, max: null },
+            instructors: ["Sensei Benno Rasmussen"],
+          },
+          {
+            className: "Gradueringstræning 10.-5. kyu",
+            weekday: "TU",
+            nextStart: new Date("2026-12-01T17:30:00.000Z"),
+            nextEnd: new Date("2026-12-01T19:00:00.000Z"),
+            rankRange: { min: -10, max: -5 },
+            ageRange: { min: null, max: null },
+            instructors: ["Senpai Emil André", "senpai Omer Badreldin"],
+          },
+          {
+            className: "Børn - Fra blåt bælte (8. mon) og op",
+            weekday: "WE",
+            nextStart: new Date("2026-12-02T15:00:00.000Z"),
+            nextEnd: new Date("2026-12-02T15:55:00.000Z"),
+            rankRange: { min: -18, max: -11 },
+            ageRange: { min: null, max: null },
+            instructors: [
+              "Senpai Hanni Hanberg",
+              "Senpai Martin Rejnholt Frederiksen",
+            ],
+          },
+          {
+            className: "Børn - Begynder til orange med streg (9. mon)",
+            weekday: "WE",
+            nextStart: new Date("2026-12-02T16:00:00.000Z"),
+            nextEnd: new Date("2026-12-02T17:00:00.000Z"),
+            rankRange: { min: null, max: -19 },
+            ageRange: { min: null, max: null },
+            instructors: ["Senpai Olivia Niebuhr", "senpai Anders Pedersen"],
+          },
+          {
+            className: "Træning voksne - Begyndere + øvede",
+            weekday: "WE",
+            nextStart: new Date("2026-12-02T17:15:00.000Z"),
+            nextEnd: new Date("2026-12-02T19:00:00.000Z"),
+            rankRange: { min: -10.5, max: null },
+            ageRange: { min: null, max: null },
+            instructors: ["Senpai Hanni Hanberg", "senpai Ida Nicole"],
+          },
+          {
+            className: "Forældre/børn",
+            weekday: "TH",
+            nextStart: new Date("2026-12-03T15:00:00.000Z"),
+            nextEnd: new Date("2026-12-03T15:45:00.000Z"),
+            rankRange: { min: null, max: -21 },
+            ageRange: { min: 5, max: 9 },
+            instructors: ["Senpai Hanni Hanberg"],
+          },
+          {
+            className: "Kamphold",
+            weekday: "TH",
+            nextStart: new Date("2026-12-03T16:00:00.000Z"),
+            nextEnd: new Date("2026-12-03T17:15:00.000Z"),
+            rankRange: { min: -10.5, max: null },
+            ageRange: { min: null, max: null },
+            instructors: ["Sensei Benno Rasmussen", "sensei Brian Jacobsen"],
+          },
+          {
+            className: "Gradueringstræning 10.-5. kyu",
+            weekday: "TH",
+            nextStart: new Date("2026-12-03T17:30:00.000Z"),
+            nextEnd: new Date("2026-12-03T19:00:00.000Z"),
+            rankRange: { min: -10, max: -5 },
+            ageRange: { min: null, max: null },
+            instructors: [
+              "Senpai Omer Badreldin",
+              "Senpai Nicolaj Mugenast-Petersen",
+              "Senpai Liv Steensen",
+            ],
+          },
+          {
+            className: "Åben dojo",
+            weekday: "FR",
+            nextStart: new Date("2026-12-04T07:00:00.000Z"),
+            nextEnd: new Date("2026-12-04T08:00:00.000Z"),
+            rankRange: { min: -10.5, max: null },
+            ageRange: { min: null, max: null },
+            instructors: ["Senpei Tim Borelli Mikkelsen"],
+          },
+          {
+            className: "Fællestræning",
+            weekday: "SA",
+            nextStart: new Date("2026-11-28T09:00:00.000Z"),
+            nextEnd: new Date("2026-11-28T10:30:00.000Z"),
+            rankRange: { min: -10.5, max: null },
+            ageRange: { min: null, max: null },
+            instructors: ["Forskellige instruktører"],
+          },
+          {
+            className: "Kata",
+            weekday: "SU",
+            nextStart: new Date("2026-11-29T09:00:00.000Z"),
+            nextEnd: new Date("2026-11-29T10:30:00.000Z"),
+            rankRange: { min: -10.5, max: null },
+            ageRange: { min: null, max: null },
+            instructors: [
+              "Sensei Rasmus Rasmussen",
+              "Senpai Hanni Hanberg",
+              "Senpai Sunniva Sandbukt",
+            ],
           },
         ].sort((a, b) => a.nextStart.getTime() - b.nextStart.getTime()),
       );
