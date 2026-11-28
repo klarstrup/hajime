@@ -1,4 +1,3 @@
-import { renderClasses } from "../../utils";
 import type {
   AllEventsResponse,
   LoadParams,
@@ -6,6 +5,7 @@ import type {
 } from "../sourceTypes";
 import {
   fetch$,
+  fetchClasses,
   fetchIcsEvents,
   fetchJson,
   fetchKlubModul,
@@ -45,7 +45,7 @@ export const dkuSources = [
     federation: ["dku"],
     classesUrl: "https://kakushin.dk/",
     loadClasses: async function* ({ now }: { now: Date }) {
-      yield* renderClasses(await fetch$("https://kakushin.dk/"), now);
+      yield* await fetchClasses("https://kakushin.dk/", now);
     },
   },
   {
@@ -62,8 +62,8 @@ export const dkuSources = [
     federation: ["dku"],
     classesUrl: "https://www.ensopeople.org/kopi-af-karate",
     async *loadClasses({ now }: { now: Date }) {
-      yield* renderClasses(
-        await fetch$("https://www.ensopeople.org/kopi-af-karate"),
+      yield* await fetchClasses(
+        "https://www.ensopeople.org/kopi-af-karate",
         now,
       );
     },
@@ -115,10 +115,7 @@ export const dkuSources = [
     federation: ["dku"],
     classesUrl: "https://svendborg-karateskole.dk/#tider",
     async *loadClasses({ now }: { now: Date }) {
-      yield* renderClasses(
-        await fetch$("https://svendborg-karateskole.dk/"),
-        now,
-      );
+      yield* await fetchClasses("https://svendborg-karateskole.dk/", now);
     },
   },
   {
@@ -134,7 +131,7 @@ export const dkuSources = [
       ),
     classesUrl: "https://kenzoku-karate.dk/hold",
     async *loadClasses({ now }: { now: Date }) {
-      yield* renderClasses(await fetch$("https://kenzoku-karate.dk/hold"), now);
+      yield* await fetchClasses("https://kenzoku-karate.dk/hold", now);
     },
   },
   {
@@ -165,8 +162,8 @@ export const dkuSources = [
       ),
     classesUrl: "https://roskildekarateklub.dk/hold-priser",
     async *loadClasses({ now }: { now: Date }) {
-      yield* renderClasses(
-        await fetch$("https://roskildekarateklub.dk/hold-priser"),
+      yield* await fetchClasses(
+        "https://roskildekarateklub.dk/hold-priser",
         now,
       );
     },
@@ -203,8 +200,8 @@ export const dkuSources = [
     },
     classesUrl: "https://farumkyokushin.dk/traeningstider/",
     async *loadClasses({ now }: { now: Date }) {
-      yield* renderClasses(
-        await fetch$("https://farumkyokushin.dk/traeningstider/"),
+      yield* await fetchClasses(
+        "https://farumkyokushin.dk/traeningstider/",
         now,
       );
     },
@@ -268,8 +265,8 @@ export const dkuSources = [
     },
     classesUrl: "https://www.nansensgadekarate.dk/traeningstider",
     async *loadClasses({ now }: { now: Date }) {
-      yield* renderClasses(
-        await fetch$("https://www.nansensgadekarate.dk/traeningstider"),
+      yield* await fetchClasses(
+        "https://www.nansensgadekarate.dk/traeningstider",
         now,
       );
     },
@@ -281,10 +278,8 @@ export const dkuSources = [
     federation: ["dku"],
     classesUrl: "https://www.frederiksbergkarateskole.dk/tr%C3%A6ningstider-0",
     async *loadClasses({ now }: { now: Date }) {
-      yield* renderClasses(
-        await fetch$(
-          "https://www.frederiksbergkarateskole.dk/tr%C3%A6ningstider",
-        ),
+      yield* await fetchClasses(
+        "https://www.frederiksbergkarateskole.dk/tr%C3%A6ningstider",
         now,
       );
     },

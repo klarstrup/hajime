@@ -1,6 +1,5 @@
-import { renderClasses } from "../../utils";
 import type { LoadParams } from "../sourceTypes";
-import { fetch$, fetchIcsEvents, fetchKlubModul } from "../sourceUtils";
+import { fetchClasses, fetchIcsEvents, fetchKlubModul } from "../sourceUtils";
 
 export const wkbSources = [
   {
@@ -20,8 +19,8 @@ export const wkbSources = [
       ),
     classesUrl: "https://www.bskarate.dk/tider-og-priser/",
     async *loadClasses({ now }: { now: Date }) {
-      yield* renderClasses(
-        await fetch$("https://www.bskarate.dk/tider-og-priser/"),
+      yield* await fetchClasses(
+        "https://www.bskarate.dk/tider-og-priser/",
         now,
       );
     },

@@ -1,7 +1,11 @@
 import { TZDate } from "@date-fns/tz";
-import { renderClasses } from "../../utils";
 import type { LoadParams } from "../sourceTypes";
-import { fetch$, fetchHoldsportEvents, fetchKlubModul } from "../sourceUtils";
+import {
+  fetch$,
+  fetchClasses,
+  fetchHoldsportEvents,
+  fetchKlubModul,
+} from "../sourceUtils";
 
 export const iogkfSources = [
   {
@@ -11,7 +15,7 @@ export const iogkfSources = [
     federation: ["iogkf"],
     classesUrl: "https://risskovkarateskole.dk/",
     async *loadClasses({ now }: { now: Date }) {
-      yield* renderClasses(await fetch$("https://risskovkarateskole.dk/"), now);
+      yield* await fetchClasses("https://risskovkarateskole.dk/", now);
     },
   },
   {

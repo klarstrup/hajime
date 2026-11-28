@@ -13,7 +13,7 @@ import {
   startOfYesterday,
 } from "date-fns";
 import { convertIcsCalendar } from "ts-ics";
-import { fuseCompare } from "../utils";
+import { fuseCompare, renderClasses } from "../utils";
 import { eventsSources } from "./sources";
 import type {
   HoldsportActivity,
@@ -64,6 +64,9 @@ export const fetchIcsEvents = async (url: string | URL) =>
         },
   }));
 export const fetch$ = async (url: string) => cheerio.load(await fetchText(url));
+
+export const fetchClasses = async (url: URL | string, now: Date) =>
+  renderClasses(await fetchText(url), now);
 
 export const fetchHoldsportEvents = async (
   {

@@ -10,13 +10,12 @@ import type {
   LoadParams,
 } from "./sourceTypes";
 import {
-  fetch$,
+  fetchClasses,
   fetchHoldsportEvents,
   fetchIcsEvents,
   fetchJson,
   fetchKlubModul,
 } from "./sourceUtils";
-import { renderClasses } from "@/utils";
 
 export const eventsSources = (
   [
@@ -463,8 +462,8 @@ export const eventsSources = (
       calendarUrl: "https://aarhus.ashihara.dk/kalender/",
       classesUrl: "https://aarhus.ashihara.dk/traening-og-hold/",
       loadClasses: async function* ({ now }: { now: Date }) {
-        yield* renderClasses(
-          await fetch$("https://aarhus.ashihara.dk/traening-og-hold/"),
+        yield* await fetchClasses(
+          "https://aarhus.ashihara.dk/traening-og-hold/",
           now,
         );
       },
