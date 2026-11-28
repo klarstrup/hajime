@@ -359,7 +359,6 @@ export function* parseClassesSchedulesTree(
       // A single descriptive sentence, e.g. "Vi fokuserer særligt på kata."
       const isSentence = /[a-zæøå]\.$/i.test(item) && item.includes(" ");
 
-
       if (weekdays) data.weekdays = weekdays;
       if (timeRange) {
         data.timeRange = timeRange;
@@ -455,40 +454,40 @@ if (import.meta.vitest) {
       const fk$ = cheerio.load(
         readFileSync("./frederiksbergkarateskole.dk.html", "utf-8"),
       )("#main");
-      fk$.find("h1").remove();
       const result = renderToNestedLines(fk$);
 
       expect(result).toEqual([
+        "Træningstider",
         [
-          "Mandag:",
           [
-            ["Børnehold", "16:30–17:30"],
-            ["Begynder og øvede", "17:45–19:45"],
+            "Mandag:",
+            [
+              ["Børnehold", "16:30–17:30"],
+              ["Begynder og øvede", "17:45–19:45"],
+            ],
           ],
-        ],
-        ["Tirsdag:", "Ingen træning"],
-        ["Onsdag:", ["Begyndere og øvede", "17:30–19:30"]],
-        ["Torsdag:", ["Kamptræning", "18:00-20:00"]],
-        [
-          "Fredag:",
+          ["Tirsdag:", "Ingen træning"],
+          ["Onsdag:", ["Begyndere og øvede", "17:30–19:30"]],
+          ["Torsdag:", ["Kamptræning", "18:00-20:00"]],
           [
-            ["Teknisk træning for alle", "17:00-18:15"],
-            "(Selvtræning, instruktør ikke garanteret)",
+            "Fredag:",
+            [
+              ["Teknisk træning for alle", "17:00-18:15"],
+              "(Selvtræning, instruktør ikke garanteret)",
+            ],
           ],
+          ["Lørdag:", "Lukket"],
         ],
-        ["Lørdag:", "Lukket"],
       ]);
     });
   });
   describe("parseClassesSchedulesTree", async () => {
     it("should handle frederiksberg-karateskole HTML structure", async () => {
-      const fk$ = cheerio.load(
-        readFileSync("./frederiksbergkarateskole.dk.html", "utf-8"),
-      )("body");
-
       const parsedSchedules = Array.from(
         parseClassesSchedulesTree(
-          renderToNestedLines(fk$),
+          renderToNestedLines(
+            readFileSync("./frederiksbergkarateskole.dk.html", "utf-8"),
+          ),
           new Date("2026-11-30T00:30:00.000Z"),
         ),
       );
@@ -537,13 +536,9 @@ if (import.meta.vitest) {
     });
 
     it("should handle kakushin.dk HTML structure", async () => {
-      const kk$ = cheerio.load(readFileSync("./kakushin.dk.html", "utf-8"))(
-        "body",
-      );
-
       const parsedSchedules = Array.from(
         parseClassesSchedulesTree(
-          renderToNestedLines(kk$),
+          renderToNestedLines(readFileSync("./kakushin.dk.html", "utf-8")),
           new Date("2026-11-30T00:30:00.000Z"),
         ),
       );
@@ -592,13 +587,9 @@ if (import.meta.vitest) {
     });
 
     it("should handle bskarate.dk HTML structure", async () => {
-      const bs$ = cheerio.load(readFileSync("./bskarate.dk.html", "utf-8"))(
-        "body",
-      );
-
       const parsedSchedules = Array.from(
         parseClassesSchedulesTree(
-          renderToNestedLines(bs$),
+          renderToNestedLines(readFileSync("./bskarate.dk.html", "utf-8")),
           new Date("2026-11-27T00:30:00.000Z"),
         ),
       );
@@ -654,10 +645,11 @@ if (import.meta.vitest) {
       ]);
     });
     it("should handle farumkyokushin.dk HTML", async () => {
-      const html = readFileSync("./farumkyokushin.dk.html", "utf-8");
       const parsedSchedules = Array.from(
         parseClassesSchedulesTree(
-          renderToNestedLines(html),
+          renderToNestedLines(
+            readFileSync("./farumkyokushin.dk.html", "utf-8"),
+          ),
           new Date("2026-11-27T00:30:00.000Z"),
         ),
       );
@@ -781,13 +773,11 @@ if (import.meta.vitest) {
       ]);
     });
     it("should handle kenzoku-karate.dk HTML structure", async () => {
-      const bs$ = cheerio.load(
-        readFileSync("./kenzoku-karate.dk.html", "utf-8"),
-      )("body");
-
       const parsedSchedules = Array.from(
         parseClassesSchedulesTree(
-          renderToNestedLines(bs$),
+          renderToNestedLines(
+            readFileSync("./kenzoku-karate.dk.html", "utf-8"),
+          ),
           new Date("2026-11-27T00:30:00.000Z"),
         ),
       );
