@@ -543,12 +543,17 @@ export function parseClassesSchedulesTree(
           ? [line.slice(0, timeMatch.index), line.slice(timeEnd)]
           : [line, ""];
       const scheduleFirst = danishWeekDayRE.test(beforeTime);
+      const weekdayIndex = line.search(danishWeekDayRE);
+      const nameFirst =
+        weekdayIndex > 0 && /[a-zæøå]/i.test(line.slice(0, weekdayIndex));
       const rest = (
         beforeTime.replace(danishWeekDayREG, "") +
         " " +
         (scheduleFirst ? afterTime : afterTime.replace(danishWeekDayREG, ""))
       )
         .replace(/\bkl\.?(?=\s|$)/gi, "")
+        // Team numbers: "Kamphold tirsdag | 20"
+        .replace(/\s*\|\s*\d+\s*$/, "")
         .replace(/\s+/g, " ")
         // Connectors left dangling once weekdays and times are removed:
         // "Voksne træner mandag og torsdag kl. 18-19" -> "Voksne træner og"
@@ -581,7 +586,9 @@ export function parseClassesSchedulesTree(
         !isPrice &&
         !isContact &&
         !isSubtitle &&
-        (!weekdays || timeRange)
+        // A weekday on its own line is a schedule ("Tuesday HAL 3 gym"),
+        // unless a name comes first: "Kamphold tirsdag"
+        (!weekdays || timeRange || nameFirst)
       ) {
         // Nested names qualify the heading above them: "Kidzz" > "3-5 år",
         // unless a weekday came in between: "Træningstider" > "Tirsdag" > "Børn"

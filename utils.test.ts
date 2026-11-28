@@ -1298,6 +1298,154 @@ describe("parseClassesSchedulesTree", async () => {
       },
     ]);
   });
+  it("should handle karateklub.com-teamoverviewplan HTML structure", async () => {
+    const parsedSchedules = renderClasses(
+      fixture("karateklub.com-teamoverviewplan.html"),
+      new Date("2026-11-28T00:30:00.000Z"),
+    );
+    expect(
+      parsedSchedules.sort(
+        (a, b) => a.nextStart.getTime() - b.nextStart.getTime(),
+      ),
+    ).toEqual([
+      {
+        className: "Karate Kids I (6-7år)",
+        weekday: "MO",
+        nextStart: new Date("2026-11-30T16:00:00.000Z"),
+        nextEnd: new Date("2026-11-30T17:00:00.000Z"),
+        ageRange: { min: 6, max: 7 },
+        rankRange: { min: null, max: -21 },
+      },
+      {
+        className: "Karate Kids II (8-10år)",
+        weekday: "MO",
+        nextStart: new Date("2026-11-30T16:00:00.000Z"),
+        nextEnd: new Date("2026-11-30T17:00:00.000Z"),
+        ageRange: { min: 8, max: 10 },
+        rankRange: { min: null, max: -21 },
+      },
+      {
+        className: "Juniorer I (11-14år)",
+        weekday: "MO",
+        nextStart: new Date("2026-11-30T17:00:00.000Z"),
+        nextEnd: new Date("2026-11-30T18:30:00.000Z"),
+        ageRange: { min: 11, max: 14 },
+        rankRange: { min: -10.5, max: null },
+      },
+      {
+        className: "Juniorer II (15-17år)",
+        weekday: "MO",
+        nextStart: new Date("2026-11-30T17:00:00.000Z"),
+        nextEnd: new Date("2026-11-30T18:30:00.000Z"),
+        ageRange: { min: 15, max: 17 },
+        rankRange: { min: -10.5, max: null },
+      },
+      {
+        className: "Voksne begyndere (18+ år)",
+        weekday: "MO",
+        nextStart: new Date("2026-11-30T17:00:00.000Z"),
+        nextEnd: new Date("2026-11-30T18:30:00.000Z"),
+        ageRange: { min: 10.5, max: 18 },
+        rankRange: { min: -10.5, max: null },
+      },
+      {
+        className: "Voksne øvede (18+ år)",
+        weekday: "MO",
+        nextStart: new Date("2026-11-30T17:00:00.000Z"),
+        nextEnd: new Date("2026-11-30T18:30:00.000Z"),
+        ageRange: { min: 18, max: null },
+        rankRange: { min: -10, max: null },
+      },
+      {
+        className: "Kamphold",
+        weekday: "TU",
+        nextStart: new Date("2026-12-01T17:00:00.000Z"),
+        nextEnd: new Date("2026-12-01T18:30:00.000Z"),
+        ageRange: { min: null, max: null },
+        rankRange: { min: -10.5, max: null },
+      },
+      {
+        className: "Juniorer I (11-14år)",
+        weekday: "TU",
+        nextStart: new Date("2026-12-01T17:00:00.000Z"),
+        nextEnd: new Date("2026-12-01T18:30:00.000Z"),
+        ageRange: { min: 11, max: 14 },
+        rankRange: { min: -10.5, max: null },
+      },
+      {
+        className: "Juniorer II (15-17år)",
+        weekday: "TU",
+        nextStart: new Date("2026-12-01T17:00:00.000Z"),
+        nextEnd: new Date("2026-12-01T18:30:00.000Z"),
+        ageRange: { min: 15, max: 17 },
+        rankRange: { min: -10.5, max: null },
+      },
+      {
+        className: "Voksne øvede (18+ år)",
+        weekday: "TU",
+        nextStart: new Date("2026-12-01T17:00:00.000Z"),
+        nextEnd: new Date("2026-12-01T18:30:00.000Z"),
+        ageRange: { min: 18, max: null },
+        rankRange: { min: -10, max: null },
+      },
+      {
+        className: "Karate Kids I (6-7år)",
+        weekday: "TH",
+        nextStart: new Date("2026-12-03T16:00:00.000Z"),
+        nextEnd: new Date("2026-12-03T17:00:00.000Z"),
+        ageRange: { min: 6, max: 7 },
+        rankRange: { min: null, max: -21 },
+      },
+      {
+        className: "Karate Kids II (8-10år)",
+        weekday: "TH",
+        nextStart: new Date("2026-12-03T16:00:00.000Z"),
+        nextEnd: new Date("2026-12-03T17:00:00.000Z"),
+        ageRange: { min: 8, max: 10 },
+        rankRange: { min: null, max: -21 },
+      },
+      {
+        className: "Juniorer I (11-14år)",
+        weekday: "TH",
+        nextStart: new Date("2026-12-03T17:00:00.000Z"),
+        nextEnd: new Date("2026-12-03T18:30:00.000Z"),
+        ageRange: { min: 11, max: 14 },
+        rankRange: { min: -10.5, max: null },
+      },
+      {
+        className: "Juniorer II (15-17år)",
+        weekday: "TH",
+        nextStart: new Date("2026-12-03T17:00:00.000Z"),
+        nextEnd: new Date("2026-12-03T18:30:00.000Z"),
+        ageRange: { min: 15, max: 17 },
+        rankRange: { min: -10.5, max: null },
+      },
+      {
+        className: "Voksne begyndere (18+ år)",
+        weekday: "TH",
+        nextStart: new Date("2026-12-03T17:00:00.000Z"),
+        nextEnd: new Date("2026-12-03T18:30:00.000Z"),
+        ageRange: { min: 10.5, max: 18 },
+        rankRange: { min: -10.5, max: null },
+      },
+      {
+        className: "Voksne øvede (18+ år)",
+        weekday: "TH",
+        nextStart: new Date("2026-12-03T17:00:00.000Z"),
+        nextEnd: new Date("2026-12-03T18:30:00.000Z"),
+        ageRange: { min: 18, max: null },
+        rankRange: { min: -10, max: null },
+      },
+      {
+        className: "Kamphold",
+        weekday: "FR",
+        nextStart: new Date("2026-12-04T17:00:00.000Z"),
+        nextEnd: new Date("2026-12-04T18:30:00.000Z"),
+        ageRange: { min: null, max: null },
+        rankRange: { min: -10.5, max: null },
+      },
+    ]);
+  });
 });
 
 describe("getRRuleWeekdaysByFullDanishName", () => {

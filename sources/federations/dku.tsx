@@ -251,6 +251,19 @@ export const dkuSources = [
     federation: ["dku", "dgi"],
     calendarUrl: "https://karateklub.com/cms/Activity.aspx",
     classesUrl: "https://karateklub.com/traening-og-hold",
+    // The public page shows the kids' times as an image; Klubmodul's team
+    // plan has them all as text
+    async *loadClasses({ now }: { now: Date }) {
+      const classes = await fetchClasses(
+        "https://karateklub.com/cms/teamoverviewplan.aspx",
+        now,
+      );
+      // Tuesday is one Kamphold for everyone; the junior and adult teams are
+      // listed that day only to show they can train too
+      yield* classes.filter(
+        (c) => c.weekday !== "TU" || c.className === "Kamphold",
+      );
+    },
     loadEvents: (loadParams: LoadParams) =>
       fetchKlubModul("https://karateklub.com/cms/", loadParams),
   },

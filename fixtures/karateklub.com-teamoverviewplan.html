@@ -1,0 +1,3399 @@
+<!-- ASP.NET -->
+
+
+<!--  DOCTYPE  -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="html" xmlns="http://www.w3.org/1999/xhtml">
+	<!--  HEAD  -->
+	
+	
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset="utf-8" />
+		
+		<script language="javascript" type="text/javascript" src="../ToolTip.js"></script>
+		<title>Klubmodul.dk -  Nem klubadministration</title>
+	
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+	<!-- FAVICON -->
+	<link rel="shortcut icon" href="/favicon.png" type="image/png">
+	<link rel="icon" href="../cms/clubkarateklub/images/favicon.png" type="image/png">
+
+	<!--  LINKS  -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+	<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,600" rel="stylesheet">
+<link href="../cms/clubkarateklub/style.css?v=1.05" rel="stylesheet" type="text/css" />
+
+
+	<!--  TRANSLATIONS  -->
+	<script type="text/javascript" charset="UTF-8">
+/*
+* KLUBMODUL DESIGN VARIABLES
+*/
+window.km = (window.km != undefined) ? window.km : {};
+window.km = {
+	translations: {
+		months: {
+			1: 'januar',
+			2: 'februar',
+			3: 'marts',
+			4: 'april',
+			5: 'maj',
+			6: 'juni',
+			7: 'juli',
+			8: 'august',
+			9: 'september',
+			10: 'oktober',
+			11: 'november',
+			12: 'december'
+		},
+		months_short: {
+			1: 'jan',
+			2: 'feb',
+			3: 'mar',
+			4: 'apr',
+			5: 'maj',
+			6: 'jun',
+			7: 'jul',
+			8: 'aug',
+			9: 'sep',
+			10: 'okt',
+			11: 'nov',
+			12: 'dec'
+		},
+		text: {	
+			author: 'Skrevet af',
+			login: 'Log ind',
+			enrollments: 'Min side',
+			username: 'Brugernavn',
+			password: 'Kodeord',
+			fblogin: 'Log ind med Facebook',
+			readmore: 'Læs mere',
+			readless: 'Læs mindre',
+			mere: 'Mere',
+			fblink: 'Se på Facebook',
+			fblikes: 'synes godt om',
+			share: 'Del',
+			gallery: 'Klik for at se galleri',
+			otherLinks: 'Andre links',
+			timeShort: 'kl.',
+		}
+	}
+};
+</script>
+
+
+
+	<!--  HEAD INCLUDE  -->
+	
+
+
+	<!--  DEFAULT ASSETS  -->
+	<link rel="stylesheet" href="../cms/include/designs/core/css/slick.min.css">
+	<script type="text/javascript" src="../cms/include/designs/core/js/jquery.min.js"></script>
+	<script type="text/javascript" src="../cms/include/designs/core/js/jquery.fittext.js"></script>
+	<script type="text/javascript" src="../cms/include/designs/core/js/slick.min.js"></script>
+	<script type="text/javascript" src="../cms/include/designs/core/js/lazy-load.min.js"></script>
+	<script type="text/javascript" src="../cms/include/designs/core/js/jquery.fullPage.js"></script>
+	<link rel="stylesheet" href="../cms/css/kmresponsive.css">
+	<script src="../cms/js/kmresponsive.js"></script>
+
+	<!--  MAIN ASSETS  -->
+	<script type="text/javascript" src="../cms/include/designs/core/js/main.js"></script>
+	<link rel="stylesheet" href="../cms/include/designs/core/css/main.css">
+
+
+
+	</head>
+	<!--  BODY  -->
+	<body comply="true" id="body">
+		<div id="fb-root"></div>
+		<script>
+			(function(d, s, id) {
+			  var js, fjs = d.getElementsByTagName(s)[0];
+			  if (d.getElementById(id)) return;
+			  js = d.createElement(s); js.id = id;
+			  js.src = 'https://connect.facebook.net/da_DK/sdk.js#xfbml=1&version=v3.0&appId=381956435569066';
+			  fjs.parentNode.insertBefore(js, fjs);
+			}(document, 'script', 'facebook-jssdk'));
+		</script>
+		<!--  LANGUAGE  -->
+		<div id="DK">
+		<div id="TipBox"></div>
+
+		<!--  FORM START  -->
+		<form name="aspnetForm" method="post" action="./teamoverviewplan.aspx" id="aspnetForm">
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="lf75XyVL06HwgcyuYHl6TgXuOxVONoXVJqlSxO5BXwyCN2lm4wAv+zmfPOnHj1HFzrJARNkF9mMwV0ljG66u0MdJwbbTXnYf6mTN5gKfQ0AK4xr/nwHnMjjxOYdHOrb0Ia9jNm6iy2VPVEIafF7Xv0jS+QRugDK9rqc+AQzjW10=" />
+
+<script language='javascript' type='text/javascript' src='js/totop.js?v=1.14'></script><link href='css/design.css?v=1.14' rel='stylesheet' type='text/css' /><link href='../assets/fa/css/all.min.css?v=1.01' rel='stylesheet' type='text/css' /><script language='javascript' type='text/javascript' src='season_fun/season_controls.js?v=1.03'></script>
+<script src="/WebResource.axd?d=fqV81KWLWhVg-lLAb4IT6-vC5rWlN5XVgbXxhtGJeSGGheYSml97ZrwdVD-lS2xxooJiJExAnjPlJh2WchwBFYELrF8qT_8E6APJi0E90pQ1&amp;t=639190905332169432" type="text/javascript"></script>
+<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="5B0E70B0" />
+<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="CoOXCDWPJUaz66y+Q1ZhjKXf7HuL2k/1EeTE5w87lS96VGG0W35BN5Fs+f7QiJ2Qc2GGUNAvQXKTlbFPFE03bLpUGkgi46Rkcl99QlvkPH3IZ9S+OOKkfrkKywtymwx9rNR6dazjFF6sDpW4SGHCO0h/xuo0UflQQO4b7aAgYj3vO51gCv8wK/OZKuttZDoYIVB9HqP0p8ZNsVnrIoCvKYCkghlpzZglsu16Kxork/unmeWkdQGWrEDD7dxrSm0+QKbmjjW34ODKtNrrzINcsQ==" />
+			<input type="hidden" name="ctl00$hdnKlubBackgroundColor" id="hdnKlubBackgroundColor" value="#000000" />
+			
+			<div id="screen-wrap">
+				<div style="display:none;" id="lang_control">DK</div>
+
+				<!--  TOPMENU START  -->
+				<div id="menuBar" class="km-bg-blue">
+					<div class="container">
+						<div id="menu-mobile" class="km-bg-blue">
+						<div id="mobileLogo" class="hidden-lg hidden-md hidden-sm">
+							<span id="menuHeaderClubName"></span>
+						</div>
+							<div id="nav-icon3">
+								<span></span>
+								<span></span>
+								<span></span>
+								<span></span>
+							</div>
+						</div>
+						<div id="topmenu">
+							<div id="topmenu-responsive" class="km-bg-blue">
+								<ul id="menu">
+									<a href="default.aspx" class="home_link_responsive undefined" role="menuitem" style="position: relative;"><i class="fa fa-home" aria-hidden="true"></i></a>
+									
+<script>
+
+    $(window).load(function () {
+        if (window.fancy != undefined && window.fancy == true) {
+            $('head').append("<scr" + "ipt type=\"text/javascript\" src=\"js/fancy.menu.js\"></scr" + "ipt>");
+            $('head').append("<link href='css/fancy.menu.css' rel='stylesheet' />");
+        }
+        var isiPad = navigator.userAgent.toLowerCase().indexOf("ipad");
+        if (isiPad > -1) {
+            $('#menu a.popout').attr("href", "#");
+            $('#menu a.popout').removeAttr("onclick");
+        }
+    });
+</script>
+<link href="css/TopMenu.css?v=1.03" rel="stylesheet" />
+<a href="#menu_SkipLink"><img alt="Skip Navigation Links" src="/WebResource.axd?d=rKN1opQVoh180LaGjXZZkIvm49U3Oqo5wFPwD1-FxyDjQ6BOeRV-O86Ij6wE2NH-vcncG6K9-VDCJKh7ugn3QQ2&amp;t=639190905332169432" width="0" height="0" border="0" /></a><div class="topmn" id="menu">
+	<ul class="level1">
+		<li><a class="popout level1 menu" href="/traening-og-hold"><span>Træning & hold</span></a><ul class="level2">
+			<li><a class="level2 menu" href="/traening-og-hold"><span>Træningstider & hold</span></a></li><li><a class="level2 menu" href="/priser"><span>Priser</span></a></li>
+		</ul></li><li><a class="popout level1 menu" href="/om-os"><span>OM KLUBBEN</span></a><ul class="level2">
+			<li><a class="level2 menu" href="/om-os"><span>Om os</span></a></li><li><a class="level2 menu" href="/instruktoerer"><span>Instruktører</span></a></li><li><a class="level2 menu" href="/om-kyokushinkai"><span>Om Kyokushinkai</span></a></li><li><a class="level2 menu" href="/bestyrelse"><span>Bestyrelse</span></a></li><li><a class="level2 menu" href="/betingelser"><span>Betingelser</span></a></li><li><a class="level2 menu" href="/klubbens-vedtaegter"><span>Klubbens vedtægter</span></a></li>
+		</ul></li><li><a class="level1 menu" href="/faq"><span>FAQ</span></a></li><li><a class="level1 menu" href="/kontakt-os"><span>KONTAKT</span></a></li><li><a class="popout level1 menu" href="/cms/Activity.aspx"><span>Kalender</span></a><ul class="level2">
+			<li><a class="popout level2 menu" href="/cms/EventOverview.aspx"><span>ARRANGEMENTER</span></a><ul class="level3">
+				<li><a class="level3 menu" href="/cms/ProfileEventEnrollment.aspx?EventID=255">Graduering for Juniorer (Juniorer I)</a></li><li><a class="level3 menu" href="/cms/ProfileEventEnrollment.aspx?EventID=256">Graduering for voksne og Juniorer II</a></li><li><a class="level3 menu" href="/cms/ProfileEventEnrollment.aspx?EventID=254">Graduering for Børn (Kids I og Kids II)</a></li>
+			</ul></li>
+		</ul></li><li><a class="popout level1 menu" href="/cms/ShopOverview.aspx"><span>Køb</span></a><ul class="level2">
+			<li><a class="level2 menu" href="https://budoxperten.dk/gaa-til-shoppen/1017-knockdown-karate/" target="_blank"><span>Nyt udstyr</span></a></li><li><a class="level2 menu" href="https://www.facebook.com/Karateklubben-Kyokushinkai-K%C3%B8benhavn-130332957022788/" target="_blank"><span>Brugt udstyr</span></a></li><li><a class="level2 menu" href="/cms/ShopOverview.aspx"><span>Shop</span></a></li>
+		</ul></li><li><a class="popout level1 menu" href="/cms/TeamOverviewAlt.aspx"><span>Holdtilmelding</span></a><ul class="level2">
+			<li><a class="level2 menu" href="/cms/TeamEnrollmentAlt.aspx?TeamNameID=20">Kamphold fredag</a></li><li><a class="level2 menu" href="/cms/TeamEnrollmentAlt.aspx?TeamNameID=29">Kamphold tirsdag</a></li><li><a class="level2 menu" href="/cms/TeamEnrollmentAlt.aspx?TeamNameID=4">Karate Kids I (6-7år)</a></li><li><a class="level2 menu" href="/cms/TeamEnrollmentAlt.aspx?TeamNameID=5">Karate Kids II (8-10år)</a></li><li><a class="level2 menu" href="/cms/TeamEnrollmentAlt.aspx?TeamNameID=7">Juniorer I (11-14år)</a></li><li><a class="level2 menu" href="/cms/TeamEnrollmentAlt.aspx?TeamNameID=2">Juniorer II (15-17år)</a></li><li><a class="level2 menu" href="/cms/TeamEnrollmentAlt.aspx?TeamNameID=3">Voksne begyndere (18+ år)</a></li><li><a class="level2 menu" href="/cms/TeamEnrollmentAlt.aspx?TeamNameID=9">Voksne øvede (18+ år)</a></li><li><a class="level2 menu" href="/cms/TeamEnrollmentAlt.aspx?TeamNameID=17">instruktør holdet </a></li><li><a class="level2 menu" href="/cms/TeamEnrollmentAlt.aspx?TeamNameID=26">Bero</a></li><li><a class="level2 menu" href="/cms/TeamEnrollmentAlt.aspx?TeamNameID=27">Torsdagshold Voksne 19 år+</a></li><li><a class="level2 menu" href="/cms/TeamEnrollmentAlt.aspx?TeamNameID=23">Kata Hold</a></li>
+		</ul></li>
+	</ul>
+</div><a id="menu_SkipLink"></a>
+
+<div id="topMenuSearchInput" style="display: none">
+    <label for="txtTopMenuSearch"></label>
+    <input type="text" id="txtTopMenuSearch" style="width: 100px; margin: 0 10px;" placeholder="Søg" /><input id="btnTopMenuSearch" type="button" value="Søg" />
+</div>
+<div id="topMenuSearchBtn" style="display: none">
+    <div id="topMenuSearchHover">
+        <li><i style="width: 100%;" class="fa-solid fa-search menu level1"></i></li>
+    </div>
+    <div class="km-bg-blue" id="topMenuSearchInput2">
+        <input type="text" id="txtTopMenuSearch2" placeholder="Søg" />
+        <input id="btnTopMenuSearch2" type="button" value="Søg" />
+    </div>
+</div>
+<script>
+    'use strict';
+
+    (function (km) {
+        var $topMenuSearchInput = $('#topMenuSearchInput'),
+            $topMenuSearchBtn = $('#topMenuSearchBtn'),
+            $txtTopMenuSearch = $('#txtTopMenuSearch'),
+            $txtTopMenuSearch2 = $('#txtTopMenuSearch2'),
+            $btnTopMenuSearch = $('#btnTopMenuSearch'),
+            $btnTopMenuSearch2 = $('#btnTopMenuSearch2'),
+            enableSearchInput = false,
+            enableSearchBtn = false,
+            $menuItemSearchBtnLi = null,
+            $menuItemSearchInputLi = null;
+
+        function search(input) {
+            if (input.length > 0) {
+                location.href = '/cms/search.aspx?term=' + encodeURIComponent(input);
+            }
+        }
+
+        if (enableSearchBtn === true) {
+            $menuItemSearchBtnLi = $('#menu li a[href=\'/cms/searchbutton.aspx\']').eq(0).parent();
+
+            if (location.pathname.toLowerCase() !== '/cms/search.aspx') {
+                $menuItemSearchBtnLi.html('');
+                $topMenuSearchBtn.detach();
+                $menuItemSearchBtnLi.append($topMenuSearchBtn);
+                $topMenuSearchBtn.css('display', 'block');
+
+                $txtTopMenuSearch2.on('keypress',
+                    function (e) {
+                        if (e.keyCode === 13) { //Enter
+                            e.preventDefault();
+
+                            search($txtTopMenuSearch2.val().trim());
+                        }
+                    }
+                );
+                $btnTopMenuSearch2.on('click',
+                    function (e) {
+                        e.preventDefault();
+
+                        search($txtTopMenuSearch2.val().trim());
+                    }
+                );
+            } else {
+                $menuItemSearchBtnLi.css('display', 'none');
+            }
+        }
+
+        if (enableSearchInput === true) {
+            $menuItemSearchInputLi = $('#menu li a[href=\'/cms/searchinput.aspx\']').eq(0).parent();
+
+            if (location.pathname.toLowerCase() !== '/cms/search.aspx') {
+                $menuItemSearchInputLi.html('');
+                $topMenuSearchInput.detach();
+                $menuItemSearchInputLi.append($topMenuSearchInput);
+                $topMenuSearchInput.css('display', 'block');
+
+                $txtTopMenuSearch.on('keypress',
+                    function (e) {
+                        if (e.keyCode === 13) { //Enter
+                            e.preventDefault();
+
+                            search($txtTopMenuSearch.val().trim());
+                        }
+                    }
+                );
+            } else {
+                $menuItemSearchInputLi.css('display', 'none');
+            }
+
+            $btnTopMenuSearch.on('click',
+                function (e) {
+                    e.preventDefault();
+
+                    search($txtTopMenuSearch.val().trim());
+                }
+            );
+        }
+    })(window.km = window.km || {});    
+</script>
+
+									<div id="ctl00_panelAnonymousTemplate">
+	
+<a id="ctl00_ImgLogin" href="javascript:WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(&quot;ctl00$ImgLogin&quot;, &quot;&quot;, true, &quot;Login&quot;, &quot;&quot;, false, true))"></a>
+	
+<li class="usermenu">
+        	<a class="km-menu-login-btn menu" href="javascript:WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(&quot;ctl00$ctl00&quot;, &quot;&quot;, true, &quot;Login&quot;, &quot;&quot;, false, true))">Log ind</a>
+				<ul id="usermenu" class="level2">
+				
+      	&nbsp;	
+        
+			
+			
+			
+			
+			<div class="linkboks-input"><i class="far fa-user secbg" aria-hidden="true"></i><input name="ctl00$txtUsername" type="text" id="ctl00_txtUsername" class="km-usermenu-input" /></div><div class="linkboks-input"><i class="far fa-unlock-alt secbg" aria-hidden="true"></i><input name="ctl00$txtPassword" type="password" id="ctl00_txtPassword" class="km-usermenu-input" />
+			 <a class="km-login-btn km-bg-blue km-hover-blue-dark" href="javascript:WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(&quot;ctl00$ctl01&quot;, &quot;&quot;, true, &quot;Login&quot;, &quot;&quot;, false, true))"><i class="fa-solid fa-sign-in-alt"></i></a></div>
+			<span id="km-remme" class="km-bg-blue"><label>Husk mig <input id="ctl00_chkKeepmeSignIN" type="checkbox" name="ctl00$chkKeepmeSignIN" checked="checked" /><i class="fal fa-square"></i></label></span>
+			<a id="ctl00_lnkFacebookLogin" class="fbLogin" href="javascript:__doPostBack(&#39;ctl00$lnkFacebookLogin&#39;,&#39;&#39;)"><i class="fab fa-facebook-square"></i> Log ind med Facebook</span></a>
+			<div id="km-um-sep" class="km-bg-blue"></div>
+			
+			
+			<a id="ctl00_lnkCreateprofile" class="km-login-createprofile secbg secdarkhover" href="ProfileMaintenance.aspx">Opret profil</a>
+				
+
+			<a href="GlemtLogin.aspx" id="km-um-forgot" title='Klik her for at fÃ¥ tilsendt dine login oplysninger'>Glemt password</a>
+			
+			
+			
+			
+       
+                	
+						&nbsp;
+			
+						&nbsp;
+                    	
+                      
+					  
+					  
+						
+                        
+                       	
+                 
+          		
+             
+				</ul>
+</li>
+	                             
+
+</div>
+
+
+<script>
+  $(window).on("load", function(){
+    var ios = navigator.userAgent.match(/iPhone|iPad|iPod/i);
+    if(ios != null && ios.length > 0) {
+      if($(window).width() <= 768) {
+        $("#kmlogin").on("click", function() {
+          $("#kmlogin").trigger('mouseenter');
+        });
+      }
+    }
+  });
+ 
+   $(window).scroll(function(){
+		var scrollTop = $(window).scrollTop();
+	if(scrollTop == 0){
+		$("#usermenu").removeClass("scrolled");
+	} else {
+		$("#usermenu").addClass("scrolled");
+	
+   $(".loggedin").click(function() {
+	   	if ($(window).width() < 768 && $("#usermenu").hasClass("scrolled")) {
+  $("#usermenu").removeClass("scrolled");
+   $("#usermenu").addClass("scrolledclick");
+    }
+	else if ($(window).width() < 768 && $("#usermenu").hasClass("scrolledclick")) {
+		 $("#usermenu").addClass("scrolled");
+   $("#usermenu").removeClass("scrolledclick");
+	}
+});
+
+   $("#kmlogin a").click(function() {
+	
+	   	if ($(window).width() < 768 && $("#usermenu").hasClass("scrolled")) {
+  $("#usermenu").removeClass("scrolled");
+   $("#usermenu").addClass("scrolledclick");
+    }
+	else if ($(window).width() < 768 && $("#usermenu").hasClass("scrolledclick")) {
+		 $("#usermenu").addClass("scrolled");
+   $("#usermenu").removeClass("scrolledclick");
+	}
+});
+  
+
+	}
+	
+
+	});
+</script>
+								</ul>
+							</div>
+							<div id="shadow-box">
+							</div>
+							
+								
+							
+						</div>
+					</div>
+				</div>
+				
+				<!--  CONTENT  -->
+				<script type="text/javascript" src="../cms/include/designs/core/js/coremain.js?v=1.19"></script>
+<link rel="stylesheet" href="../cms/include/designs/core/css/coremain.css?v=1.10">
+<!--  BANNER  -->
+<div id="banner" class="">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12 col-xs-12">
+                <div class="heroSlider-fixed">
+                    <div class="slider" id="banner-slider"> </div>
+                    <div class="prev"> <span class="fa fa-angle-double-left km-txt-blue" aria-hidden="true"></span> </div>
+                    <div class="next"> <span class="fa fa-angle-double-right km-txt-blue" aria-hidden="true"></span> </div>
+                </div>
+                <div id="banner-overlay">
+                	<div>
+                		<span style="display: none;" id="bannertext">                			
+                		</span>
+                	</div>
+                	<div>
+                		<h2 id="banner-h2">
+                			Klubmodul
+                		</h2>
+                	</div>
+                	<div>
+                		<div id="banner-buttons">
+	                		<a id="banner-opret" class="km-bg-blue km-hover-blue-dark" href="profilemaintenance.aspx">
+	                			Bliv medlem
+	                		</a>
+	                		<a id="banner-facebook" class="km-bg-blue km-hover-blue-dark hide" href="#facebook">
+	                			<i class="fa-brands fa-facebook-official"></i>
+	                		</a>
+	                	</div>
+                	</div>
+                </div>
+				<div class="arrow-container animated fadeInDown">
+				  <div class="arrow-2 km-bg-blue km-border-blue-dark km-hover-blue-dark">
+					<i class="far fa-angle-down km-blue-dark"></i>
+				  </div>
+				  <div class="arrow-1 animated hinge infinite zoomIn km-bg-blue"></div>
+				</div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--  CONTENT  -->
+<div id="main-content">
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-12 col-xs-12">
+				<div id="indhold">
+					
+  <link href="css/kmstyle.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript" src="js/pages/chosen/chosen.jquery.min.js"></script>
+  <link rel="stylesheet" href="js/pages/chosen/chosen.css">
+  <link rel="stylesheet" href="js/jquery-ui.css">
+<style>
+	.team-item-wrapper .trialhour {
+		background-color: #1AB0A5;
+	}
+	#km-teamoverviewplanwrapper .team-item-wrapper .km-few-places + .trialhour {
+		margin-top: 0;
+		border-radius: 0;
+	}
+	.team-item .km-teamimg {
+    height: 75px;
+    background-size: cover;
+    background-position: center center;
+    margin: -5px -5px 0px -5px;
+    z-index: 0;
+    position: relative;
+    border-radius: 5px;
+		overflow: hidden;
+		display: none;
+}
+.km-few-places + .km-teamimg {
+	margin-top: 0px;
+    border-radius: 0 0 5px 5px;
+	}
+	.km-teamimg > span {
+		display: inline-block;
+		width: 100%;
+		height: 100%;
+		 display: flex;
+    	align-items: center;
+    	justify-content: center;
+	background-color: rgba(0,0,0,0.15);
+	}
+	.km-teamimg i {
+		font-size: 5em;
+		width: auto
+	}
+</style>
+
+  <div id="km-teamoverviewplanwrapper">   
+	  <div style="display: none;" id="km-teamoverviewplandecs" class="km-fullcard">
+            <div class="km-card-inner km-card-bg">
+	  			<span id="ctl00_ContentPlaceHolderBody_lblTeamEnrollmentInfo"></span>
+		  </div>
+	  </div>
+      <div class="km-fullcard">
+            <div class="km-card-inner km-card-bg">
+                <div id="km-teamoverviewplantop">
+  <div id="mfiltersw">
+    <div id="mfilters">
+      <div style="display: none;" id="mfilterclose"><i class="fas fa-times km-red"></i></div>
+      <div style="clear: both;"></div>
+    <div id="ctl00_ContentPlaceHolderBody_panelTag">
+	
+  
+  <span class="ks_allalt tagalt km-bg-blue"><span class="tagtxt">Vis alle</span> <i class="fa fa-check"></i></span>
+  <span class="ks_few tagalt km-bg-purple"><span class="tagtxt"><i class="fas fa-exclamation"></i> Få pladser</span><span class="amount km-bg-blue"></span></span>
+    <span class="ks_free tagalt km-bg-green"><span class="tagtxt">Ledige</span><span class="amount km-bg-blue"></span></span>
+    <span class="ks_wait tagalt km-bg-yellow"><span class="tagtxt">Venteliste</span><span class="amount km-bg-blue"></span></span>
+    <span class="ks_closed tagalt km-bg-red"><span class="tagtxt">Udsolgt</span><span class="amount km-bg-blue"></span></span>
+      
+    
+</div>
+<div style="clear:both;"></div> 
+    
+    <div id="km-filters">
+      
+      
+    <div class="km-filter" id="team-age-search">    
+  <div class="filter">
+    <div class="filtertop km-bg-blue-fade">
+      <span class="filterheader">Alder</span>
+        <span class="chosen all km-bg-blue"><input placeholder='Tast alder' type="text" id="team-age-search-input" name="age" maxlength="2"></span>
+      </div>
+    <div class="filterchoices">
+  <div class="choice" age="-1"><span class="km-bg-blue"><span class="km-check-overlay"></span><i class="far fa-check"></i></span><span class="txt">Brug fra profil</span></div></div>
+  </div>
+  </div>
+    
+    
+  <div id="ctl00_ContentPlaceHolderBody_panelTimes" class="km-filter">
+	
+    <div class="filter">
+  <div class="filtertop filtertoggle km-bg-blue-fade">
+    <span class="filterheader">Starttid</span>
+  <span class="chosen all km-bg-blue"><span class="txt">Vis alle</span><i class="far fa-chevron-down"></i></span>
+    </div>
+<div class="filterchoices">
+  <div class="choice choiceall" hour="all"><span class="km-bg-blue"><span class="km-check-overlay"></span><i class="far fa-check"></i></span><span class="txt">Vis alle</span></div> 
+        
+                      <div class="choice km-bg-blue-fade" hour='17'>
+                    <span class="amount km-bg-blue"></span><span class="txt">Fra kl. 17</span>
+            </div>                                 
+                    
+                      <div class="choice km-bg-blue-fade" hour='18'>
+                    <span class="amount km-bg-blue"></span><span class="txt">Fra kl. 18</span>
+            </div>                                 
+                    
+                 
+        </div></div>
+
+        
+</div>  
+       
+  
+    
+    <div id="ctl00_ContentPlaceHolderBody_panelGroups" class="km-filter">
+	   
+<div class="filter km-not-ready" id="groups-filter">
+  <div class="filtertop filtertoggle km-bg-blue-fade">
+    <span class="filterheader groupheader"></span>
+  <span class="chosen all km-bg-blue"><span class="txt">Vis alle</span><i class="far fa-chevron-down"></i><i class="fas fa-sync fa-spin"></i></span>
+    </div>
+<div class="filterchoices">
+  <div class="choice choiceall" group="all"><span class="km-bg-blue"><span class="km-check-overlay"></span><i class="far fa-check"></i></span><span class="txt">Vis alle</span></div>
+      
+  </div>
+    </div>
+    
+</div>
+    
+  <div id="ctl00_ContentPlaceHolderBody_panelLocations" class="km-filter">
+	
+    <div class="filter km-not-ready" id="locations-filter">
+  <div class="filtertop filtertoggle km-bg-blue-fade">
+    <span class="filterheader stedheader"></span>
+  <span class="chosen all km-bg-blue"><span class="txt">Vis alle</span><i class="far fa-chevron-down"></i><i class="fas fa-sync fa-spin"></i></span>
+    </div>
+<div class="filterchoices">
+  <div class="choice choiceall" pool="all"><span class="km-bg-blue"><span class="km-check-overlay"></span><i class="far fa-check"></i></span><span class="txt">Vis alle</span></div>
+      
+      </div>
+    </div>
+    
+</div>
+
+  
+    <div id="ctl00_ContentPlaceHolderBody_panelInstructors" class="km-filter">
+	
+    <div class="filter km-not-ready" id="instructors-filter">
+  <div class="filtertop filtertoggle km-bg-blue-fade">
+    <span class="filterheader">Instruktør</span>
+  <span class="chosen all km-bg-blue"><span class="txt">Vis alle</span><i class="far fa-chevron-down"></i><i class="fas fa-sync fa-spin"></i></span>
+    </div>
+<div class="filterchoices">
+  <div class="choice choiceall" instructors="all"><span class="km-bg-blue"><span class="km-check-overlay"></span><i class="far fa-check"></i></span><span class="txt">Vis alle</span></div>
+      
+      </div></div>
+    
+</div>
+      <div style="clear: both;"></div>
+</div>
+    </div>
+    
+</div>		
+		<div style="clear: both;"></div>
+    
+    <div id="filtersearch" style="display: none;">
+            <div class="filtertop km-bg-blue-fade">
+      <span class="filterheader"><i class="fas fa-filter"></i> Filtrer</span>      
+      </div>
+          </div>
+    <div id="filterscope">
+            <div class="filtertop km-bg-blue-fade">
+      <span class="filterheader"><span class="samount"></span> resultater for</span><span id="sresult" class="km-bg-blue"></span>        
+      </div>
+          </div>
+        </div>
+            <div style="clear: both;"></div>
+		<div class="km_design">
+			<div id="design_top" style="padding: 0;">
+            <div id="item_search_wrapper">
+        <div id="item_search" class="km-bg-blue-fade">
+          <div id="item_search_inner"> <i class="fa-regular fa-magnifying-glass"></i>
+            <input placeholder='' id="searchInput" class="item_search_input" type="text" data-gtm-form-interact-field-id="0">
+            <i id="resetButton" class="fa-solid fa-times-circle km-red"></i> </div>
+          <div id="item-tag-container" class="hide" style="display: none;">
+            <div id="item_tag_inner"> <i class="fa-regular fa-filter"></i>
+              <div id="item-tag-filter"></div>
+            </div>
+          </div>
+        </div>
+      </div></div></div>
+ <div style="clear: both;"></div>
+    
+    <div id="ctl00_ContentPlaceHolderBody_panelTeamsTable">
+	
+      
+        <!-- SUBSCRIPTION -->
+       
+
+
+
+
+
+        <!-- NON SUBSCRIPTION -->
+        <div id="ctl00_ContentPlaceHolderBody_panelNonSubscriptions">
+		
+      
+      <div id="km-teamoverviewplan" class="km-cardrow">
+		  
+		  <div class="clock km-cardcol" style="display: none; flex: 0;">
+			  <div class="team-day"><i class="fa-thin fa-clock"></i></div>
+		  		<div timeslot="00" class="kl00 timeslot">00.00</div>
+                <div timeslot="01" class="kl01 timeslot">01.00</div>
+                <div timeslot="02" class="kl02 timeslot">02.00</div>
+                <div timeslot="03" class="kl03 timeslot">03.00</div>
+                <div timeslot="04" class="kl04 timeslot">04.00</div>
+                <div timeslot="05" class="kl05 timeslot">05.00</div>
+                <div timeslot="06" class="kl06 timeslot">06.00</div>
+                <div timeslot="07" class="kl07 timeslot">07.00</div>
+                <div timeslot="08" class="kl08 timeslot">08.00</div>
+                <div timeslot="09" class="kl09 timeslot">09.00</div>
+                <div timeslot="10" class="kl10 timeslot">10.00</div>
+                <div timeslot="11" class="kl11 timeslot">11.00</div>
+                <div timeslot="12" class="kl12 timeslot">12.00</div>
+                <div timeslot="13" class="kl13 timeslot">13.00</div>
+                <div timeslot="14" class="kl14 timeslot">14.00</div>
+                <div timeslot="15" class="kl15 timeslot">15.00</div>
+                <div timeslot="16" class="kl16 timeslot">16.00</div>
+                <div timeslot="17" class="kl17 timeslot">17.00</div>
+                <div timeslot="18" class="kl18 timeslot">18.00</div>
+                <div timeslot="19" class="kl19 timeslot">19.00</div>
+                <div timeslot="20" class="kl20 timeslot">20.00</div>
+                <div timeslot="21" class="kl21 timeslot">21.00</div>
+                <div timeslot="22" class="kl22 timeslot">22.00</div>
+                <div timeslot="23" class="kl23 timeslot">23.00</div>
+		  </div>
+		  
+           
+            <!-- MONDAY -->
+            <div id="monday" class="weekday km-cardcol">
+              <div class="team-day"><span class="team-day-title" title='Skjul Mandag'>Mandag<i class="far fa-divide km-red"></i></span><i class="far fa-plus km-green" title='Vis Mandag'></i></div>
+              <div class="weekday-content">
+                <div id="ctl00_ContentPlaceHolderBody_panelMonday">
+			
+                  
+                      <!-- TEAM ITEM START -->
+                      <div class="team-item-wrapper" hour='17' agefrom='6' ageto='7' tag='' groupname='Karate_Kids_I_(6-7år)' group='4' instructors='' pool='2' style="background-color: #f5a9a9; " teamnr='1'>
+                          
+                <div class="team-item">
+					
+						
+					 <div class="km-teamimg" style="">
+					<span><i class="km-blue fa-duotone fa-image-landscape"></i></span>
+				</div>                            
+                        <div class="team-header">			 
+               <span class="bold"><span>Karate Kids I (6-7år)</span></span> <span class="team-nr">| 1</span>
+                        </div>
+						
+                                <div class="team-time">
+                              <i class="fas fa-clock"></i><span class="bold">Kl.</span>
+                            <span class="bold">17:00</span>
+                            <span class="bold"> - </span>
+                            <span class="bold">18:00</span>
+                          </div>      
+                <div class="team-more-times"><i class="fas fa-eye"></i><span class="bold">Flere tider</span></div>
+                                 
+                                <div class="team-sted">
+                                    <i class="fas fa-map-marker-alt"></i><span>Karateklubben Kyokushinkai Køb</span>
+                                </div>
+                        
+            <div class="team-age">
+              <i class="fas fa-user"></i><span class="agecheckfrom">6</span><span class="agesep"> - </span><span class="agecheckto">7</span><span> år</span> </div>    
+               <div style="display: none;" class="team-instruk"> <i class="fa-solid fa-id-badge"></i><span>Ea Eriksen / Jacob Cheng Milsgaard</span></div>                                
+                              
+               <div class="team-text">
+                          <i class="fas fa-info-circle"></i><span>
+Kids I 6-7 &aring;r</span>
+                        </div>                
+                        </div>
+                    <div class="team-signup">
+                          <a class="tilmeldalt km-bg-green" title="Klik her for at tilmelde dig" href="ProfileMaintainEnrollment.aspx?TeamID=1"><span class="open">Tilmeld</span>
+							  
+                  <i class="far fa-chevron-right"></i>
+                          </a>
+                        </div>
+              <div style="clear: both;"></div>  
+            
+                </div>
+                      <!-- TEAM ITEM END -->
+                    
+                      <!-- TEAM ITEM START -->
+                      <div class="team-item-wrapper" hour='17' agefrom='8' ageto='10' tag='' groupname='Karate_Kids_II_(8-10år)' group='5' instructors='' pool='2' style="background-color: #f7be81; " teamnr='2'>
+                          
+                <div class="team-item">
+					
+						
+					 <div class="km-teamimg" style="">
+					<span><i class="km-blue fa-duotone fa-image-landscape"></i></span>
+				</div>                            
+                        <div class="team-header">			 
+               <span class="bold"><span>Karate Kids II (8-10år)</span></span> <span class="team-nr">| 2</span>
+                        </div>
+						
+                                <div class="team-time">
+                              <i class="fas fa-clock"></i><span class="bold">Kl.</span>
+                            <span class="bold">17:00</span>
+                            <span class="bold"> - </span>
+                            <span class="bold">18:00</span>
+                          </div>      
+                <div class="team-more-times"><i class="fas fa-eye"></i><span class="bold">Flere tider</span></div>
+                                 
+                                <div class="team-sted">
+                                    <i class="fas fa-map-marker-alt"></i><span>Karateklubben Kyokushinkai Køb</span>
+                                </div>
+                        
+            <div class="team-age">
+              <i class="fas fa-user"></i><span class="agecheckfrom">8</span><span class="agesep"> - </span><span class="agecheckto">10</span><span> år</span> </div>    
+               <div style="display: none;" class="team-instruk"> <i class="fa-solid fa-id-badge"></i><span>Ea Eriksen / Jacob Cheng Milsgaard</span></div>                                
+                              
+               <div class="team-text">
+                          <i class="fas fa-info-circle"></i><span>
+Kids II 8-10 &aring;r</span>
+                        </div>                
+                        </div>
+                    <div class="team-signup">
+                          <a class="tilmeldalt km-bg-green" title="Klik her for at tilmelde dig" href="ProfileMaintainEnrollment.aspx?TeamID=3"><span class="open">Tilmeld</span>
+							  
+                  <i class="far fa-chevron-right"></i>
+                          </a>
+                        </div>
+              <div style="clear: both;"></div>  
+            
+                </div>
+                      <!-- TEAM ITEM END -->
+                    
+                      <!-- TEAM ITEM START -->
+                      <div class="team-item-wrapper" hour='18' agefrom='11' ageto='15' tag='' groupname='Juniorer_I_(11-14år)' group='7' instructors='' pool='2' style="background-color: #81f7be; " teamnr='6'>
+                          
+                <div class="team-item">
+					
+						
+					 <div class="km-teamimg" style="">
+					<span><i class="km-blue fa-duotone fa-image-landscape"></i></span>
+				</div>                            
+                        <div class="team-header">			 
+               <span class="bold"><span>Juniorer I (11-14år)</span></span> <span class="team-nr">| 6</span>
+                        </div>
+						
+                                <div class="team-time">
+                              <i class="fas fa-clock"></i><span class="bold">Kl.</span>
+                            <span class="bold">18:00</span>
+                            <span class="bold"> - </span>
+                            <span class="bold">19:30</span>
+                          </div>      
+                <div class="team-more-times"><i class="fas fa-eye"></i><span class="bold">Flere tider</span></div>
+                                 
+                                <div class="team-sted">
+                                    <i class="fas fa-map-marker-alt"></i><span>Karateklubben Kyokushinkai Køb</span>
+                                </div>
+                        
+            <div class="team-age">
+              <i class="fas fa-user"></i><span class="agecheckfrom">11</span><span class="agesep"> - </span><span class="agecheckto">15</span><span> år</span> </div>    
+               <div style="display: none;" class="team-instruk"> <i class="fa-solid fa-id-badge"></i><span>Anjum Parwaiz / Dirk Michel-Schertges / Emil Herman Falk Jensen / Erdinc Arslantas</span></div>                                
+                              
+               <div class="team-text">
+                          <i class="fas fa-info-circle"></i><span>Juniorer I fra 11-14 &aring;r.</span>
+                        </div>                
+                        </div>
+                    <div class="team-signup">
+                          <a class="tilmeldalt km-bg-green" title="Klik her for at tilmelde dig" href="ProfileMaintainEnrollment.aspx?TeamID=8"><span class="open">Tilmeld</span>
+							  
+                  <i class="far fa-chevron-right"></i>
+                          </a>
+                        </div>
+              <div style="clear: both;"></div>  
+            
+                </div>
+                      <!-- TEAM ITEM END -->
+                    
+                      <!-- TEAM ITEM START -->
+                      <div class="team-item-wrapper" hour='18' agefrom='15' ageto='17' tag='' groupname='Juniorer_II_(15-17år)' group='2' instructors='' pool='2' style="background-color: #f3f781; " teamnr='9'>
+                          
+                <div class="team-item">
+					
+						
+					 <div class="km-teamimg" style="">
+					<span><i class="km-blue fa-duotone fa-image-landscape"></i></span>
+				</div>                            
+                        <div class="team-header">			 
+               <span class="bold"><span>Juniorer II (15-17år)</span></span> <span class="team-nr">| 9</span>
+                        </div>
+						
+                                <div class="team-time">
+                              <i class="fas fa-clock"></i><span class="bold">Kl.</span>
+                            <span class="bold">18:00</span>
+                            <span class="bold"> - </span>
+                            <span class="bold">19:30</span>
+                          </div>      
+                <div class="team-more-times"><i class="fas fa-eye"></i><span class="bold">Flere tider</span></div>
+                                 
+                                <div class="team-sted">
+                                    <i class="fas fa-map-marker-alt"></i><span>Karateklubben Kyokushinkai Køb</span>
+                                </div>
+                        
+            <div class="team-age">
+              <i class="fas fa-user"></i><span class="agecheckfrom">15</span><span class="agesep"> - </span><span class="agecheckto">17</span><span> år</span> </div>    
+               <div style="display: none;" class="team-instruk"> <i class="fa-solid fa-id-badge"></i><span>Anjum Parwaiz / Dirk Michel-Schertges / Emil Herman Falk Jensen / Erdinc Arslantas</span></div>                                
+                              
+               <div class="team-text">
+                          <i class="fas fa-info-circle"></i><span>Juniore 15-17 &aring;r</span>
+                        </div>                
+                        </div>
+                    <div class="team-signup">
+                          <a class="tilmeldalt km-bg-green" title="Klik her for at tilmelde dig" href="ProfileMaintainEnrollment.aspx?TeamID=11"><span class="open">Tilmeld</span>
+							  
+                  <i class="far fa-chevron-right"></i>
+                          </a>
+                        </div>
+              <div style="clear: both;"></div>  
+            
+                </div>
+                      <!-- TEAM ITEM END -->
+                    
+                      <!-- TEAM ITEM START -->
+                      <div class="team-item-wrapper" hour='18' agefrom='18' ageto='99' tag='' groupname='Voksne_begyndere_(18+_år)' group='3' instructors='' pool='2' style="background-color: #bef781; " teamnr='7'>
+                          
+                <div class="team-item">
+					
+						
+					 <div class="km-teamimg" style="">
+					<span><i class="km-blue fa-duotone fa-image-landscape"></i></span>
+				</div>                            
+                        <div class="team-header">			 
+               <span class="bold"><span>Voksne begyndere (18+ år)</span></span> <span class="team-nr">| 7</span>
+                        </div>
+						
+                                <div class="team-time">
+                              <i class="fas fa-clock"></i><span class="bold">Kl.</span>
+                            <span class="bold">18:00</span>
+                            <span class="bold"> - </span>
+                            <span class="bold">19:30</span>
+                          </div>      
+                <div class="team-more-times"><i class="fas fa-eye"></i><span class="bold">Flere tider</span></div>
+                                 
+                                <div class="team-sted">
+                                    <i class="fas fa-map-marker-alt"></i><span>Karateklubben Kyokushinkai Køb</span>
+                                </div>
+                        
+            <div class="team-age">
+              <i class="fas fa-user"></i><span class="agecheckfrom">18</span><span class="agesep"> - </span><span class="agecheckto">99</span><span> år</span> </div>    
+               <div style="display: none;" class="team-instruk"> <i class="fa-solid fa-id-badge"></i><span>Anjum Parwaiz / Dirk Michel-Schertges / Emil Herman Falk Jensen / Erdinc Arslantas</span></div>                                
+                              
+               <div class="team-text">
+                          <i class="fas fa-info-circle"></i><span>Voksne begyndere 18 &aring;r +</span>
+                        </div>                
+                        </div>
+                    <div class="team-signup">
+                          <a class="tilmeldalt km-bg-green" title="Klik her for at tilmelde dig" href="ProfileMaintainEnrollment.aspx?TeamID=12"><span class="open">Tilmeld</span>
+							  
+                  <i class="far fa-chevron-right"></i>
+                          </a>
+                        </div>
+              <div style="clear: both;"></div>  
+            
+                </div>
+                      <!-- TEAM ITEM END -->
+                    
+                      <!-- TEAM ITEM START -->
+                      <div class="team-item-wrapper" hour='18' agefrom='15' ageto='99' tag='' groupname='Voksne_øvede_(18+_år)' group='9' instructors='' pool='2' style="background-color: #81bef7; " teamnr='5'>
+                          
+                <div class="team-item">
+					
+						
+					 <div class="km-teamimg" style="">
+					<span><i class="km-blue fa-duotone fa-image-landscape"></i></span>
+				</div>                            
+                        <div class="team-header">			 
+               <span class="bold"><span>Voksne øvede (18+ år)</span></span> <span class="team-nr">| 5</span>
+                        </div>
+						
+                                <div class="team-time">
+                              <i class="fas fa-clock"></i><span class="bold">Kl.</span>
+                            <span class="bold">18:00</span>
+                            <span class="bold"> - </span>
+                            <span class="bold">19:30</span>
+                          </div>      
+                <div class="team-more-times"><i class="fas fa-eye"></i><span class="bold">Flere tider</span></div>
+                                 
+                                <div class="team-sted">
+                                    <i class="fas fa-map-marker-alt"></i><span>Karateklubben Kyokushinkai Køb</span>
+                                </div>
+                        
+            <div class="team-age">
+              <i class="fas fa-user"></i><span class="agecheckfrom">15</span><span class="agesep"> - </span><span class="agecheckto">99</span><span> år</span> </div>    
+               <div style="display: none;" class="team-instruk"> <i class="fa-solid fa-id-badge"></i><span>Anjum Parwaiz / Dirk Michel-Schertges / Emil Herman Falk Jensen / Erdinc Arslantas</span></div>                                
+                              
+               <div class="team-text">
+                          <i class="fas fa-info-circle"></i><span>Voksne &oslash;vede 19+</span>
+                        </div>                
+                        </div>
+                    <div class="team-signup">
+                          <a class="tilmeldalt km-bg-green" title="Klik her for at tilmelde dig" href="ProfileMaintainEnrollment.aspx?TeamID=6"><span class="open">Tilmeld</span>
+							  
+                  <i class="far fa-chevron-right"></i>
+                          </a>
+                        </div>
+              <div style="clear: both;"></div>  
+            
+                </div>
+                      <!-- TEAM ITEM END -->
+                    
+                
+		</div>
+                <div timeslot="00" class="kl00 timeslot"></div>
+                <div timeslot="01" class="kl01 timeslot"></div>
+                <div timeslot="02" class="kl02 timeslot"></div>
+                <div timeslot="03" class="kl03 timeslot"></div>
+                <div timeslot="04" class="kl04 timeslot"></div>
+                <div timeslot="05" class="kl05 timeslot"></div>
+                <div timeslot="06" class="kl06 timeslot"></div>
+                <div timeslot="07" class="kl07 timeslot"></div>
+                <div timeslot="08" class="kl08 timeslot"></div>
+                <div timeslot="09" class="kl09 timeslot"></div>
+                <div timeslot="10" class="kl10 timeslot"></div>
+                <div timeslot="11" class="kl11 timeslot"></div>
+                <div timeslot="12" class="kl12 timeslot"></div>
+                <div timeslot="13" class="kl13 timeslot"></div>
+                <div timeslot="14" class="kl14 timeslot"></div>
+                <div timeslot="15" class="kl15 timeslot"></div>
+                <div timeslot="16" class="kl16 timeslot"></div>
+                <div timeslot="17" class="kl17 timeslot"></div>
+                <div timeslot="18" class="kl18 timeslot"></div>
+                <div timeslot="19" class="kl19 timeslot"></div>
+                <div timeslot="20" class="kl20 timeslot"></div>
+                <div timeslot="21" class="kl21 timeslot"></div>
+                <div timeslot="22" class="kl22 timeslot"></div>
+                <div timeslot="23" class="kl23 timeslot"></div>
+                
+              </div>
+            </div>
+          
+            <!-- TUESDAY -->
+            <div id="tuesday" class="weekday km-cardcol">
+              <div class="team-day"><span class="team-day-title" title='Skjul Tirsdag'>Tirsdag<i class="far fa-divide km-red"></i></span><i class="far fa-plus km-green" title='Vis Tirsdag'></i></div>
+              <div class="weekday-content">
+                <div id="ctl00_ContentPlaceHolderBody_panelTuesday">
+			
+                  
+                         <!-- TEAM ITEM START -->
+                      <div class="team-item-wrapper" hour='18' agefrom='11' ageto='99' tag='' groupname='Kamphold_tirsdag' group='29' instructors='' pool='2' style="background-color: #000000; " teamnr='20'>
+                          
+                <div class="team-item">
+					  
+						
+                             <div class="km-teamimg" style="">
+					<span><i class="km-blue fa-duotone fa-image-landscape"></i></span>
+				</div>
+                              
+                        <div class="team-header">
+                 <span class="bold"><span>Kamphold tirsdag</span></span> <span class="team-nr">| 20</span>
+                        </div>
+
+                                <div class="team-time">
+                              <i class="fas fa-clock"></i><span class="bold">Kl.</span>
+                            <span class="bold">18:00</span>
+                            <span class="bold"> - </span>
+                            <span class="bold">19:30</span>
+                          </div>      
+                <div class="team-more-times"><i class="fas fa-eye"></i><span class="bold">Flere tider</span></div>
+                                 
+                                <div class="team-sted">
+                                    <i class="fas fa-map-marker-alt"></i><span>Karateklubben Kyokushinkai Køb</span>
+                                </div>
+                        
+            <div class="team-age">
+              <i class="fas fa-user"></i><span class="agecheckfrom">11</span><span class="agesep"> - </span><span class="agecheckto">99</span><span> år</span> </div>    
+                                      <div style="display: none;" class="team-instruk"> <i class="fa-solid fa-id-badge"></i><span>Emil Herman Falk Jensen / Erdinc Arslantas / Steffen Gebbel</span></div>         
+                              
+               <div class="team-text">
+                          <i class="fas fa-info-circle"></i><span>Kamphold tirsdag er for juniorer og voksne, b&aring;de uerfarne og erfarne k&aelig;mpere og st&aelig;vnedeltagere. Du skal have tilladelse fra dette holds instrukt&oslash;rer, inden du kan deltage.</span>
+                        </div>                
+                        </div>
+                    <div class="team-signup">
+                          <a class="tilmeldalt km-bg-green" title="Klik her for at tilmelde dig" href="ProfileMaintainEnrollment.aspx?TeamID=39"><span class="open">Tilmeld</span>
+							  
+                  <i class="far fa-chevron-right"></i>
+                          </a>
+                        </div>
+              <div style="clear: both;"></div>  
+            
+                </div>
+                      <!-- TEAM ITEM END -->
+                    
+                         <!-- TEAM ITEM START -->
+                      <div class="team-item-wrapper" hour='18' agefrom='11' ageto='15' tag='' groupname='Juniorer_I_(11-14år)' group='7' instructors='' pool='2' style="background-color: #81f7be; " teamnr='6'>
+                          
+                <div class="team-item">
+					  
+						
+                             <div class="km-teamimg" style="">
+					<span><i class="km-blue fa-duotone fa-image-landscape"></i></span>
+				</div>
+                              
+                        <div class="team-header">
+                 <span class="bold"><span>Juniorer I (11-14år)</span></span> <span class="team-nr">| 6</span>
+                        </div>
+
+                                <div class="team-time">
+                              <i class="fas fa-clock"></i><span class="bold">Kl.</span>
+                            <span class="bold">18:00</span>
+                            <span class="bold"> - </span>
+                            <span class="bold">19:30</span>
+                          </div>      
+                <div class="team-more-times"><i class="fas fa-eye"></i><span class="bold">Flere tider</span></div>
+                                 
+                                <div class="team-sted">
+                                    <i class="fas fa-map-marker-alt"></i><span>Karateklubben Kyokushinkai Køb</span>
+                                </div>
+                        
+            <div class="team-age">
+              <i class="fas fa-user"></i><span class="agecheckfrom">11</span><span class="agesep"> - </span><span class="agecheckto">15</span><span> år</span> </div>    
+                                      <div style="display: none;" class="team-instruk"> <i class="fa-solid fa-id-badge"></i><span>Anjum Parwaiz / Dirk Michel-Schertges / Emil Herman Falk Jensen / Erdinc Arslantas</span></div>         
+                              
+               <div class="team-text">
+                          <i class="fas fa-info-circle"></i><span>Juniorer I fra 11-14 &aring;r.</span>
+                        </div>                
+                        </div>
+                    <div class="team-signup">
+                          <a class="tilmeldalt km-bg-green" title="Klik her for at tilmelde dig" href="ProfileMaintainEnrollment.aspx?TeamID=8"><span class="open">Tilmeld</span>
+							  
+                  <i class="far fa-chevron-right"></i>
+                          </a>
+                        </div>
+              <div style="clear: both;"></div>  
+            
+                </div>
+                      <!-- TEAM ITEM END -->
+                    
+                         <!-- TEAM ITEM START -->
+                      <div class="team-item-wrapper" hour='18' agefrom='15' ageto='17' tag='' groupname='Juniorer_II_(15-17år)' group='2' instructors='' pool='2' style="background-color: #f3f781; " teamnr='9'>
+                          
+                <div class="team-item">
+					  
+						
+                             <div class="km-teamimg" style="">
+					<span><i class="km-blue fa-duotone fa-image-landscape"></i></span>
+				</div>
+                              
+                        <div class="team-header">
+                 <span class="bold"><span>Juniorer II (15-17år)</span></span> <span class="team-nr">| 9</span>
+                        </div>
+
+                                <div class="team-time">
+                              <i class="fas fa-clock"></i><span class="bold">Kl.</span>
+                            <span class="bold">18:00</span>
+                            <span class="bold"> - </span>
+                            <span class="bold">19:30</span>
+                          </div>      
+                <div class="team-more-times"><i class="fas fa-eye"></i><span class="bold">Flere tider</span></div>
+                                 
+                                <div class="team-sted">
+                                    <i class="fas fa-map-marker-alt"></i><span>Karateklubben Kyokushinkai Køb</span>
+                                </div>
+                        
+            <div class="team-age">
+              <i class="fas fa-user"></i><span class="agecheckfrom">15</span><span class="agesep"> - </span><span class="agecheckto">17</span><span> år</span> </div>    
+                                      <div style="display: none;" class="team-instruk"> <i class="fa-solid fa-id-badge"></i><span>Anjum Parwaiz / Dirk Michel-Schertges / Emil Herman Falk Jensen / Erdinc Arslantas</span></div>         
+                              
+               <div class="team-text">
+                          <i class="fas fa-info-circle"></i><span>Juniore 15-17 &aring;r</span>
+                        </div>                
+                        </div>
+                    <div class="team-signup">
+                          <a class="tilmeldalt km-bg-green" title="Klik her for at tilmelde dig" href="ProfileMaintainEnrollment.aspx?TeamID=11"><span class="open">Tilmeld</span>
+							  
+                  <i class="far fa-chevron-right"></i>
+                          </a>
+                        </div>
+              <div style="clear: both;"></div>  
+            
+                </div>
+                      <!-- TEAM ITEM END -->
+                    
+                         <!-- TEAM ITEM START -->
+                      <div class="team-item-wrapper" hour='18' agefrom='15' ageto='99' tag='' groupname='Voksne_øvede_(18+_år)' group='9' instructors='' pool='2' style="background-color: #81bef7; " teamnr='5'>
+                          
+                <div class="team-item">
+					  
+						
+                             <div class="km-teamimg" style="">
+					<span><i class="km-blue fa-duotone fa-image-landscape"></i></span>
+				</div>
+                              
+                        <div class="team-header">
+                 <span class="bold"><span>Voksne øvede (18+ år)</span></span> <span class="team-nr">| 5</span>
+                        </div>
+
+                                <div class="team-time">
+                              <i class="fas fa-clock"></i><span class="bold">Kl.</span>
+                            <span class="bold">18:00</span>
+                            <span class="bold"> - </span>
+                            <span class="bold">19:30</span>
+                          </div>      
+                <div class="team-more-times"><i class="fas fa-eye"></i><span class="bold">Flere tider</span></div>
+                                 
+                                <div class="team-sted">
+                                    <i class="fas fa-map-marker-alt"></i><span>Karateklubben Kyokushinkai Køb</span>
+                                </div>
+                        
+            <div class="team-age">
+              <i class="fas fa-user"></i><span class="agecheckfrom">15</span><span class="agesep"> - </span><span class="agecheckto">99</span><span> år</span> </div>    
+                                      <div style="display: none;" class="team-instruk"> <i class="fa-solid fa-id-badge"></i><span>Anjum Parwaiz / Dirk Michel-Schertges / Emil Herman Falk Jensen / Erdinc Arslantas</span></div>         
+                              
+               <div class="team-text">
+                          <i class="fas fa-info-circle"></i><span>Voksne &oslash;vede 19+</span>
+                        </div>                
+                        </div>
+                    <div class="team-signup">
+                          <a class="tilmeldalt km-bg-green" title="Klik her for at tilmelde dig" href="ProfileMaintainEnrollment.aspx?TeamID=6"><span class="open">Tilmeld</span>
+							  
+                  <i class="far fa-chevron-right"></i>
+                          </a>
+                        </div>
+              <div style="clear: both;"></div>  
+            
+                </div>
+                      <!-- TEAM ITEM END -->
+                    
+                
+		</div>
+                <div timeslot="00" class="kl00 timeslot"></div>
+                <div timeslot="01" class="kl01 timeslot"></div>
+                <div timeslot="02" class="kl02 timeslot"></div>
+                <div timeslot="03" class="kl03 timeslot"></div>
+                <div timeslot="04" class="kl04 timeslot"></div>
+                <div timeslot="05" class="kl05 timeslot"></div>
+                <div timeslot="06" class="kl06 timeslot"></div>
+                <div timeslot="07" class="kl07 timeslot"></div>
+                <div timeslot="08" class="kl08 timeslot"></div>
+                <div timeslot="09" class="kl09 timeslot"></div>
+                <div timeslot="10" class="kl10 timeslot"></div>
+                <div timeslot="11" class="kl11 timeslot"></div>
+                <div timeslot="12" class="kl12 timeslot"></div>
+                <div timeslot="13" class="kl13 timeslot"></div>
+                <div timeslot="14" class="kl14 timeslot"></div>
+                <div timeslot="15" class="kl15 timeslot"></div>
+                <div timeslot="16" class="kl16 timeslot"></div>
+                <div timeslot="17" class="kl17 timeslot"></div>
+                <div timeslot="18" class="kl18 timeslot"></div>
+                <div timeslot="19" class="kl19 timeslot"></div>
+                <div timeslot="20" class="kl20 timeslot"></div>
+                <div timeslot="21" class="kl21 timeslot"></div>
+                <div timeslot="22" class="kl22 timeslot"></div>
+                <div timeslot="23" class="kl23 timeslot"></div>
+              </div>
+            </div>
+          
+            <!-- THURSDAY -->
+            <div id="thursday" class="weekday km-cardcol">
+              <div class="team-day"><span class="team-day-title" title='Skjul Torsdag'>Torsdag<i class="far fa-divide km-red"></i></span><i class="far fa-plus km-green" title='Vis Torsdag'></i></div>
+              <div class="weekday-content">
+                <div id="ctl00_ContentPlaceHolderBody_panelThursday">
+			
+                  
+                         <!-- TEAM ITEM START -->
+                      <div class="team-item-wrapper" hour='17' agefrom='6' ageto='7' tag='' groupname='Karate_Kids_I_(6-7år)' group='4' instructors='' pool='2' style="background-color: #f5a9a9; " teamnr='1'>
+                          
+                <div class="team-item">
+					  
+						  
+					<div class="km-teamimg" style="">
+					<span><i class="km-blue fa-duotone fa-image-landscape"></i></span>
+				</div>
+                            
+                              
+                        <div class="team-header">
+                 <span class="bold"><span>Karate Kids I (6-7år)</span></span> <span class="team-nr">| 1</span>
+                        </div>
+
+                                <div class="team-time">
+                              <i class="fas fa-clock"></i><span class="bold">Kl.</span>
+                            <span class="bold">17:00</span>
+                            <span class="bold"> - </span>
+                            <span class="bold">18:00</span>
+                          </div>      
+                <div class="team-more-times"><i class="fas fa-eye"></i><span class="bold">Flere tider</span></div>
+                                 
+                                <div class="team-sted">
+                                    <i class="fas fa-map-marker-alt"></i><span>Karateklubben Kyokushinkai Køb</span>
+                                </div>
+                        
+            <div class="team-age">
+              <i class="fas fa-user"></i><span class="agecheckfrom">6</span><span class="agesep"> - </span><span class="agecheckto">7</span><span> år</span> </div>    
+                                          <div style="display: none;" class="team-instruk"> <i class="fa-solid fa-id-badge"></i><span>Ea Eriksen / Jacob Cheng Milsgaard</span></div>     
+                              
+               <div class="team-text">
+                          <i class="fas fa-info-circle"></i><span>
+Kids I 6-7 &aring;r</span>
+                        </div>                
+                        </div>
+                    <div class="team-signup">
+                          <a class="tilmeldalt km-bg-green" title="Klik her for at tilmelde dig" href="ProfileMaintainEnrollment.aspx?TeamID=1"><span class="open">Tilmeld</span>
+							  
+                  <i class="far fa-chevron-right"></i>
+                          </a>
+                        </div>
+              <div style="clear: both;"></div>  
+            
+                </div>
+                      <!-- TEAM ITEM END -->
+                    
+                         <!-- TEAM ITEM START -->
+                      <div class="team-item-wrapper" hour='17' agefrom='8' ageto='10' tag='' groupname='Karate_Kids_II_(8-10år)' group='5' instructors='' pool='2' style="background-color: #f7be81; " teamnr='2'>
+                          
+                <div class="team-item">
+					  
+						  
+					<div class="km-teamimg" style="">
+					<span><i class="km-blue fa-duotone fa-image-landscape"></i></span>
+				</div>
+                            
+                              
+                        <div class="team-header">
+                 <span class="bold"><span>Karate Kids II (8-10år)</span></span> <span class="team-nr">| 2</span>
+                        </div>
+
+                                <div class="team-time">
+                              <i class="fas fa-clock"></i><span class="bold">Kl.</span>
+                            <span class="bold">17:00</span>
+                            <span class="bold"> - </span>
+                            <span class="bold">18:00</span>
+                          </div>      
+                <div class="team-more-times"><i class="fas fa-eye"></i><span class="bold">Flere tider</span></div>
+                                 
+                                <div class="team-sted">
+                                    <i class="fas fa-map-marker-alt"></i><span>Karateklubben Kyokushinkai Køb</span>
+                                </div>
+                        
+            <div class="team-age">
+              <i class="fas fa-user"></i><span class="agecheckfrom">8</span><span class="agesep"> - </span><span class="agecheckto">10</span><span> år</span> </div>    
+                                          <div style="display: none;" class="team-instruk"> <i class="fa-solid fa-id-badge"></i><span>Ea Eriksen / Jacob Cheng Milsgaard</span></div>     
+                              
+               <div class="team-text">
+                          <i class="fas fa-info-circle"></i><span>
+Kids II 8-10 &aring;r</span>
+                        </div>                
+                        </div>
+                    <div class="team-signup">
+                          <a class="tilmeldalt km-bg-green" title="Klik her for at tilmelde dig" href="ProfileMaintainEnrollment.aspx?TeamID=3"><span class="open">Tilmeld</span>
+							  
+                  <i class="far fa-chevron-right"></i>
+                          </a>
+                        </div>
+              <div style="clear: both;"></div>  
+            
+                </div>
+                      <!-- TEAM ITEM END -->
+                    
+                         <!-- TEAM ITEM START -->
+                      <div class="team-item-wrapper" hour='18' agefrom='11' ageto='15' tag='' groupname='Juniorer_I_(11-14år)' group='7' instructors='' pool='2' style="background-color: #81f7be; " teamnr='6'>
+                          
+                <div class="team-item">
+					  
+						  
+					<div class="km-teamimg" style="">
+					<span><i class="km-blue fa-duotone fa-image-landscape"></i></span>
+				</div>
+                            
+                              
+                        <div class="team-header">
+                 <span class="bold"><span>Juniorer I (11-14år)</span></span> <span class="team-nr">| 6</span>
+                        </div>
+
+                                <div class="team-time">
+                              <i class="fas fa-clock"></i><span class="bold">Kl.</span>
+                            <span class="bold">18:00</span>
+                            <span class="bold"> - </span>
+                            <span class="bold">19:30</span>
+                          </div>      
+                <div class="team-more-times"><i class="fas fa-eye"></i><span class="bold">Flere tider</span></div>
+                                 
+                                <div class="team-sted">
+                                    <i class="fas fa-map-marker-alt"></i><span>Karateklubben Kyokushinkai Køb</span>
+                                </div>
+                        
+            <div class="team-age">
+              <i class="fas fa-user"></i><span class="agecheckfrom">11</span><span class="agesep"> - </span><span class="agecheckto">15</span><span> år</span> </div>    
+                                          <div style="display: none;" class="team-instruk"> <i class="fa-solid fa-id-badge"></i><span>Anjum Parwaiz / Dirk Michel-Schertges / Emil Herman Falk Jensen / Erdinc Arslantas</span></div>     
+                              
+               <div class="team-text">
+                          <i class="fas fa-info-circle"></i><span>Juniorer I fra 11-14 &aring;r.</span>
+                        </div>                
+                        </div>
+                    <div class="team-signup">
+                          <a class="tilmeldalt km-bg-green" title="Klik her for at tilmelde dig" href="ProfileMaintainEnrollment.aspx?TeamID=8"><span class="open">Tilmeld</span>
+							  
+                  <i class="far fa-chevron-right"></i>
+                          </a>
+                        </div>
+              <div style="clear: both;"></div>  
+            
+                </div>
+                      <!-- TEAM ITEM END -->
+                    
+                         <!-- TEAM ITEM START -->
+                      <div class="team-item-wrapper" hour='18' agefrom='15' ageto='17' tag='' groupname='Juniorer_II_(15-17år)' group='2' instructors='' pool='2' style="background-color: #f3f781; " teamnr='9'>
+                          
+                <div class="team-item">
+					  
+						  
+					<div class="km-teamimg" style="">
+					<span><i class="km-blue fa-duotone fa-image-landscape"></i></span>
+				</div>
+                            
+                              
+                        <div class="team-header">
+                 <span class="bold"><span>Juniorer II (15-17år)</span></span> <span class="team-nr">| 9</span>
+                        </div>
+
+                                <div class="team-time">
+                              <i class="fas fa-clock"></i><span class="bold">Kl.</span>
+                            <span class="bold">18:00</span>
+                            <span class="bold"> - </span>
+                            <span class="bold">19:30</span>
+                          </div>      
+                <div class="team-more-times"><i class="fas fa-eye"></i><span class="bold">Flere tider</span></div>
+                                 
+                                <div class="team-sted">
+                                    <i class="fas fa-map-marker-alt"></i><span>Karateklubben Kyokushinkai Køb</span>
+                                </div>
+                        
+            <div class="team-age">
+              <i class="fas fa-user"></i><span class="agecheckfrom">15</span><span class="agesep"> - </span><span class="agecheckto">17</span><span> år</span> </div>    
+                                          <div style="display: none;" class="team-instruk"> <i class="fa-solid fa-id-badge"></i><span>Anjum Parwaiz / Dirk Michel-Schertges / Emil Herman Falk Jensen / Erdinc Arslantas</span></div>     
+                              
+               <div class="team-text">
+                          <i class="fas fa-info-circle"></i><span>Juniore 15-17 &aring;r</span>
+                        </div>                
+                        </div>
+                    <div class="team-signup">
+                          <a class="tilmeldalt km-bg-green" title="Klik her for at tilmelde dig" href="ProfileMaintainEnrollment.aspx?TeamID=11"><span class="open">Tilmeld</span>
+							  
+                  <i class="far fa-chevron-right"></i>
+                          </a>
+                        </div>
+              <div style="clear: both;"></div>  
+            
+                </div>
+                      <!-- TEAM ITEM END -->
+                    
+                         <!-- TEAM ITEM START -->
+                      <div class="team-item-wrapper" hour='18' agefrom='18' ageto='99' tag='' groupname='Voksne_begyndere_(18+_år)' group='3' instructors='' pool='2' style="background-color: #bef781; " teamnr='7'>
+                          
+                <div class="team-item">
+					  
+						  
+					<div class="km-teamimg" style="">
+					<span><i class="km-blue fa-duotone fa-image-landscape"></i></span>
+				</div>
+                            
+                              
+                        <div class="team-header">
+                 <span class="bold"><span>Voksne begyndere (18+ år)</span></span> <span class="team-nr">| 7</span>
+                        </div>
+
+                                <div class="team-time">
+                              <i class="fas fa-clock"></i><span class="bold">Kl.</span>
+                            <span class="bold">18:00</span>
+                            <span class="bold"> - </span>
+                            <span class="bold">19:30</span>
+                          </div>      
+                <div class="team-more-times"><i class="fas fa-eye"></i><span class="bold">Flere tider</span></div>
+                                 
+                                <div class="team-sted">
+                                    <i class="fas fa-map-marker-alt"></i><span>Karateklubben Kyokushinkai Køb</span>
+                                </div>
+                        
+            <div class="team-age">
+              <i class="fas fa-user"></i><span class="agecheckfrom">18</span><span class="agesep"> - </span><span class="agecheckto">99</span><span> år</span> </div>    
+                                          <div style="display: none;" class="team-instruk"> <i class="fa-solid fa-id-badge"></i><span>Anjum Parwaiz / Dirk Michel-Schertges / Emil Herman Falk Jensen / Erdinc Arslantas</span></div>     
+                              
+               <div class="team-text">
+                          <i class="fas fa-info-circle"></i><span>Voksne begyndere 18 &aring;r +</span>
+                        </div>                
+                        </div>
+                    <div class="team-signup">
+                          <a class="tilmeldalt km-bg-green" title="Klik her for at tilmelde dig" href="ProfileMaintainEnrollment.aspx?TeamID=12"><span class="open">Tilmeld</span>
+							  
+                  <i class="far fa-chevron-right"></i>
+                          </a>
+                        </div>
+              <div style="clear: both;"></div>  
+            
+                </div>
+                      <!-- TEAM ITEM END -->
+                    
+                         <!-- TEAM ITEM START -->
+                      <div class="team-item-wrapper" hour='18' agefrom='15' ageto='99' tag='' groupname='Voksne_øvede_(18+_år)' group='9' instructors='' pool='2' style="background-color: #81bef7; " teamnr='5'>
+                          
+                <div class="team-item">
+					  
+						  
+					<div class="km-teamimg" style="">
+					<span><i class="km-blue fa-duotone fa-image-landscape"></i></span>
+				</div>
+                            
+                              
+                        <div class="team-header">
+                 <span class="bold"><span>Voksne øvede (18+ år)</span></span> <span class="team-nr">| 5</span>
+                        </div>
+
+                                <div class="team-time">
+                              <i class="fas fa-clock"></i><span class="bold">Kl.</span>
+                            <span class="bold">18:00</span>
+                            <span class="bold"> - </span>
+                            <span class="bold">19:30</span>
+                          </div>      
+                <div class="team-more-times"><i class="fas fa-eye"></i><span class="bold">Flere tider</span></div>
+                                 
+                                <div class="team-sted">
+                                    <i class="fas fa-map-marker-alt"></i><span>Karateklubben Kyokushinkai Køb</span>
+                                </div>
+                        
+            <div class="team-age">
+              <i class="fas fa-user"></i><span class="agecheckfrom">15</span><span class="agesep"> - </span><span class="agecheckto">99</span><span> år</span> </div>    
+                                          <div style="display: none;" class="team-instruk"> <i class="fa-solid fa-id-badge"></i><span>Anjum Parwaiz / Dirk Michel-Schertges / Emil Herman Falk Jensen / Erdinc Arslantas</span></div>     
+                              
+               <div class="team-text">
+                          <i class="fas fa-info-circle"></i><span>Voksne &oslash;vede 19+</span>
+                        </div>                
+                        </div>
+                    <div class="team-signup">
+                          <a class="tilmeldalt km-bg-green" title="Klik her for at tilmelde dig" href="ProfileMaintainEnrollment.aspx?TeamID=6"><span class="open">Tilmeld</span>
+							  
+                  <i class="far fa-chevron-right"></i>
+                          </a>
+                        </div>
+              <div style="clear: both;"></div>  
+            
+                </div>
+                      <!-- TEAM ITEM END -->
+                    
+                
+		</div>
+                <div timeslot="00" class="kl00 timeslot"></div>
+                <div timeslot="01" class="kl01 timeslot"></div>
+                <div timeslot="02" class="kl02 timeslot"></div>
+                <div timeslot="03" class="kl03 timeslot"></div>
+                <div timeslot="04" class="kl04 timeslot"></div>
+                <div timeslot="05" class="kl05 timeslot"></div>
+                <div timeslot="06" class="kl06 timeslot"></div>
+                <div timeslot="07" class="kl07 timeslot"></div>
+                <div timeslot="08" class="kl08 timeslot"></div>
+                <div timeslot="09" class="kl09 timeslot"></div>
+                <div timeslot="10" class="kl10 timeslot"></div>
+                <div timeslot="11" class="kl11 timeslot"></div>
+                <div timeslot="12" class="kl12 timeslot"></div>
+                <div timeslot="13" class="kl13 timeslot"></div>
+                <div timeslot="14" class="kl14 timeslot"></div>
+                <div timeslot="15" class="kl15 timeslot"></div>
+                <div timeslot="16" class="kl16 timeslot"></div>
+                <div timeslot="17" class="kl17 timeslot"></div>
+                <div timeslot="18" class="kl18 timeslot"></div>
+                <div timeslot="19" class="kl19 timeslot"></div>
+                <div timeslot="20" class="kl20 timeslot"></div>
+                <div timeslot="21" class="kl21 timeslot"></div>
+                <div timeslot="22" class="kl22 timeslot"></div>
+                <div timeslot="23" class="kl23 timeslot"></div>
+              </div>
+            </div>
+          
+            <!-- FRIDAY -->
+            <div id="friday" class="weekday km-cardcol">
+              <div class="team-day"><span class="team-day-title" title='Skjul Fredag'>Fredag<i class="far fa-divide km-red"></i></span><i class="far fa-plus km-green" title='Vis Fredag'></i></div>
+              <div class="weekday-content">
+                <div id="ctl00_ContentPlaceHolderBody_panelFriday">
+			
+                  
+                       <!-- TEAM ITEM START -->
+                     <div class="team-item-wrapper" hour='18' agefrom='11' ageto='99' tag='' groupname='Kamphold_fredag' group='20' instructors='' pool='2' style="background-color: #aeb404; " teamnr='10'>
+                          
+                <div class="team-item">
+					
+						
+					<div class="km-teamimg" style="">
+					<span><i class="km-blue fa-duotone fa-image-landscape"></i></span>
+				</div>
+                              
+                              
+                        <div class="team-header">
+                 <span class="bold"><span>Kamphold fredag</span></span> <span class="team-nr">| 10</span>
+                        </div>
+
+                                <div class="team-time">
+                              <i class="fas fa-clock"></i><span class="bold">Kl.</span>
+                            <span class="bold">18:00</span>
+                            <span class="bold"> - </span>
+                            <span class="bold">19:30</span>
+                          </div>      
+                <div class="team-more-times"><i class="fas fa-eye"></i><span class="bold">Flere tider</span></div>
+                                 
+                                <div class="team-sted">
+                                    <i class="fas fa-map-marker-alt"></i><span>Karateklubben Kyokushinkai Køb</span>
+                                </div>
+                        
+            <div class="team-age">
+              <i class="fas fa-user"></i><span class="agecheckfrom">11</span><span class="agesep"> - </span><span class="agecheckto">99</span><span> år</span> </div>    
+                                          <div style="display: none;" class="team-instruk"> <i class="fa-solid fa-id-badge"></i><span>Erdinc Arslantas</span></div>     
+                              
+               <div class="team-text">
+                          <i class="fas fa-info-circle"></i><span>
+Kl. 18-19.30 &ndash; Kamphold fredag er for juniorer og voksne. Du skal have tilladelse fra din instrukt&oslash;r til at deltage p&aring; dette hold.</span>
+                        </div>                
+                        </div>
+                    <div class="team-signup">
+                          <a class="tilmeldalt km-bg-green" title="Klik her for at tilmelde dig" href="ProfileMaintainEnrollment.aspx?TeamID=22"><span class="open">Tilmeld</span>
+							  
+                  <i class="far fa-chevron-right"></i>
+                          </a>
+                        </div>
+              <div style="clear: both;"></div>  
+            
+                </div>
+                      <!-- TEAM ITEM END -->
+                    
+                
+		</div>
+                <div timeslot="00" class="kl00 timeslot"></div>
+                <div timeslot="01" class="kl01 timeslot"></div>
+                <div timeslot="02" class="kl02 timeslot"></div>
+                <div timeslot="03" class="kl03 timeslot"></div>
+                <div timeslot="04" class="kl04 timeslot"></div>
+                <div timeslot="05" class="kl05 timeslot"></div>
+                <div timeslot="06" class="kl06 timeslot"></div>
+                <div timeslot="07" class="kl07 timeslot"></div>
+                <div timeslot="08" class="kl08 timeslot"></div>
+                <div timeslot="09" class="kl09 timeslot"></div>
+                <div timeslot="10" class="kl10 timeslot"></div>
+                <div timeslot="11" class="kl11 timeslot"></div>
+                <div timeslot="12" class="kl12 timeslot"></div>
+                <div timeslot="13" class="kl13 timeslot"></div>
+                <div timeslot="14" class="kl14 timeslot"></div>
+                <div timeslot="15" class="kl15 timeslot"></div>
+                <div timeslot="16" class="kl16 timeslot"></div>
+                <div timeslot="17" class="kl17 timeslot"></div>
+                <div timeslot="18" class="kl18 timeslot"></div>
+                <div timeslot="19" class="kl19 timeslot"></div>
+                <div timeslot="20" class="kl20 timeslot"></div>
+                <div timeslot="21" class="kl21 timeslot"></div>
+                <div timeslot="22" class="kl22 timeslot"></div>
+                <div timeslot="23" class="kl23 timeslot"></div>
+              </div>
+            </div>
+          
+	</div>
+      </div>
+  </div>
+  </div>
+    
+</div>
+  </div>
+
+<script type="text/javascript" src="../cms/js/pages/jquery.nicescroll.js"></script>
+  <script type="text/javascript">
+    (function(){
+		if (document.location.href.toLowerCase().indexOf('?tag=') > -1) { 
+	$("#km-teamoverviewplantop").hide();
+	$(".team-item-wrapper").hide();
+	var getUrlParameter = function getUrlParameter(sParam) {
+    	var sPageURL = window.location.search.substring(1),
+    	sURLVariables = sPageURL.split('?'),
+    	sParameterName,
+    	i;
+    	for (i = 0; i < sURLVariables.length; i++) {
+        	sParameterName = sURLVariables[i].split('=');
+			if (sParameterName[0] === sParam) { 
+				return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+        	}
+		}
+	};
+	
+	var tag = getUrlParameter('tag');		
+	var arr = tag.split('+');
+	$.each( arr, function( index, value ) {
+
+		$('.team-item-wrapper').each(function() {
+			if ($(this).attr("tag").indexOf(value) > -1) {
+				$(this).show();
+			} 				
+		}); 		
+	});
+}
+        if (document.location.href.toLowerCase().indexOf('?team=') > -1) {
+        $('#ctl00_ContentPlaceHolderBody_panelGroups').remove();
+    }
+		if (document.location.href.toLowerCase().indexOf('?location=') > -1) {
+        $('#ctl00_ContentPlaceHolderBody_panelLocations').remove();
+    }
+      var home = location.protocol + "//" + location.host;
+      window.groups = new Array();
+      window.locations = new Array();
+      window.instruct = new Array();
+      // GROUPS
+    if (document.location.href.toLowerCase().indexOf('?team=') == -1) {
+      $.ajax({
+        url: home + "/cms/include/api/groups.aspx",  
+        success:function(data) {
+          groups = JSON.parse(data);
+
+          var html = "";
+          for(var i = 0; i < groups.length; i++) {
+            html += '<div class="choice km-bg-blue-fade" group="' + groups[i].id + '">';
+              html += '<span class="amount km-bg-blue"></span><span class="txt">' + groups[i].name + '</span>';
+            html += '</div>';
+          }
+
+          $("#groups-filter .filterchoices").append(html);
+          addFilters();
+        $("#groups-filter").removeClass("km-not-ready");
+        }
+      });
+    }
+
+      // LOCATIONS
+      $.ajax({
+        url: home + "/cms/include/api/locations.aspx",  
+        success:function(data) {
+          locations = JSON.parse(data);
+
+          var html = "";
+          for(var i = 0; i < locations.length; i++) {
+            html += '<div class="choice km-bg-blue-fade" pool="' + locations[i].id + '">';
+              html += '<span class="amount km-bg-blue"></span><span class="txt">' + locations[i].name + '</span>';
+            html += '</div>';
+          }
+
+          $("#locations-filter .filterchoices").append(html);
+          addFilters();
+          $("#locations-filter").removeClass("km-not-ready"); 
+        }
+      });
+
+
+
+      // INSTRUCTORS
+      $.ajax({
+        url: home + "/cms/include/api/instructors.aspx",  
+        success:function(data) {
+          instruct = JSON.parse(data);
+
+          
+          var html = "";
+          for(var i = 0; i < instruct.length; i++) {
+            for(var x = 0; x < instruct[i].teams.length; x++) {
+              $('.team-item-wrapper[teamnr="' + instruct[i].teams[x] + '"]').each(function() {
+                var attr = $(this).attr("instructors") + "-" + instruct[i].id + "-";
+                $(this).attr("instructors", attr);
+              });
+            }
+            
+            html += '<div class="choice km-bg-blue-fade" instructors="' + instruct[i].id + '">';
+              html += '<span class="amount km-bg-blue"></span><span class="txt">' + instruct[i].name + '</span>';
+            html += '</div>';
+          }
+
+          $("#instructors-filter .filterchoices").append(html);
+          addFilters();
+        $("#instructors-filter").removeClass("km-not-ready");    
+        }
+      });
+    })();
+
+
+
+function addFilters() {
+  $('.filter .choice').click(function() {
+      $(".filterchoices").removeClass("activef");
+  $(".filter").removeClass("filteractive");
+      var txt = $(this).find(".txt").text();
+      $(this).parent().parent().find(".filtertop .txt").text(txt);
+      if ($(this)[0].hasAttribute("group")) {
+          group = $(this).attr("group");
+    groupt = " " + $(this).find(".txt").text() + " /";
+      }
+      if ($(this)[0].hasAttribute("instructors")) {
+          instructors = $(this).attr("instructors");
+    instructorst = " " + $(this).find(".txt").text() + " /";
+      }
+      if ($(this)[0].hasAttribute("pool")) {
+          pool = $(this).attr("pool");
+    poolt = " " + $(this).find(".txt").text() + " /";
+      }
+  if ($(this)[0].hasAttribute("age")) {
+          age = $(this).attr("age");
+          $("#team-age-search-input").val(age);     
+      }
+  if ($(this)[0].hasAttribute("hour")) {
+          hour = $(this).attr("hour");
+    if ( hour < 10 ) {
+            hour = "0" + hour;
+        } 
+    hourt = " " + $(this).find(".txt").text() + " /";
+      }
+      team_filter();
+  });
+}
+
+
+
+
+
+(function($) {
+  $.fn.inputFilter = function(inputFilter) {
+    return this.on("input keydown keyup mousedown mouseup select contextmenu drop", function() {
+      if (inputFilter(this.value)) {
+        this.oldValue = this.value;
+        this.oldSelectionStart = this.selectionStart;
+        this.oldSelectionEnd = this.selectionEnd;
+      } else if (this.hasOwnProperty("oldValue")) {
+        this.value = this.oldValue;
+        this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);
+      }
+    }); 
+  };
+}(jQuery));
+$(window).on("load", function() {
+	
+	
+	if ($(".km-teamimg.hasimg").length) {
+		$(".km-teamimg").show();
+	}
+	else {
+		$(".km-teamimg").remove();
+	}
+	
+	
+	
+if($("#km-teamoverviewplantop").outerWidth() > 1400) {
+    $("#km-teamoverviewplantop").addClass("largerfilter");
+}
+  
+  
+  
+  if(typeof window.gtitle == 'undefined') {
+    window.gtitle = 'Gruppe';      
+  }
+  $(".groupheader").text(window.gtitle);  
+  if(typeof window.stitle == 'undefined') {
+    window.stitle = 'Sted';     
+  }
+  $(".stedheader").text(window.stitle);
+  
+  
+    
+
+  if ($("#ctl00_panelAnonymousTemplate").length ) {
+    $("#team-age-search .filterchoices").remove();  
+  }
+  var tnr = "";
+    $(".team-item-wrapper").each(function() {
+		if ($(this).find(".agecheckfrom").text() == $(this).find(".agecheckto").text()) {
+			$(this).find(".agecheckfrom, .agesep").remove();
+		}
+    tnr = $(this).attr("teamnr");
+    if ($(".team-item-wrapper[teamnr=" + tnr + "]").length > 1) {
+      $(this).find(".team-more-times").show();
+    }
+      
+        var tc = $.trim($(this).find(".team-text span").text());
+		var tl = tc.length;
+		if (tl > 80) {
+			var shortText = tc.substring(0, 80) + "...";
+    	$(this).find(".team-text span").text(shortText);
+			}
+        if ($(this).attr("left") == "true") {
+            $(this).find(".team-few").show();
+        }
+    
+        if ($(this).find(".team-text span").is(':empty') || tc == '') {
+            $(this).find(".team-text").remove();
+        };
+
+        if ($(this).find(".tilmeldalt").text().toLowerCase().indexOf("tilmeld") >= 0) {
+            $(this).attr("status", "1");
+        }
+
+        if ($(this).find(".tilmeldalt").text().toLowerCase().indexOf("venteliste") >= 0) {
+            $(this).find(".tilmeldalt").removeClass("km-bg-green");
+            $(this).find(".tilmeldalt").addClass("km-bg-yellow");
+            $(this).attr("status", "2");
+        }
+
+        if ($(this).find(".tilmeldalt").text().toLowerCase().indexOf("udsolgt") >= 0) {
+            $(this).find(".tilmeldalt").removeClass("km-bg-green");
+            $(this).find(".tilmeldalt").addClass("km-bg-red");
+            $(this).attr("status", "3");
+        } 
+  
+    });
+ 
+  $('.team-more-times').click(function() {
+    tnr = $(this).parent().parent().attr("teamnr");
+    $(".team-item-wrapper").hide();
+    $(".team-item-wrapper[teamnr=" + tnr + "]").show();
+  });
+  
+  $("#team-age-search-input").inputFilter(function(value) {
+  return /^\d*$/.test(value);
+});
+
+    /* OPEN/CLOSE*/
+    const $menu = $('.filter');
+
+    $(document).mouseup(function(e) {
+        if (!$menu.is(e.target) // if the target of the click isn't the container...
+            &&
+            $menu.has(e.target).length === 0 && $menu.find(".filterchoices").is(":visible")) // ... nor a descendant of the container
+        {
+            $menu.find(".filterchoices").removeClass("activef");
+      $menu.removeClass("filteractive");
+        }
+    });
+
+    $('.filtertoggle').click(function() {   
+     $('.filtertoggle').not(this).parent().find(".filterchoices").removeClass("activef");
+     $('.filtertoggle').not(this).parent().removeClass("filteractive"); 
+
+
+        $(this).parent().find(".filterchoices").toggleClass("activef");
+         $(".activef").niceScroll({
+        cursorcolor: "#8d8d8d",
+        cursoropacitymax: "0.5",
+        nativeparentscrolling: "false",
+        autohidemode: true
+    });
+    $(this).parent().toggleClass("filteractive");
+    var filterID = "";
+    var finstructors= "";
+    var fpool = ""; 
+    var fgroup = "";  
+    if (instructors != "all") {
+          finstructors = '[instructors*=-' + instructors + '-]';
+        }
+    if (pool != "all") {
+          fpool = '[pool=' + pool + ']';
+        }
+    if (group != "all") {
+          fgroup = '[group=' + group + ']';
+        }
+    hour = parseInt(hour);
+    var findamount = "";            
+    var amount = 0;
+    var tstatus = "";
+    $('#ctl00_ContentPlaceHolderBody_panelTag > span').each(function() {          
+            if ($(this).hasClass("active")) {                  
+                if ($(this).hasClass("ks_free")) {
+          tstatus = "free";                                     
+                }
+        else if ($(this).hasClass("ks_few")) {
+          tstatus = "few";                   
+                }
+                else if ($(this).hasClass("ks_wait")) {
+          tstatus = "wait";                   
+                }
+                else if ($(this).hasClass("ks_closed")) {
+          tstatus = "closed";                  
+                }        
+             else {         
+        if (filterID == "") {           
+          filterID = $(this).attr("class").split(' ')[0];
+        }
+        else {
+          filterID = filterID + "|" + $(this).attr("class").split(' ')[0];
+        } 
+              }
+            }
+        });
+        
+    
+
+        
+    $(this).parent().find(".choice").each(function() {  
+            var teamid = "";
+            var teamidlist = [];
+            
+    /*GROUP START*/
+        if ($(this)[0].hasAttribute("group")) {
+      findamount = $(this).attr("group"); 
+    if (tstatus == "free") {
+      amount = $('.team-item-wrapper[group=' + findamount + ']' + finstructors + fpool + ' .team-signup .km-bg-green').length;
+      $('.team-item-wrapper[group=' + findamount + ']' + finstructors + fpool + ' .team-signup .km-bg-green').each(function() {
+              teamid = $(this).parent().parent().find(".team-nr").text();
+                if($.inArray(teamid, teamidlist) == -1) {
+                    teamidlist.push(teamid);  
+          if ($(this).parent().parent().attr("tag").indexOf(filterID) == -1 || age < parseInt($(this).parent().parent().attr("agefrom")) || age > parseInt($(this).parent().parent().attr("ageto")) || hour > parseInt($(this).parent().parent().attr("hour"))) {
+                  amount = amount -1;
+              }  
+                }
+                else {
+                    amount = amount - 1;
+                }                
+                    
+          });
+      amount - $('.team-item-wrapper[group=' + findamount + '] .team-signup .km-bg-yellow').length;
+      amount - $('.team-item-wrapper[group=' + findamount + '] .team-signup .km-bg-red').length;
+    } 
+    else if (tstatus == "few") {
+      amount = $('.team-item-wrapper[group=' + findamount + ']' + finstructors + fpool + ' .km-few-places').length;
+      $('.team-item-wrapper[group=' + findamount + ']' + finstructors + fpool + ' .km-few-places').each(function() {
+        teamid = $(this).parent().parent().find(".team-nr").text();
+                if($.inArray(teamid, teamidlist) == -1) {
+                    teamidlist.push(teamid);  
+          if ($(this).parent().parent().attr("tag").indexOf(filterID) == -1 || age < parseInt($(this).parent().parent().attr("agefrom")) || age > parseInt($(this).parent().parent().attr("ageto")) || hour > parseInt($(this).parent().parent().attr("hour"))) {
+                    amount = amount -1;
+                  } 
+                }
+                else {
+                    amount = amount - 1;
+                }                
+                              
+          });     
+    } 
+    else if (tstatus == "wait") {
+      amount = $('.team-item-wrapper[group=' + findamount + ']' + finstructors + fpool + ' .team-signup .km-bg-yellow').length;
+      $('.team-item-wrapper[group=' + findamount + ']' + finstructors + fpool + ' .team-signup .km-bg-yellow').each(function() {
+        teamid = $(this).parent().parent().find(".team-nr").text();
+                if($.inArray(teamid, teamidlist) == -1) {
+                    teamidlist.push(teamid);    
+          if ($(this).parent().parent().attr("tag").indexOf(filterID) == -1 || age < parseInt($(this).parent().parent().attr("agefrom")) || age > parseInt($(this).parent().parent().attr("ageto")) || hour > parseInt($(this).parent().parent().attr("hour"))) {
+                    amount = amount -1;
+                  } 
+                }
+                else {
+                    amount = amount - 1;
+                }                
+                              
+          });
+      amount - $('.team-item-wrapper[group=' + findamount + '] .team-signup .km-bg-green').length;
+      amount - $('.team-item-wrapper[group=' + findamount + '] .team-signup .km-bg-red').length;
+    }
+    else if (tstatus == "closed") {
+      amount = $('.team-item-wrapper[group=' + findamount + ']' + finstructors + fpool + ' .team-signup .km-bg-red').length;
+      $('.team-item-wrapper[group=' + findamount + ']' + finstructors + fpool + ' .team-signup .km-bg-red').each(function() {
+        teamid = $(this).parent().parent().find(".team-nr").text();
+                if($.inArray(teamid, teamidlist) == -1) {
+                    teamidlist.push(teamid);   
+          if ($(this).parent().parent().attr("tag").indexOf(filterID) == -1 || age < parseInt($(this).parent().parent().attr("agefrom")) || age > parseInt($(this).parent().parent().attr("ageto")) || hour > parseInt($(this).parent().parent().attr("hour"))) {
+                    amount = amount -1;
+                } 
+                }
+                else {
+                    amount = amount - 1;
+                }                
+                              
+            });
+      amount - $('.team-item-wrapper[group=' + findamount + '] .team-signup .km-bg-yellow').length;
+      amount - $('.team-item-wrapper[group=' + findamount + '] .team-signup .km-bg-green').length;
+    }
+    else {
+      amount = $('.team-item-wrapper[group=' + findamount + ']' + finstructors + fpool).length;     
+      $('.team-item-wrapper[group=' + findamount + ']' + finstructors + fpool).each(function() {
+        teamid = $(this).find(".team-nr").text();       
+                if($.inArray(teamid, teamidlist) == -1) {
+                    teamidlist.push(teamid);        
+          if ($(this).attr("tag").indexOf(filterID) == -1 || age < parseInt($(this).attr("agefrom")) || age > parseInt($(this).attr("ageto")) || hour > parseInt($(this).attr("hour"))) {         
+                    amount = amount -1;
+                  } 
+                }
+                else {
+                    amount = amount - 1;
+                }                
+                              
+            });
+    }
+  }
+    /*GROUP END*/ 
+      
+      
+    /*INSTRUCTORS START*/
+        if ($(this)[0].hasAttribute("instructors")) {     
+            findamount = "-" + $(this).attr("instructors") + "-";   
+    if (tstatus == "free") {
+      amount = $('#km-teamoverviewplan .team-item-wrapper[instructors*=' + findamount + ']' + fgroup + fpool + ' .team-signup .km-bg-green').length;
+      $('#km-teamoverviewplan .team-item-wrapper[instructors*=' + findamount + ']' + fgroup + fpool + ' .team-signup .km-bg-green').each(function() {
+        teamid = $(this).parent().parent().find(".team-nr").text();
+                if($.inArray(teamid, teamidlist) == -1) {
+                    teamidlist.push(teamid);  
+          if ($(this).parent().parent().attr("tag").indexOf(filterID) == -1 || age < parseInt($(this).parent().parent().attr("agefrom")) || age > parseInt($(this).parent().parent().attr("ageto")) || hour > parseInt($(this).parent().parent().attr("hour"))) {
+                  amount = amount -1;
+              }
+                }
+                else {
+                    amount = amount - 1;
+                }                
+                                
+          });
+      amount - $('#km-teamoverviewplan .team-item-wrapper[instructors*=' + findamount + '] .team-signup .km-bg-yellow').length;
+      amount - $('#km-teamoverviewplan .team-item-wrapper[instructors*=' + findamount + '] .team-signup .km-bg-red').length;
+    }
+    else if (tstatus == "few") {
+      amount = $('#km-teamoverviewplan .team-item-wrapper[instructors*=' + findamount + ']' + fgroup + fpool + ' .km-few-places').length;
+      $('#km-teamoverviewplan .team-item-wrapper[instructors*=' + findamount + ']' + fgroup + fpool + ' .km-few-places').each(function() {
+        teamid = $(this).parent().parent().find(".team-nr").text();
+                if($.inArray(teamid, teamidlist) == -1) {
+                    teamidlist.push(teamid);  
+          if ($(this).parent().parent().attr("tag").indexOf(filterID) == -1 || age < parseInt($(this).parent().parent().attr("agefrom")) || age > parseInt($(this).parent().parent().attr("ageto")) || hour > parseInt($(this).parent().parent().attr("hour"))) {
+            amount = amount -1;
+                  } 
+                }
+                else {
+                    amount = amount - 1;
+                }                
+                              
+          });     
+    } 
+    else if (tstatus == "wait") {
+      amount = $('#km-teamoverviewplan .team-item-wrapper[instructors*=' + findamount + ']' + fgroup + fpool + ' .team-signup .km-bg-yellow').length;
+      $('#km-teamoverviewplan .team-item-wrapper[instructors*=' + findamount + ']' + fgroup + fpool + ' .team-signup .km-bg-yellow').each(function() {
+        teamid = $(this).parent().parent().find(".team-nr").text();
+                if($.inArray(teamid, teamidlist) == -1) {
+                    teamidlist.push(teamid);  
+          if ($(this).parent().parent().attr("tag").indexOf(filterID) == -1 || age < parseInt($(this).parent().parent().attr("agefrom")) || age > parseInt($(this).parent().parent().attr("ageto")) || hour > parseInt($(this).parent().parent().attr("hour"))) {
+                    amount = amount -1;
+                  } 
+                }
+                else {
+                    amount = amount - 1;
+                }                
+                              
+          });
+      amount - $('#km-teamoverviewplan .team-item-wrapper[instructors*=' + findamount + '] .team-signup .km-bg-green').length;
+      amount - $('#km-teamoverviewplan .team-item-wrapper[instructors*=' + findamount + '] .team-signup .km-bg-red').length;
+    }
+    else if (tstatus == "closed") {
+      amount = $('#km-teamoverviewplan .team-item-wrapper[instructors*=' + findamount + ']' + fgroup + fpool + ' .team-signup .km-bg-red').length;
+      $('#km-teamoverviewplan .team-item-wrapper[instructors*=' + findamount + ']' + fgroup + fpool + ' .team-signup .km-bg-red').each(function() {
+        teamid = $(this).parent().parent().find(".team-nr").text();
+                if($.inArray(teamid, teamidlist) == -1) {
+                    teamidlist.push(teamid); 
+          if ($(this).parent().parent().attr("tag").indexOf(filterID) == -1 || age < parseInt($(this).parent().parent().attr("agefrom")) || age > parseInt($(this).parent().parent().attr("ageto")) || hour > parseInt($(this).parent().parent().attr("hour"))) {
+                    amount = amount -1;
+                } 
+                }
+                else {
+                    amount = amount - 1;
+                }                
+                              
+            });
+      amount - $('#km-teamoverviewplan .team-item-wrapper[instructors*=' + findamount + '] .team-signup .km-bg-yellow').length;
+      amount - $('#km-teamoverviewplan .team-item-wrapper[instructors*=' + findamount + '] .team-signup .km-bg-green').length;
+    }
+    else {
+      amount = $('#km-teamoverviewplan .team-item-wrapper[instructors*=' + findamount + ']' + fgroup + fpool).length;
+      $('#km-teamoverviewplan .team-item-wrapper[instructors*=' + findamount + ']' + fgroup + fpool).each(function() {
+        teamid = $(this).find(".team-nr").text();
+                if($.inArray(teamid, teamidlist) == -1) {
+                    teamidlist.push(teamid);  
+          if ($(this).attr("tag").indexOf(filterID) == -1 || age < parseInt($(this).attr("agefrom")) || age > parseInt($(this).attr("ageto")) || hour > parseInt($(this).attr("hour"))) {
+                    amount = amount -1;
+          } 
+                }
+                else {
+                    amount = amount - 1;
+                }                
+                              
+            });
+    }
+  }
+    /*INSTRUCTORS END*/
+      
+  /*POOL START*/
+        if ($(this)[0].hasAttribute("pool")) {      
+            findamount = $(this).attr("pool");
+    if (tstatus == "free") {
+      amount = $('#km-teamoverviewplan .team-item-wrapper[pool=' + findamount + ']' + fgroup + finstructors + ' .team-signup .km-bg-green').length;
+      $('#km-teamoverviewplan .team-item-wrapper[pool*=' + findamount + ']' + fgroup + finstructors + ' .team-signup .km-bg-green').each(function() {
+        teamid = $(this).parent().parent().find(".team-nr").text();
+                if($.inArray(teamid, teamidlist) == -1) {
+                    teamidlist.push(teamid);     
+          if ($(this).parent().parent().attr("tag").indexOf(filterID) == -1 || age < parseInt($(this).parent().parent().attr("agefrom")) || age > parseInt($(this).parent().parent().attr("ageto")) || hour > parseInt($(this).parent().parent().attr("hour"))) {
+            amount = amount -1;
+              } 
+                }
+                else {
+                    amount = amount - 1;
+                }                
+                              
+          });
+      amount - $('#km-teamoverviewplan .team-item-wrapper[pool=' + findamount + '] .team-signup .km-bg-yellow').length;
+      amount - $('#km-teamoverviewplan .team-item-wrapper[pool=' + findamount + '] .team-signup .km-bg-red').length;
+    }
+    else if (tstatus == "few") {
+      amount = $('#km-teamoverviewplan .team-item-wrapper[pool=' + findamount + ']' + fgroup + finstructors + ' .km-few-places').length;
+      $('#km-teamoverviewplan .team-item-wrapper[pool*=' + findamount + ']' + fgroup + finstructors + ' .km-few-places').each(function() {
+        teamid = $(this).parent().parent().find(".team-nr").text();
+                if($.inArray(teamid, teamidlist) == -1) {
+                    teamidlist.push(teamid);   
+          if ($(this).parent().parent().attr("tag").indexOf(filterID) == -1 || age < parseInt($(this).parent().parent().attr("agefrom")) || age > parseInt($(this).parent().parent().attr("ageto")) || hour > parseInt($(this).parent().parent().attr("hour"))) {
+            amount = amount -1;
+                  } 
+                }
+                else {
+                    amount = amount - 1;
+                }                
+                              
+          });     
+    } 
+    else if (tstatus == "wait") {
+      amount = $('#km-teamoverviewplan .team-item-wrapper[pool=' + findamount + ']' + fgroup + finstructors + ' .team-signup .km-bg-yellow').length;
+      $('#km-teamoverviewplan .team-item-wrapper[pool*=' + findamount + ']' + fgroup + finstructors + ' .team-signup .km-bg-yellow').each(function() {
+        teamid = $(this).parent().parent().find(".team-nr").text();
+                if($.inArray(teamid, teamidlist) == -1) {
+                    teamidlist.push(teamid);  
+          if ($(this).parent().parent().attr("tag").indexOf(filterID) == -1 || age < parseInt($(this).parent().parent().attr("agefrom")) || age > parseInt($(this).parent().parent().attr("ageto")) || hour > parseInt($(this).parent().parent().attr("hour"))) {
+            amount = amount -1;
+                  } 
+                }
+                else {
+                    amount = amount - 1;
+                }                
+                              
+          });
+      amount - $('#km-teamoverviewplan .team-item-wrapper[pool=' + findamount + '] .team-signup .km-bg-green').length;
+      amount - $('#km-teamoverviewplan .team-item-wrapper[pool=' + findamount + '] .team-signup .km-bg-red').length;
+    }
+    else if (tstatus == "closed") {
+      amount = $('#km-teamoverviewplan .team-item-wrapper[pool=' + findamount + ']' + fgroup + finstructors + ' .team-signup .km-bg-red').length;
+      $('#km-teamoverviewplan .team-item-wrapper[pool*=' + findamount + ']' + fgroup + finstructors + ' .team-signup .km-bg-red').each(function() {
+        teamid = $(this).parent().parent().find(".team-nr").text();
+                if($.inArray(teamid, teamidlist) == -1) {
+                    teamidlist.push(teamid);                          
+                if ($(this).parent().parent().attr("tag").indexOf(filterID) == -1 || age < parseInt($(this).parent().parent().attr("agefrom")) || age > parseInt($(this).parent().parent().attr("ageto")) || hour > parseInt($(this).parent().parent().attr("hour"))) {
+                    amount = amount -1;
+                } 
+                }
+                else {
+                    amount = amount - 1;
+        }
+                                
+            });
+      amount - $('#km-teamoverviewplan .team-item-wrapper[pool=' + findamount + '] .team-signup .km-bg-yellow').length;
+      amount - $('#km-teamoverviewplan .team-item-wrapper[pool=' + findamount + '] .team-signup .km-bg-green').length;
+    }
+    else {
+      amount = $('#km-teamoverviewplan .team-item-wrapper[pool=' + findamount + ']' + fgroup + finstructors).length;
+      $('#km-teamoverviewplan .team-item-wrapper[pool*=' + findamount + ']' + fgroup + finstructors).each(function() {
+        teamid = $(this).find(".team-nr").text();
+                if($.inArray(teamid, teamidlist) == -1) {
+                    teamidlist.push(teamid);   
+          if ($(this).attr("tag").indexOf(filterID) == -1 || age < parseInt($(this).attr("agefrom")) || age > parseInt($(this).attr("ageto")) || hour > parseInt($(this).attr("hour"))) {
+            amount = amount -1;
+                  } 
+                }
+                else {
+                    amount = amount - 1;
+                }                
+                              
+            });
+    }
+  }
+    /*POOL END*/
+       
+      
+  /*TIME START*/
+        if ($(this)[0].hasAttribute("hour")) {
+      amount = 0;
+            findamount =  parseInt($(this).attr("hour"));
+    if (tstatus == "free") {
+    
+      $('#km-teamoverviewplan .team-item-wrapper' + fpool + fgroup + finstructors + ' .team-signup .km-bg-green').each(function() {
+        
+          if ($(this).parent().parent().attr("tag").indexOf(filterID) == -1 || age < parseInt($(this).parent().parent().attr("agefrom")) || age > parseInt($(this).parent().parent().attr("ageto")) || findamount > parseInt($(this).parent().parent().attr("hour"))) {               
+              }
+          else {
+            amount = amount +1;
+          }
+               
+              
+          });     
+    }
+    else if (tstatus == "few") {      
+      $('#km-teamoverviewplan .team-item-wrapper' + fpool + fgroup + finstructors + ' .km-few-places').each(function() {
+        teamid = $(this).parent().parent().find(".team-nr").text();
+                
+          if ($(this).parent().parent().attr("tag").indexOf(filterID) == -1 || age < parseInt($(this).parent().parent().attr("agefrom")) || age > parseInt($(this).parent().parent().attr("ageto")) || findamount > parseInt($(this).parent().parent().attr("hour"))) {
+                
+                  } 
+          else {
+            amount = amount +1;
+          }
+                     
+              
+          });
+      
+    }
+    else if (tstatus == "wait") {     
+      $('#km-teamoverviewplan .team-item-wrapper' + fpool + fgroup + finstructors + ' .team-signup .km-bg-yellow').each(function() {
+        teamid = $(this).parent().parent().find(".team-nr").text();
+              
+          if ($(this).parent().parent().attr("tag").indexOf(filterID) == -1 || age < parseInt($(this).parent().parent().attr("agefrom")) || age > parseInt($(this).parent().parent().attr("ageto")) || findamount > parseInt($(this).parent().parent().attr("hour"))) {
+                
+                  } 
+          else {
+            amount = amount +1;
+          }
+                
+                       
+              
+          });
+      
+    }
+    else if (tstatus == "closed") {
+      
+      $('#km-teamoverviewplan .team-item-wrapper' + fpool + fgroup + finstructors + ' .team-signup .km-bg-red').each(function() {
+        teamid = $(this).parent().parent().find(".team-nr").text();
+               
+          if ($(this).parent().parent().attr("tag").indexOf(filterID) == -1 || age < parseInt($(this).parent().parent().attr("agefrom")) || age > parseInt($(this).parent().parent().attr("ageto")) || findamount > parseInt($(this).parent().parent().attr("hour"))) {
+                  
+                }
+          else {
+            amount = amount +1;
+          }
+                
+              
+            });
+      
+    }
+    else {
+
+      $('#km-teamoverviewplan .team-item-wrapper' + fpool + fgroup + finstructors).each(function() {
+        teamid = $(this).find(".team-nr").text();
+               
+          if ($(this).attr("tag").indexOf(filterID) == -1 || age < parseInt($(this).attr("agefrom")) || age > parseInt($(this).attr("ageto")) || findamount > parseInt($(this).attr("hour"))) {
+                  
+                  }
+          else {
+            amount = amount +1;
+          }
+                
+               
+            });
+    }
+  }
+    /*TIME END*/    
+    
+  $(this).find(".amount").text(amount);            
+});
+    if ($(this).parent().parent().attr("id") != "ctl00_ContentPlaceHolderBody_panelTimes") {
+    var mylist = $(this);
+var listitems = mylist.parent().parent().find('.choice').get();
+listitems.sort(function(a, b) {
+  var a = $(a).find(".amount").text();
+  var b = $(b).find(".amount").text();
+   return a.localeCompare(b, false, {numeric: true})
+  
+});
+    if (!$(this).find(".groupheader").length) {
+
+    
+$.each(listitems, function(index, item) {
+   mylist.parent().parent().find(".filterchoices").prepend(item);    
+});
+    }
+$(this).parent().parent().find(".choiceall").prependTo($(this).parent().parent().find(".filterchoices"));
+    }
+    });
+    /* OPEN/CLOSE*/
+    window.group = "all";
+    window.instructors = "all";
+    window.pool = "all";
+  window.age = "all";
+  window.hour = "all";
+  window.groupt = "";
+    window.instructorst = "";
+    window.poolt = "";
+  window.aget = "";
+  window.hourt = "";
+  
+    team_filter = function() {  
+    var teamtotal = 0;
+    var sresult = "";   
+    sresult = sresult + aget + hourt + groupt + poolt + instructorst;
+    
+    
+        if ($("#ctl00_ContentPlaceHolderBody_panelSubscriptions").length) {
+            $("#ctl00_ContentPlaceHolderBody_panelSubscriptions").show();
+        }
+        $(".team-item-wrapper").show();        
+        $('#ctl00_ContentPlaceHolderBody_panelTag .tagalt').each(function() {            
+            if ($(this).hasClass("active")) { 
+        sresult = sresult + " " + $(this).find(".tagtxt").text() + " /";
+                if ($(this).hasClass("ks_free")) {
+                    $('.team-item-wrapper:visible').each(function() {
+                        if (!$(this).find(".team-signup .km-bg-green").length) {
+                            $(this).hide();
+                        }
+                    });
+                           
+                }
+        else if ($(this).hasClass("ks_few")) {
+        
+                    $('.team-item-wrapper:visible').each(function() {
+                        if (!$(this).find(".km-few-places").length) {
+                            $(this).hide();
+                        }
+                    });
+                }
+                else if ($(this).hasClass("ks_wait")) {
+  
+                    $('.team-item-wrapper:visible').each(function() {
+                        if (!$(this).find(".team-signup .km-bg-yellow").length) {
+                            $(this).hide();
+                        }
+                    });
+                }
+                else if ($(this).hasClass("ks_closed")) {
+        
+                    $('.team-item-wrapper:visible').each(function() {
+                        if (!$(this).find(".team-signup .km-bg-red").length) {
+                            $(this).hide();
+                        }
+                    });    
+                }
+        
+                else {        
+                
+                    var filterID = $(this).attr("class").split(' ')[0];
+                    $('.team-item-wrapper:visible').each(function() {
+                        if ($(this).attr("tag").indexOf(filterID) == -1) {
+                            $(this).hide();
+                        }
+                    });
+                }
+            }
+        });
+        if (hour != "all") {
+            $("#ctl00_ContentPlaceHolderBody_panelSubscriptions .team-item-wrapper").hide();      
+        }        
+        $('.team-item-wrapper:visible').each(function() {
+            if (group != "all") {
+                if ($(this).attr("group") !== group) {
+
+                    $(this).hide();
+                }
+            }
+            if (instructors != "all") {
+                if ($(this).attr("instructors").indexOf("-" + instructors + "-") == -1) {
+                    $(this).hide();
+                }
+            }
+            if (pool != "all") {
+                if ($(this).attr("pool") !== pool) {
+                    $(this).hide();
+                }
+            }     
+      if (age != "all") {
+        if (age < parseInt($(this).attr("agefrom")) || age > parseInt($(this).attr("ageto"))) {                   
+                    $(this).hide();
+                }
+            }
+      if (hour != "all") {
+        if (hour > parseInt($(this).attr("hour"))) {                   
+                    $(this).hide();
+                }
+            } 
+        });
+    
+        
+    
+    $("#ctl00_ContentPlaceHolderBody_panelTag .tagalt").each(function() {
+      var teamid = "";
+            var teamidlist = [];
+        if ($(this).hasClass("ks_free")) {      
+      var amount = $('.team-item-wrapper:visible .team-signup .km-bg-green').length;  
+      $('.team-item-wrapper:visible .team-signup .km-bg-green').each(function() {
+        teamid = $(this).parent().parent().find(".team-nr").text();       
+                if($.inArray(teamid, teamidlist) == -1) {
+                teamidlist.push(teamid);            
+        }
+              else {
+          amount = amount - 1;
+        }           
+            });   
+      teamtotal = teamtotal + amount;
+  
+    }
+    else if ($(this).hasClass("ks_few")) {
+            var amount = $('.team-item-wrapper:visible .km-few-places').length;
+      $('.team-item-wrapper:visible .km-few-places').each(function() {
+        teamid = $(this).parent().parent().find(".team-nr").text();       
+                if($.inArray(teamid, teamidlist) == -1) {
+                teamidlist.push(teamid);            
+        }
+              else {
+          amount = amount - 1;
+        }           
+            });        
+        }   
+    
+        else if ($(this).hasClass("ks_wait")) {
+            var amount = $('.team-item-wrapper:visible .team-signup .km-bg-yellow').length;
+      $('.team-item-wrapper:visible .team-signup .km-bg-yellow').each(function() {
+        teamid = $(this).parent().parent().find(".team-nr").text();       
+                if($.inArray(teamid, teamidlist) == -1) {
+                teamidlist.push(teamid);            
+        }
+              else {
+          amount = amount - 1;
+        }           
+            });        
+      teamtotal = teamtotal + amount;
+        }
+        else if ($(this).hasClass("ks_closed")) {
+            var amount = $('.team-item-wrapper:visible .team-signup .km-bg-red').length; 
+      $('.team-item-wrapper:visible .team-signup .km-bg-red').each(function() {
+        teamid = $(this).parent().parent().find(".team-nr").text();       
+                if($.inArray(teamid, teamidlist) == -1) {
+                teamidlist.push(teamid);            
+        }
+              else {
+          amount = amount - 1;
+        }           
+            }); 
+      teamtotal = teamtotal + amount;
+        }
+        
+        else {
+        var findamount = $(this).attr("class").split(' ')[0];
+        var amount = $('.team-item-wrapper:visible[tag*="' + findamount + '"]').length; 
+    $('.team-item-wrapper:visible[tag*="' + findamount + '"]').each(function() {      
+        teamid = $(this).find(".team-nr").text();       
+                if($.inArray(teamid, teamidlist) == -1) {         
+                teamidlist.push(teamid);  
+        }
+              else {  
+          amount = amount - 1;
+        }           
+        });   
+     }         
+     $(this).find(".amount").text(amount);          
+        
+    });
+        if ($("#ctl00_ContentPlaceHolderBody_panelSubscriptions").length && $("#ctl00_ContentPlaceHolderBody_panelSubscriptions").find(".team-item-wrapper:visible").length == 0) {
+            $("#ctl00_ContentPlaceHolderBody_panelSubscriptions").hide();
+        }
+    if (document.location.href.toLowerCase().indexOf('schematic') > -1) {
+    for(var i = 0; i < 25; i++)
+    {
+    var hourx = i;
+        if ( hourx < 10 ) {
+            hourx = "0" + hourx;
+        } else {
+            hourx = hourx;
+        }
+    $('.timeslot[timeslot*=' + hourx + ']').attr("style", "");
+    var timeheight = Math.max.apply(null, $('.timeslot[timeslot*=' + hourx + ']').map(function() {
+          return $(this).outerHeight(true);
+      }).get());
+    if (timeheight != 0) {
+
+      timeheight = timeheight + 5;
+    }   
+    $('.timeslot[timeslot*=' + hourx + ']').css("height", timeheight + "px");
+    } 
+    
+    
+    
+  }
+    if (sresult != "") {
+      $("#filterscope").css("display", "inline-block");
+      $("#sresult").text(sresult.slice(0,-1));    
+      $(".samount").text(teamtotal);
+    }
+    else {
+      $("#filterscope").attr("style", "");
+    }
+    }
+
+    $('.filter .choice').click(function() {
+        $(".filterchoices").removeClass("activef");
+    $(".filter").removeClass("filteractive");
+        var txt = $(this).find(".txt").text();
+        $(this).parent().parent().find(".filtertop .txt").text(txt);
+        if ($(this)[0].hasAttribute("group")) {
+            group = $(this).attr("group");
+      groupt = " " + $(this).find(".txt").text() + " /";
+        }
+        if ($(this)[0].hasAttribute("instructors")) {
+            instructors = $(this).attr("instructors");
+      instructorst = " " + $(this).find(".txt").text() + " /";
+        }
+        if ($(this)[0].hasAttribute("pool")) {
+            pool = $(this).attr("pool");
+      poolt = " " + $(this).find(".txt").text() + " /";
+        }
+    if ($(this)[0].hasAttribute("age")) {
+            age = $(this).attr("age");
+            $("#team-age-search-input").val(age);     
+        }
+    if ($(this)[0].hasAttribute("hour")) {
+            hour = $(this).attr("hour");
+      if ( hour < 10 ) {
+              hour = "0" + hour;
+          } 
+      hourt = " " + $(this).find(".txt").text() + " /";
+        }
+        team_filter();
+    });
+
+    $( "#team-age-search-input" ).keyup(function(e) {
+    $(".filterchoices").removeClass("activef");
+    $(".filter").removeClass("filteractive");
+        if( !$(this).val() ) {
+            age = "all"
+    }
+        else {
+            age = parseInt($(this).val());            
+        }
+    aget = ' ' + 'Alder' + ' ' + parseInt($(this).val()) + ' /'; 
+        team_filter();
+    });
+
+    
+    
+
+    $("#ctl00_ContentPlaceHolderBody_panelTag .tagalt").click(function() {
+        if ($(this).hasClass("ks_allalt")) {
+      $("#ctl00_ContentPlaceHolderBody_panelTag .active").removeClass("active km-bg-blue").addClass("km-bg-blue-fade");
+      $("#ctl00_ContentPlaceHolderBody_panelTag .ks_free").removeClass("km-bg-blue-fade").addClass("km-bg-green");
+      $("#ctl00_ContentPlaceHolderBody_panelTag .ks_few").removeClass("km-bg-blue-fade").addClass("km-bg-purple");
+      $("#ctl00_ContentPlaceHolderBody_panelTag .ks_wait").removeClass("km-bg-blue-fade").addClass("km-bg-yellow");
+      $("#ctl00_ContentPlaceHolderBody_panelTag .ks_closed").removeClass("km-bg-blue-fade").addClass("km-bg-red");
+      group = "all";
+        instructors = "all";
+      pool = "all";
+      age = "all";
+      hour = "all";
+      groupt = "";
+        instructorst = "";
+      poolt = "";
+      aget = "";
+      hourt = "";
+      $("#team-age-search-input").val("")
+      $("#km-filters .chosen .txt").text('Vis alle');
+      
+        }
+        else if ($(this).hasClass("ks_free")) {
+            $(this).toggleClass("active km-bg-blue km-bg-green");
+      $("#ctl00_ContentPlaceHolderBody_panelTag .ks_few").removeClass("active km-bg-blue").addClass("km-bg-purple");  
+      $("#ctl00_ContentPlaceHolderBody_panelTag .ks_wait").removeClass("active km-bg-blue").addClass("km-bg-yellow"); 
+      $("#ctl00_ContentPlaceHolderBody_panelTag .ks_closed").removeClass("active km-bg-blue").addClass("km-bg-red");  
+        }
+    else if ($(this).hasClass("ks_few")) {
+            $(this).toggleClass("active km-bg-blue km-bg-purple");
+      $("#ctl00_ContentPlaceHolderBody_panelTag .ks_free").removeClass("active km-bg-blue").addClass("km-bg-green");  
+      $("#ctl00_ContentPlaceHolderBody_panelTag .ks_wait").removeClass("active km-bg-blue").addClass("km-bg-yellow"); 
+      $("#ctl00_ContentPlaceHolderBody_panelTag .ks_closed").removeClass("active km-bg-blue").addClass("km-bg-red");  
+        }
+        else if ($(this).hasClass("ks_wait")) {
+            $(this).toggleClass("active km-bg-blue km-bg-yellow");
+      $("#ctl00_ContentPlaceHolderBody_panelTag .ks_free").removeClass("active km-bg-blue").addClass("km-bg-green");  
+      $("#ctl00_ContentPlaceHolderBody_panelTag .ks_few").removeClass("active km-bg-blue").addClass("km-bg-purple");  
+      $("#ctl00_ContentPlaceHolderBody_panelTag .ks_closed").removeClass("active km-bg-blue").addClass("km-bg-red");  
+        }
+        else if ($(this).hasClass("ks_closed")) {
+            $(this).toggleClass("active km-bg-blue km-bg-red");
+      $("#ctl00_ContentPlaceHolderBody_panelTag .ks_wait").removeClass("active km-bg-blue").addClass("km-bg-yellow"); 
+      $("#ctl00_ContentPlaceHolderBody_panelTag .ks_few").removeClass("active km-bg-blue").addClass("km-bg-purple");  
+      $("#ctl00_ContentPlaceHolderBody_panelTag .ks_free").removeClass("active km-bg-blue").addClass("km-bg-green");  
+        }
+        
+        else {
+            $(this).toggleClass("active km-bg-blue km-bg-blue-fade");
+        }
+        team_filter();
+    });
+
+    var teamheight = Math.max.apply(null, $('#km-teamoverviewplan .team-item').map(function() {
+        return $(this).outerHeight(true);
+    }).get());
+    $("#km-teamoverviewplan .team-item").outerHeight(teamheight);
+  var konheight = Math.max.apply(null, $('#km-teamoverviewsubscriptions .team-item').map(function() {
+        return $(this).outerHeight(true);
+    }).get());
+  if ($(window).width() < 768) { 
+   $("#km-teamoverviewsubscriptions").outerHeight(konheight + 31);
+  }
+    $("#km-teamoverviewsubscriptions .team-item").outerHeight(konheight);
+  
+   $("#ctl00_ContentPlaceHolderBody_panelTag  .km-bg-blue-fade").each(function() { 
+    var teamid = "";
+        var teamidlist = [];
+        var findamount = $(this).attr("class").split(' ')[0];
+        var amount = $('.team-item-wrapper[tag*="' + findamount + '"]').length;
+        if (amount == '0') {
+            $(this).remove();
+        } else {
+      $('.team-item-wrapper[tag*="' + findamount + '"]').each(function() {    
+        teamid = $(this).find(".team-nr").text();       
+                if($.inArray(teamid, teamidlist) == -1) {         
+                teamidlist.push(teamid);  
+        }
+              else {  
+          amount = amount - 1;
+        }           
+        });     
+            $(this).find(".amount").text(amount);
+            $(this).show();
+        }    
+    });
+    
+     
+        var famount = $('.team-item-wrapper .team-signup .km-bg-green').length; 
+    var teamid = "";
+    var teamidlist = [];
+    $('.team-item-wrapper .team-signup .km-bg-green').each(function() {
+      teamid = $(this).parent().parent().find(".team-nr").text();       
+          if($.inArray(teamid, teamidlist) == -1) {
+              teamidlist.push(teamid);            
+      }
+            else {
+        famount = famount - 1;
+      }           
+        });        
+        $("#ctl00_ContentPlaceHolderBody_panelTag > .ks_free .amount").text(famount);
+  
+    var fewamount = $('.team-item-wrapper .km-few-places').length;          
+        if (fewamount == 0) {
+
+            $("#ctl00_ContentPlaceHolderBody_panelTag > .ks_few").remove();
+        }
+        else {
+      var teamid = "";
+      var teamidlist = [];
+      $('.team-item-wrapper .km-few-places').each(function() {
+        teamid = $(this).parent().parent().find(".team-nr").text();       
+                if($.inArray(teamid, teamidlist) == -1) {
+                teamidlist.push(teamid);            
+        }
+              else {
+          fewamount = fewamount - 1;
+        }           
+            });        
+            $("#ctl00_ContentPlaceHolderBody_panelTag > .ks_few .amount").text(fewamount);
+        }
+  
+        var wamount = $('.team-item-wrapper .team-signup .km-bg-yellow').length;      
+        if (wamount == 0) {
+            $("#ctl00_ContentPlaceHolderBody_panelTag > .ks_wait").remove();
+        }
+        else {
+      var teamid = "";
+      var teamidlist = [];
+      $('.team-item-wrapper .team-signup .km-bg-yellow').each(function() {
+        teamid = $(this).parent().parent().find(".team-nr").text();       
+            if($.inArray(teamid, teamidlist) == -1) {
+                teamidlist.push(teamid);            
+        }
+              else {
+          wamount = wamount - 1;
+        }           
+          });        
+            $("#ctl00_ContentPlaceHolderBody_panelTag > .ks_wait .amount").text(wamount);
+        }
+  
+        var camount = $('.team-item-wrapper .team-signup .km-bg-red').length;
+        if (camount == 0) {
+            $("#ctl00_ContentPlaceHolderBody_panelTag > .ks_closed").remove();
+        }
+        else {
+      var teamid = "";
+      var teamidlist = [];
+      $('.team-item-wrapper .team-signup .km-bg-red').each(function() {
+        teamid = $(this).parent().parent().find(".team-nr").text();       
+            if($.inArray(teamid, teamidlist) == -1) {
+                teamidlist.push(teamid);            
+        }
+              else {
+          camount = camount - 1;
+        }           
+          });        
+            $("#ctl00_ContentPlaceHolderBody_panelTag > .ks_closed .amount").text(camount);
+        }
+   
+    
+    $(".ks_allalt, .ks_free, .ks_wait, .ks_closed, .ks_few").show();
+  $('.team-day').click(function() {
+      if ($(this).find(".fa-plus").is(":visible")) {
+          $(this).parent().css("flex", "1");
+          }
+        else {
+             $(this).parent().css("flex", "0");
+        }
+      
+        
+        $(this).parent().find(".weekday-content").fadeToggle();
+        $(this).parent().find(".team-day .team-day-title").fadeToggle(function() {
+            $(this).parent().find(".fa-plus").fadeToggle();
+        });
+        
+    });
+    $('.kontingent-title').click(function() {
+      if ($(this).find(".fa-plus").is(":visible")) {
+          $("#km-teamoverviewsubscriptions, .kontingent-title-txt").fadeIn();
+          $(this).find(".fa-plus").fadeToggle();
+          }
+        else {
+            $("#km-teamoverviewsubscriptions, .kontingent-title-txt").fadeOut();
+            $(this).find(".fa-plus").fadeToggle();
+        }
+      
+        
+            
+        });
+        
+  
+    if (document.location.href.toLowerCase().indexOf('schematic') > -1) {
+    $('#km-teamoverviewplan .team-item-wrapper').each(function() {
+      var timeslot = $(this).attr("hour");
+      $(this).appendTo($(this).parent().parent().find('.timeslot[timeslot*=' + timeslot + ']'));
+    });
+    
+    
+    for(var i = 0; i < 25; i++)
+    {
+    var hourx = i;
+        if ( hourx < 10 ) {
+            hourx = "0" + hourx;
+        } else {
+            hourx = hourx;
+        }
+    var timeheight = Math.max.apply(null, $('.timeslot[timeslot*=' + hourx + ']').map(function() {
+          return $(this).outerHeight(true);
+      }).get());
+    if (timeheight != 0) {
+      timeheight = timeheight + 5;
+    }
+    $('.timeslot[timeslot*=' + hourx + ']').css("height", timeheight + "px");
+	$('.clock .timeslot[timeslot*=' + hourx + ']').attr("vis", timeheight);
+    } 
+    
+    $('.clock .timeslot[vis="0"]').remove();
+	if ($(window).width() > 768) {
+		$('.clock').show();
+	}
+  }
+    
+    
+
+   
+    if ($(window).width() < 768) {
+        var colheight = Math.max.apply(null, $('.km-cardcol').map(function() {
+          return $(this).outerHeight(true);
+      }).get());    
+        $("#km-teamoverviewplan, #km-teamoverviewplan .km-cardcol").css("height", colheight + "px")
+    }
+    $(".team-item-wrapper").css("opacity", "1");
+  $(".km-card-inner").css("visibility", "visible");
+$('#mfilterclose').click(function() {
+  $("#mfiltersw").fadeOut();
+});
+  $('#filtersearch').click(function() {
+  $("#mfiltersw").fadeIn();
+});
+	
+	
+	   var typingTimer;
+        var typingDelay = 300; // 0.5 seconds delay
+        var visibleItems = [];
+
+        $('#searchInput').on('keyup', function() {
+            clearTimeout(typingTimer); // Reset the timer on every keyup
+            var searchTerm = $(this).val().toLowerCase();
+
+            typingTimer = setTimeout(function() {
+                // Capture the currently visible team-item-wrapper elements at the start of the search
+                if (visibleItems.length === 0) {
+                    visibleItems = $('.team-item-wrapper:visible').toArray();
+                }
+
+                $(visibleItems).each(function() {
+                    var wrapperText = $(this).text().toLowerCase();
+
+                    // If the text within the wrapper contains the search term, show it; otherwise, hide it.
+                    if (wrapperText.indexOf(searchTerm) !== -1) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            }, typingDelay);
+        });
+		$('#resetButton').on('click', function() {
+       $('#searchInput').val(''); // Empty the search input field
+        
+        // Show only the elements in visibleItems
+        $(visibleItems).show();
+        
+        // Clear the array after showing the visible items
+        visibleItems = [];
+    });
+        // Optional: Clear visibleItems array when the input is cleared
+        $('#searchInput').on('input, change', function() {
+            if ($(this).val() === '') {
+                visibleItems = []; // Reset the array when input is cleared
+                $('.team-item-wrapper').show(); // Show all items
+            }
+        });
+	
+	
+	
+	
+	
+	
+
+	
+	
+	
+	
+	
+	
+	function fitTrialHours() {
+
+    var $trialHours = $('.trialhour');
+
+    if (!$trialHours.length) {
+        return;
+    }
+
+    var $first = $trialHours.eq(0);
+    var firstEl = $first[0];
+
+    var maxFontSize = 12;
+    var minFontSize = 6;
+
+    var targetWidth = firstEl.getBoundingClientRect().width;
+    var currentFontSize = parseFloat($first.css('font-size'));
+
+    if (!targetWidth || !currentFontSize) {
+        return;
+    }
+
+    var originalStyle = $first.attr('style') || '';
+
+    $first.css({
+        position: 'absolute',
+        visibility: 'hidden',
+        width: 'auto',
+        maxWidth: 'none',
+        minWidth: '0',
+        whiteSpace: 'nowrap',
+        display: 'inline-block'
+    });
+
+    var nowrapWidth = firstEl.getBoundingClientRect().width;
+
+    var finalFontSize = Math.min(currentFontSize, maxFontSize);
+
+    if (nowrapWidth > targetWidth) {
+        finalFontSize = Math.floor(finalFontSize * (targetWidth / nowrapWidth));
+    }
+
+    if (finalFontSize < minFontSize) {
+        finalFontSize = minFontSize;
+    }
+
+    $first.attr('style', originalStyle);
+
+    $trialHours.css({
+        fontSize: finalFontSize + 'px',
+        whiteSpace: 'nowrap'
+    });
+
+}
+
+fitTrialHours();
+$(window).on('resize', fitTrialHours);
+	
+	
+	
+	
+	
+	
+	
+	
+	
+});
+  </script>
+  <script src="js/jquery-ui.js"></script>
+  <script type="text/javascript" src="js/pages/CMS/datepicker.js"></script>
+
+
+				</div>
+			</div>
+			<div id="holdidag" class="col-sm-5 col-xs-12 hideOnSub hide">
+				<div class="km-bg-blue">
+					<span>Hold i dag</span>
+					<span><div id="hid_search"><label for="hid_searchinput"></label><input type="text" id="hid_searchinput" placeholder='' /><span id="hid_searchbtn"><i class="fa-solid fa-search"></i></span>
+</div></span>
+				</div>
+				<div id="holdidagcontent"></div>
+			</div>
+		</div>
+	</div>
+</div>
+<!--  TEAMS  -->
+<div id='teams-bar' class="hideOnSub hide">
+	<div class='container'>
+		<div class='row'>
+			<div class='col-sm-12 col-xs-12'>
+				<h2 class="content-header">
+					<span>
+        			<a href="teamoverviewplan.aspx" class="km-txt-blue">
+        				Hold
+        			</a></span>
+        		</h2>
+			</div>
+			<div class='col-sm-12 col-xs-12'>
+				<div id="teams-content"></div>
+				 <div class="prev"> <span class="fa fa-chevron-left" aria-hidden="true"></span> </div>
+                    <div class="next"> <span class="fa fa-chevron-right" aria-hidden="true"></span> </div>
+			</div>
+		</div>
+	</div>
+</div>
+<!--  NEWS  -->
+<div id='news-bar' class="hideOnSub hide">
+	<div class='container'>
+		<div class='row'>
+			<div class='col-sm-12 col-xs-12'>
+				<h2 class="content-header">
+					<span>
+        			<a href="newsarchiveoverview.aspx" class="km-txt-blue">
+        				Nyheder
+        			</a></span>
+        		</h2>
+			</div>
+			<div class='col-sm-12 col-xs-12'>
+				<div id="news-content"></div>
+			</div>
+		</div>
+	</div>
+</div>
+<!--  FRAMES  -->
+<div id='frames-bar' class="hideOnSub">
+	<div class='container'>
+		<div class='row'>
+			<div class='col-sm-12 col-xs-12'>
+				<h2 class="content-header">
+        			<span class="km-txt-blue">
+        				Følg med
+        			</span>
+        		</h2>
+			</div>
+			<div class='col-sm-4 col-xs-12 shadow hide' id="facebook">
+				<a target="_blank" href="" class="km-bg-blue km-hover-blue-dark facebook-link">
+					Facebook
+				</a>
+				<div id="facebook-feed"></div>
+			</div>
+			<div class='col-sm-4 col-xs-12 shadow hide' id="events">
+				<a href="EventOverview.aspx" class="km-bg-blue km-hover-blue-dark">
+					Events
+				</a>
+				<div id="events-content"></div>
+			</div>
+			<div class='col-sm-4 col-xs-12 shadow hide' id="calendar">
+				<a href="activity.aspx" class="km-bg-blue km-hover-blue-dark">
+					Kalender
+				</a>
+				<div id="calendar-content"></div>
+			</div>
+		</div>
+	</div>
+</div>
+<!--  SPONSORS  -->
+<div id="sponsors" class="hide">
+    <div class="container">
+        <div class="row">
+        	<div class="col-sm-12 col-xs-12">
+        		<h2 class="content-header"><span>
+        			<a href="/cms/sponsorer.aspx" class="km-txt-blue">
+        				<span>Sponsorer</span>
+        			</a></span>
+        		</h2>
+        	</div>
+            <div class="col-sm-12 col-xs-12">
+                <div class="heroSlider-fixed">
+                    <div class="slider" id="sponsor-slider"> </div>
+                    <div class="prev"> <span class="fa fa-chevron-left" aria-hidden="true"></span> </div>
+                    <div class="next"> <span class="fa fa-chevron-right" aria-hidden="true"></span> </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="igembed" class="hide">
+	<div class="container">
+	<div class="row">
+    <div class="col-sm-12 col-xs-12">
+		<h2 class="content-header"><span>
+        			<span class="km-txt-blue">
+        				<i class="fa-brands fa-instagram km-blue"></i> Instagram
+        			</span></span>
+        		</h2>
+		</div></div></div>
+		<div class="row">
+    <div class="col-sm-12 col-xs-12">
+        <div class="heroSlider-fixed">
+            <div class="slider" id="ig-slider"></div>           
+        </div>
+    </div>
+	</div>
+</div>
+<div id="galembed" class="hide">
+	<div class="row">
+    <div class="col-sm-12 col-xs-12">
+        <div class="heroSlider-fixed">
+            <div class="slider" id="gallery-slider"></div>           
+        </div>
+    </div>
+	</div>
+</div>
+<!--  FOOTER  -->
+<footer class="km-bg-blue">
+	<div id="footer-top">
+		<div class="container">
+			<div class="row">
+				<div class="col-sm-12 col-xs-12">
+					<h2><span id='footerClubName'>Karateklubben Kyokushinkai København</span></h2>
+				</div>
+				<div class="col-sm-4 col-xs-12">
+					<h2>
+						<span>Find os her</span>
+					</h2>
+					<div class="footer-box">
+						<p>c/o Grøndal Multicenter, Hvidkildevej 64</p><p>2400  -  København NV</p><p style='display:none;' id='footer-cvrwrap'><span>CVR: </span><span id='footer-cvr'>74439314</span></p><p id='footer-phonewrap'>Tlf. <span id='footer-phone'></span></p><p id='footer-email'>Mail: <span>elantas@hotmail.com</span></p></span></p>
+						
+					</div>
+				</div>
+				<div class="col-sm-8 col-xs-12 km-border-blue-dark">
+					<h2>
+						<span>Nyttige links</span>
+					</h2>
+					<div class="footer-box" id="footer-links">
+                    	<div class="footer-link" style="display: none;">	
+                        	<a href="/cms/TeamOverviewAlt.aspx">
+                        		<i class="fa-solid fa-credit-card"></i>
+                            	<span>Medlemskab</span>
+                        	</a>
+                        </div>
+                        <div class="footer-link" style="display: none;">	
+                        	<a href="/cms/EventOverview.aspx">
+                        		<i class="fa-solid fa-calendar-plus"></i>
+                            	<span>Events</span>
+                        	</a>
+                        </div>
+                        <div class="footer-link" style="display: none;">	
+                        	<a href="/cms/newsarchiveoverview.aspx">
+                        		<i class="fa-solid fa-newspaper"></i>
+                            	<span>Nyheder</span>
+                        	</a>
+                        </div>
+		            	<div class="footer-link" style="display: none;">	
+		                	<a href="/cms/Activity.aspx">
+		                		<i class="far fa-calendar-alt"></i>
+		                    	<span>Kalender</span>
+		                	</a>
+		                </div>
+		                <div class="footer-link" style="display: none;">	
+		                	<a href="/cms/visbestyr.aspx">
+		                		<i class="far fa-users"></i>
+		                    	<span>Bestyrelse</span>
+		                	</a>
+		                </div>
+		                <div class="footer-link" style="display: none;">	
+		                	<a href="/cms/visinstruk.aspx">
+		                		<i class="far fa-whistle"></i>
+		                        <span style="display:none;">Instrukører</span>
+		                    	<span>Trænere</span>
+		                	</a>
+		                </div>
+		            	<div class="footer-link" style="display: none;">	
+		                	<a href="/cms/Terms.aspx">
+		                		<i class="far fa-file-alt"></i>
+		                    	<span>Betingelser</span>
+		                	</a>
+		                </div>
+		                <div class="footer-link" style="display: none;">	
+		                	<a href="/cms/gdpr.aspx">
+		                		<i class="far fa-handshake"></i>
+		                    	<span>Privatlivspolitik</span>
+		                	</a>
+		                </div>
+		                <div class="footer-link" style="display: none;">	
+		                	<a href="/cms/Gallery.aspx">
+		                		<i class="far fa-images"></i>
+		                    	<span>Galleri</span>
+		                	</a>
+		                </div>
+		                <div class="footer-link" style="display: none;">	
+		                	<a href="/cms/Forum.aspx">
+		                		<i class="far fa-comments"></i>
+		                    	<span>Forum</span>
+		                	</a>
+		                </div>
+		                <div class="footer-link" style="display: none;">	
+		                	<a href="/cms/ProfileMaintainBooking.aspx">
+		                		<i class="far fa-sign-in-alt"></i>
+		                    	<span>Booking</span>
+		                	</a>
+		                </div>
+		                <div class="footer-link" style="display: none;">	
+		                	<a href="/cms/ShopOverview.aspx">
+		                		<i class="far fa-cart-arrow-down"></i>
+		                    	<span>Shop</span>
+		                	</a>
+		                </div>
+		                <div class="footer-link" style="display: none;">	
+		                	<a href="/cms/activity.aspx?CalendarType=Agenda">
+		                		<i class="far fa-calendar-alt"></i>
+		                    	<span>Agenda</span>
+		                	</a>
+		                </div>
+		                <div class="footer-link" style="display: none;">	
+		                	<a href="/cms/EventOverviewList.aspx">
+		                		<i class="far fa-calendar-plus"></i>
+		                    	<span>Event - Tabelvisning</span>
+		                	</a>
+		                </div>
+		                <div class="footer-link" style="display: none;">	
+		                	<a href="/cms/HallPlanShow.aspx">
+		                		<i class="far fa-map-marked-alt"></i>
+		                    	<span>Halplan</span>
+		                	</a>
+		                </div>
+		                <div class="footer-link" style="display: none;">	
+		                	<a href="/cms/RentalOverview.aspx">
+		                		<i class="far fa-racquet"></i>
+		                    	<span>Baneleje</span>
+		                	</a>
+		                </div>
+		                <div class="footer-link" style="display: none;">	
+		                	<a href="/cms/visluk.aspx">
+		                		<i class="far fa-calendar-minus"></i>
+		                    	<span>Lukkedage</span>
+		                	</a>
+		                </div>
+		                <div class="footer-link" style="display: none;">	
+		                	<a href="/cms/TeamOverviewProgramList.aspx">
+		                		<i class="fa-solid fa-arrow-right"></i>
+		                    	<span>Holdtilmelding - Tabelvisning</span>
+		                	</a>
+		                </div>
+		                <div class="footer-link" style="display: none;">	
+		                	<a href="/cms/ProfilePlaygroundBooking.aspx">
+		                		<i class="far fa-tennis-ball"></i>
+		                    	<span>Banebooking</span>
+		                	</a>
+		                </div>
+
+
+
+
+
+
+
+
+
+		                <!--
+		            	<div id="footer-facebook" class="footer-link" style="display: none;">
+		                	<a href="">
+		                		<i class="fa fa-facebook-official"></i>
+		                    	<span>Facebook</span>
+		                	</a>
+		                </div>
+		                <div id="footer-instagram" class="footer-link" style="display: none;">
+		                	<a href="">
+		                		<i class="fa fa-instagram"></i>
+		                    	<span>Instagram</span>
+		                	</a>
+		                </div>
+		                <div id="footer-youtube" class="footer-link" style="display: none;">
+		                	<a href="">
+		                		<i class="fa fa-youtube-square"></i>
+		                    	<span>Youtube</span>
+		                	</a>
+		                </div>
+		            	-->
+		            </div>
+	            </div>
+			</div>
+		</div>
+	</div>
+	<div id='footer-bottom' class="km-bg-blue-dark">
+		<div class='container'>
+			<div class='row'>
+				<div class="col-sm-12 col-xs-12">
+					
+					<div id="klubmodul">
+						<a href="https://klubmodul.dk" target="_blank" title=''><img src="clubkarateklub/images/kmw.png" border="0" /></a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</footer>
+<div id="google-maps" class="hide">
+	<iframe src="" width="100%" height="350" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+</div>
+			</div>
+			<!--  JAVASCRIPT START  -->
+			<script type="text/javascript">
+				(function() {
+					var home = location.protocol + "//" + location.host;
+
+					/*
+					* KLUBMODUL DESIGN VARIABLES
+					*/
+					window.km = {
+						urls: {
+							banners: home + "/cms/cmsbannerandsponsoriframe.aspx?isbanner=true",
+							news: home + "/cms/NewsTenMostRecentIframeOverview.aspx",
+							facebook: "https://www.facebook.com/profile.php?id=100057520776571",
+							//instagram: "",
+							//youtube: "",
+							events: home + "/cms/EventIframeOverviewImg.aspx",
+							calendar: home + "/cms/CalendarEventFiveMostRecentIframeOverview.aspx",
+							sponsors: home + "/cms/cmsbannerandsponsoriframe.aspx?issponsor=true",
+
+							/* GOOGLE */
+							maps: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2766.5166753307612!2d12.51338457716183!3d55.70039709602611!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x465252357f346ffd%3A0xb8b61f96bdf0487b!2sKarateklubben%20Kyokushinkai%20K%C3%B8benhavn!5e1!3m2!1sda!2sae!4v1708331025136!5m2!1sda!2sae"
+						},
+						info: {
+							email: "info@karateklub.com",
+							bannertext: '<img src="clubkarateklub/images/logo-karate.svg" /><br><a href="teamoverviewalt.aspx"><img src="clubkarateklub/images/knap-blivmedlem.png" /></a>',
+							news: 2,
+						},
+						overwrite: {
+							/*
+							banners: function() {
+								console.log("banners");
+							},
+							news: function() {
+								console.log("news");
+							},
+							events: function() {
+								console.log("events");
+							},
+							calendar: function() {
+								console.log("calendar");
+							},
+							sponsors: function() {
+								console.log("sponsors");
+							},
+							facebook: function() {
+								console.log("facebook");
+							}
+							*/
+						},
+						callbacks: {
+							igembed: function() {
+								$("#igembed > div.container > div > div > h2 > span > a > span").html('<i class="fa-brands fa-instagram km-blue"></i> Følg med på vores instagram @kyokushinkai.copenhagen');
+								$("#igembed > div.container > div > div > h2").css("opacity", "1")
+							},
+							/*
+							banners: function() {
+								console.log("banners");
+							},
+							news: function() {
+								console.log("news");
+							},
+							events: function() {
+								console.log("events");
+							},
+							calendar: function() {
+								console.log("calendar");
+							},
+							sponsors: function() {
+								console.log("sponsors");
+							},
+							facebook: function() {
+								console.log("facebook");
+							}
+							*/
+						},
+						menu: true,
+						igembed:true,
+						fbembed: true,
+						seccolor: "#fe554a",
+						translations: (window.km.translations != undefined) ? window.km.translations : {}
+					};
+				})();
+
+				/* WINDOW LOAD */
+				$(window).ready(function() {
+					/* GET THE CLUBNAME */
+					$("#menuHeaderClubName").html($("#footerClubName").html());
+
+					/* SHOW/HIDE PAGES */
+					if (document.location.href.toLowerCase().indexOf('default.aspx') > -1) {
+						
+						$(".hideOnSub").show();
+						$(".hideOnFront").remove();
+					}else {
+						$("#banner").css({
+							height: "200px"
+						});
+						$("#banner-overlay").hide();
+						$("#menuBar").css({
+							top: "200px"
+						});
+					}
+
+					/* CLUBNAME ON MOBILE DEVICES */
+					if($("#menuHeaderClubName") && $("#menuHeaderClubName").html().length >= 15) {
+						$("#menuHeaderClubName").css({
+							"font-size": "14px",
+							"line-height": "16px"
+						});
+					}
+				});
+
+				/* GOOGLE ANALYTICS */
+				if(Cookies.get('cb-enabled') == "accepted" && Cookies.get('kmga') != "false" ){
+					(function(i, s, o, g, r, a, m) {
+					    i['GoogleAnalyticsObject'] = r;
+					    i[r] = i[r] || function() {
+					        (i[r].q = i[r].q || []).push(arguments)
+					    }, i[r].l = 1 * new Date();
+					    a = s.createElement(o),
+					        m = s.getElementsByTagName(o)[0];
+					    a.async = 1;
+					    a.src = g;
+					    m.parentNode.insertBefore(a, m)
+					})(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+					ga('create', 'UA-45962025-1', 'klubmodul.dk');
+					ga('send', 'pageview');
+				}
+			</script>
+			<script type="text/javascript">
+				function getUrlParameter(sParam) {
+				    var sPageURL = window.location.search.substring(1);
+				    var sURLVariables = sPageURL.split('&');
+				    for (var i = 0; i < sURLVariables.length; i++) {
+				        var sParameterName = sURLVariables[i].split('=');
+				        if (sParameterName[0] == sParam) {
+				            return sParameterName[1];
+				        }
+				    }
+				}
+			</script>
+				<script src="../cms/include/color/corecolors.js"></script>
+		
+<script type='text/javascript'>new Sys.WebForms.Menu({ element: 'menu', disappearAfter: 500, orientation: 'horizontal', tabIndex: 0, disabled: false });</script></form>
+	</body>
+</html>
