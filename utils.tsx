@@ -68,7 +68,7 @@ const rruleWeekdaysByFullDanishName: Record<string, Weekday> = {
   søndag: RRule.SU,
 };
 export const danishWeekDayRE =
-  /(mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)/i;
+  /\b(mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)e?\b/i;
 const danishWeekDayREG = new RegExp(
   danishWeekDayRE.source,
   danishWeekDayRE.flags + "g",
@@ -360,12 +360,40 @@ export function parseClassesSchedulesTree(
   // Context flows from a node down into its nested arrays; within a node,
   // items are read in order, and a class is added as soon as an item
   // completes weekdays + timeRange + className.
+  const isWeekdayList = (item: TextTree): item is [string, ...string[]] =>
+    Array.isArray(item) &&
+    item.every((s) => typeof s === "string" && danishWeekDayRE.test(s));
+  const isTimeList = (item: TextTree): item is [string, ...string[]] =>
+    Array.isArray(item) &&
+    item.every((s) => typeof s === "string" && timeRangeRE.test(s));
+
+  // Table columns: ["Tirsdag", "Torsdag"], ["17:00-18:30", "18:30-20:00"]
+  // become rows: ["Tirsdag", "17:00-18:30"], ["Torsdag", "18:30-20:00"]
+  const zipColumns = (node: TextTree[]): TextTree[] => {
+    const result: TextTree[] = [];
+    for (let i = 0; i < node.length; i++) {
+      const days = node[i];
+      const times = node[i + 1];
+      if (
+        isWeekdayList(days) &&
+        isTimeList(times) &&
+        days.length === times.length
+      ) {
+        result.push(...days.map((day, j) => [day, times[j]] as TextTree));
+        i++;
+      } else {
+        result.push(days);
+      }
+    }
+    return result;
+  };
+
   function visit(node: TextTree[], inherited: Context) {
     const data: Context = { ...inherited };
     // Classes added by the previous line, for instructors listed right after
     let justAdded: ParsedClass[] = [];
 
-    for (const item of node) {
+    for (const item of zipColumns(node)) {
       const previous = justAdded;
       justAdded = [];
 
@@ -1202,6 +1230,98 @@ if (import.meta.vitest) {
           nextEnd: new Date("2026-12-03T18:30:00.000Z"),
           rankRange: { min: -10.5, max: null },
           ageRange: { min: 17, max: null },
+        },
+      ]);
+    });
+    it("should handle aarhus.ashihara.dk HTML structure", async () => {
+      const parsedSchedules = renderClasses(
+        readFileSync("./aarhus.ashihara.dk.html", "utf-8"),
+        new Date("2026-11-28T00:30:00.000Z"),
+      );
+      expect(
+        parsedSchedules.sort(
+          (a, b) => a.nextStart.getTime() - b.nextStart.getTime(),
+        ),
+      ).toEqual([
+        {
+          className: "Kamptræning",
+          weekday: "SA",
+          nextStart: new Date("2026-11-28T09:00:00.000Z"),
+          nextEnd: new Date("2026-11-28T10:30:00.000Z"),
+          ageRange: { min: null, max: null },
+          rankRange: { min: -10.5, max: null },
+        },
+        {
+          className: "Børnehold",
+          weekday: "MO",
+          nextStart: new Date("2026-11-30T16:00:00.000Z"),
+          nextEnd: new Date("2026-11-30T17:15:00.000Z"),
+          ageRange: { min: null, max: null },
+          rankRange: { min: null, max: -11 },
+        },
+        {
+          className: "Viderekommende",
+          weekday: "MO",
+          nextStart: new Date("2026-11-30T17:30:00.000Z"),
+          nextEnd: new Date("2026-11-30T19:00:00.000Z"),
+          ageRange: { min: null, max: null },
+          rankRange: { min: -10.5, max: null },
+        },
+        {
+          className: "Begynderhold",
+          weekday: "TU",
+          nextStart: new Date("2026-12-01T16:00:00.000Z"),
+          nextEnd: new Date("2026-12-01T17:30:00.000Z"),
+          ageRange: { min: null, max: null },
+          rankRange: { min: -10.5, max: null },
+        },
+        {
+          className: "Øvede",
+          weekday: "TU",
+          nextStart: new Date("2026-12-01T16:00:00.000Z"),
+          nextEnd: new Date("2026-12-01T17:30:00.000Z"),
+          ageRange: { min: null, max: null },
+          rankRange: { min: -10, max: null },
+        },
+        {
+          className: "Juniorhold",
+          weekday: "WE",
+          nextStart: new Date("2026-12-02T16:00:00.000Z"),
+          nextEnd: new Date("2026-12-02T17:30:00.000Z"),
+          ageRange: { min: null, max: null },
+          rankRange: { min: -10.5, max: null },
+        },
+        {
+          className: "Onsdagstræning",
+          weekday: "WE",
+          nextStart: new Date("2026-12-02T17:30:00.000Z"),
+          nextEnd: new Date("2026-12-02T19:00:00.000Z"),
+          ageRange: { min: null, max: null },
+          rankRange: { min: -10.5, max: null },
+        },
+        {
+          className: "Begynderhold",
+          weekday: "TH",
+          nextStart: new Date("2026-12-03T16:00:00.000Z"),
+          nextEnd: new Date("2026-12-03T17:30:00.000Z"),
+          ageRange: { min: null, max: null },
+          rankRange: { min: -10.5, max: null },
+        },
+        {
+          className: "Øvede",
+          weekday: "TH",
+          nextStart: new Date("2026-12-03T16:00:00.000Z"),
+          nextEnd: new Date("2026-12-03T17:30:00.000Z"),
+          ageRange: { min: null, max: null },
+          rankRange: { min: -10, max: null },
+        },
+        {
+          className: "Viderekommende",
+          weekday: "TH",
+          nextStart: new Date("2026-12-03T16:00:00.000Z"),
+          nextEnd: new Date("2026-12-03T17:30:00.000Z"),
+          ageRange: { min: null, max: null },
+          rankRange: { min: -10.5, max: null },
         },
       ]);
     });

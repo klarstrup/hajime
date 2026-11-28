@@ -10,11 +10,13 @@ import type {
   LoadParams,
 } from "./sourceTypes";
 import {
+  fetch$,
   fetchHoldsportEvents,
   fetchIcsEvents,
   fetchJson,
   fetchKlubModul,
 } from "./sourceUtils";
+import { renderClasses } from "@/utils";
 
 export const eventsSources = (
   [
@@ -460,6 +462,12 @@ export const eventsSources = (
       websiteUrl: "https://aarhus.ashihara.dk/",
       calendarUrl: "https://aarhus.ashihara.dk/kalender/",
       classesUrl: "https://aarhus.ashihara.dk/traening-og-hold/",
+      loadClasses: async function* ({ now }: { now: Date }) {
+        yield* renderClasses(
+          await fetch$("https://aarhus.ashihara.dk/traening-og-hold/"),
+          now,
+        );
+      },
     },
     {
       sourceId: "ashihara-karate-frederiksberg",
