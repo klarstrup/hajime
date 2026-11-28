@@ -1,13 +1,7 @@
 import { TZDate } from "@date-fns/tz";
-import { nlp } from "../../app/nlp";
-import { danishWeekDayRE, render, timeRangeRE2 } from "../../utils";
+import { parseClassesSchedulesTree, renderToNestedLines } from "../../utils";
 import type { LoadParams } from "../sourceTypes";
-import {
-  fetch$,
-  fetchHoldsportEvents,
-  fetchKlubModul,
-  parseClassesSchedulesLines,
-} from "../sourceUtils";
+import { fetch$, fetchHoldsportEvents, fetchKlubModul } from "../sourceUtils";
 
 export const iogkfSources = [
   {
@@ -17,44 +11,17 @@ export const iogkfSources = [
     federation: ["iogkf"],
     classesUrl: "https://risskovkarateskole.dk/",
     async *loadClasses({ now }: { now: Date }) {
-      const $res = await fetch$("https://risskovkarateskole.dk/");
-      const times = $res(".fl-accordion-content").filter((_, el) =>
-        danishWeekDayRE.test(render($res(el))),
+      yield* parseClassesSchedulesTree(
+        renderToNestedLines(await fetch$("https://risskovkarateskole.dk/")),
+        now,
       );
-      times.find("br").replaceWith("\n");
-
-      const holdLines = nlp
-        .readDoc(
-          render(times)
-            .replace(/(\d+)\./gi, "$1[DOT]")
-            .replace(/(min)\. (\d+)/gi, "$1[DOT] $2")
-            .replace(/(Kl)\. (\d+)/gi, "$1[DOT] $2"),
-        )
-        .sentences()
-        .out()
-        // TODO: hopelessly optimistic, we should be able to parse the line in full
-        .flatMap((line) => line.split("træner"))
-        .flatMap((s) => s.replace(/\[DOT\]/g, ".").split(/\n/))
-        // split [HH:MM]: [CLASS] strings into separate lines
-        .flatMap((line) =>
-          line.toLowerCase().startsWith("kl.")
-            ? line
-                .split(timeRangeRE2)
-                .filter((s) => s && s.toLowerCase().trim() !== "kl.")
-            : line,
-        )
-        .map((line) => line.trim().replace(/^: ?/, "").replace(/\.$/, ""))
-        // TODO: brittle
-        .slice(3);
-
-      yield* parseClassesSchedulesLines(holdLines, now);
     },
   },
   {
     sourceId: "sax-karatecenter",
     type: "club",
     name: "Sax-Karatecenter",
-    federation: ["iogkf","dif"],
+    federation: ["iogkf", "dif"],
     calendarUrl: "https://saxkarate.dk/cms/Activity.aspx",
     loadEvents: (loadParams: LoadParams) =>
       fetchKlubModul("https://saxkarate.dk/cms/", loadParams),

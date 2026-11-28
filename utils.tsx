@@ -409,7 +409,11 @@ export function parseClassesSchedulesTree(
         .replace(danishWeekDayREG, "")
         .replace(timeRange && timeMatch ? timeMatch[0] : "", "")
         .replace(/\bkl\.?(?=\s|$)/gi, "")
-        .replace(/^[\s:,.–-]+|[\s:,.–-]+$/g, "")
+        .replace(/\s+/g, " ")
+        // Connectors left dangling once weekdays and times are removed:
+        // "Voksne træner mandag og torsdag kl. 18-19" -> "Voksne træner og"
+        .replace(/^(?:[\s:,.–-]|(?:og|samt|hver)\b)+/i, "")
+        .replace(/(?:[\s:,.–-]|\b(?:og|samt|hver|træner|på|om|i)\b)+$/i, "")
         .trim();
       if (genericHeadings.has(rest.toLowerCase())) {
         data.className = undefined;
@@ -1156,6 +1160,52 @@ if (import.meta.vitest) {
           },
         ].sort((a, b) => a.nextStart.getTime() - b.nextStart.getTime()),
       );
+    });
+    it("should handle risskovkarateskole.dk HTML structure", async () => {
+      const parsedSchedules = parseClassesSchedulesTree(
+        renderToNestedLines(
+          readFileSync("./risskovkarateskole.dk.html", "utf-8"),
+        ),
+        new Date("2026-11-28T00:30:00.000Z"),
+      );
+      expect(
+        parsedSchedules.sort(
+          (a, b) => a.nextStart.getTime() - b.nextStart.getTime(),
+        ),
+      ).toEqual([
+        {
+          className: "Børn og juniorer (til og med 16 år)",
+          weekday: "MO",
+          nextStart: new Date("2026-11-30T16:00:00.000Z"),
+          nextEnd: new Date("2026-11-30T17:00:00.000Z"),
+          rankRange: { min: null, max: -11 },
+          ageRange: { min: null, max: 16 },
+        },
+        {
+          className: "Voksne (fra 17 år)",
+          weekday: "MO",
+          nextStart: new Date("2026-11-30T17:00:00.000Z"),
+          nextEnd: new Date("2026-11-30T18:30:00.000Z"),
+          rankRange: { min: -10.5, max: null },
+          ageRange: { min: 17, max: null },
+        },
+        {
+          className: "Børn og juniorer (til og med 16 år)",
+          weekday: "TH",
+          nextStart: new Date("2026-12-03T16:00:00.000Z"),
+          nextEnd: new Date("2026-12-03T17:00:00.000Z"),
+          rankRange: { min: null, max: -11 },
+          ageRange: { min: null, max: 16 },
+        },
+        {
+          className: "Voksne (fra 17 år)",
+          weekday: "TH",
+          nextStart: new Date("2026-12-03T17:00:00.000Z"),
+          nextEnd: new Date("2026-12-03T18:30:00.000Z"),
+          rankRange: { min: -10.5, max: null },
+          ageRange: { min: 17, max: null },
+        },
+      ]);
     });
   });
 }
