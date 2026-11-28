@@ -54,6 +54,12 @@ export const dkuSources = [
     type: "club",
     federation: ["dku"],
     classesUrl: "https://www.ballerupkyokushin.dk/programmer",
+    async *loadClasses({ now }: { now: Date }) {
+      yield* await fetchClasses(
+        "https://www.ballerupkyokushin.dk/programmer",
+        now,
+      );
+    },
   },
   {
     sourceId: "enso-people-karate",
@@ -75,6 +81,12 @@ export const dkuSources = [
     federation: ["dku"],
     classesUrl:
       "https://www.billund-if.dk/afdeling_karate/dk/schedule-location/",
+    async *loadClasses({ now }: { now: Date }) {
+      yield* await fetchClasses(
+        "https://www.billund-if.dk/afdeling_karate/dk/schedule-location/",
+        now,
+      );
+    },
   },
   {
     sourceId: "graasten-karate-klub",
@@ -110,6 +122,13 @@ export const dkuSources = [
     type: "club",
     federation: ["dku"],
     classesUrl: "https://aarhusshinkyokushinkarate.dk/?page_id=1361",
+    async *loadClasses({ now }: { now: Date }) {
+      yield* await fetchClasses(
+        "https://aarhusshinkyokushinkarate.dk/?page_id=1361",
+        now,
+        { className: "Træning" },
+      );
+    },
   },
   {
     sourceId: "middelfart-karate-klub",
@@ -231,6 +250,7 @@ export const dkuSources = [
     type: "club",
     federation: ["dku", "dgi"],
     calendarUrl: "https://karateklub.com/cms/Activity.aspx",
+    classesUrl: "https://karateklub.com/traening-og-hold",
     loadEvents: (loadParams: LoadParams) =>
       fetchKlubModul("https://karateklub.com/cms/", loadParams),
   },

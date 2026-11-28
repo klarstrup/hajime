@@ -329,9 +329,16 @@ interface ParsedClass {
   instructors?: string[];
 }
 
+export interface ParseClassesOptions {
+  // Use this name for every class, for pages that don't name their classes:
+  // "mandag fra 18.00 til 19.30 i lokale 1.1"
+  className?: string;
+}
+
 export function parseClassesSchedulesTree(
   tree: TextTree[],
   now: Date,
+  options: ParseClassesOptions = {},
 ): ParsedClass[] {
   const classes: ParsedClass[] = [];
 
@@ -351,17 +358,29 @@ export function parseClassesSchedulesTree(
     "træningstid",
     "træningsskema",
     "tider",
-    "tider og priser",
     "hold",
     "vores hold",
     "holdoversigt",
     "holdplan",
     "skema",
+    "priser",
+    "sted",
+    "tid og sted",
+    "schedule",
+    "timetable",
+    "training times",
+    "location",
     // Navigation that ends up above everything
     "skip to content",
     "spring til indhold",
     "gå til indhold",
   ]);
+  // Also headings made of several: "Tider og priser", "Schedule/ Location"
+  const isGenericHeading = (text: string) =>
+    text
+      .toLowerCase()
+      .split(/\s*[/&]\s*|\s+(?:og|and)\s+/)
+      .every((part) => genericHeadings.has(part));
 
   // "Sensei A og Senpai B", "Instruktør: A, B", "Forskellige instruktører"
   const parseInstructors = (line: string): string[] | null => {
@@ -425,7 +444,7 @@ export function parseClassesSchedulesTree(
     !/^([a-zæøå][^\s:]*):|^alder\b|^@|^\(.*\)$/i.test(item) &&
     !/[.!?]\s+[A-ZÆØÅ]/.test(item) &&
     !/[a-zæøå]\.$/i.test(item) &&
-    !genericHeadings.has(item.toLowerCase());
+    !isGenericHeading(item);
 
   function visit(node: TextTree[], inherited: Context) {
     const data: Context = { ...inherited };
@@ -435,16 +454,24 @@ export function parseClassesSchedulesTree(
     let namedHere = false;
     // A name set in this node that no class has used yet
     let nameUnused = false;
+    // The heading above this node, until a generic heading cuts it off
+    let inheritedName = inherited.className;
 
     const items = zipColumns(node);
-    for (const [index, item] of items.entries()) {
+    for (const [index, entry] of items.entries()) {
       const previous = justAdded;
       justAdded = [];
 
-      if (Array.isArray(item)) {
-        visit(item, data);
+      if (Array.isArray(entry)) {
+        visit(entry, data);
         continue;
       }
+
+      // "fra 18.00 til 19.30" -> "18.00-19.30"
+      const item = entry.replace(
+        /\b(?:fra\s+)?(\d{1,2}[:.]\d{2})\s+til\s+(\d{1,2}[:.]\d{2})\b/gi,
+        "$1-$2",
+      );
 
       const instructors = parseInstructors(item);
       if (instructors) {
@@ -455,7 +482,10 @@ export function parseClassesSchedulesTree(
       // First time range in the line that isn't an age range ("4 – 10 år")
       const timeMatch = Array.from(
         item.matchAll(new RegExp(timeRangeRE, "g")),
-      ).find((m) => !/^\s*år/i.test(item.slice(m.index + m[0].length)));
+      ).find(
+        (m) =>
+          !/^\s*(?:år|years?|yrs?)\b/i.test(item.slice(m.index + m[0].length)),
+      );
       const timeRange = timeMatch && safeParseTimeRange(timeMatch[0], now);
 
       // Text after the time as its own sentence names the instructors:
@@ -525,8 +555,11 @@ export function parseClassesSchedulesTree(
         .replace(/^(?:[\s:,.–-]|(?:og|samt|hver)\b)+/i, "")
         .replace(/(?:[\s:,.–-]|\b(?:og|samt|hver|træner|på|om|i)\b)+$/i, "")
         .trim();
-      if (genericHeadings.has(rest.toLowerCase())) {
+      if (isGenericHeading(rest)) {
+        // A new section starts: nothing named above it applies
         data.className = undefined;
+        inheritedName = undefined;
+        nameUnused = false;
         continue;
       }
 
@@ -540,6 +573,7 @@ export function parseClassesSchedulesTree(
       // like: ["Nybegynder", "Idrætslokale 1", "Mandag kl. 18-19.30"]
       const isSubtitle = nameUnused && !timeRange;
       if (
+        !options.className &&
         rest &&
         !isLabeled &&
         !isSentence &&
@@ -552,8 +586,8 @@ export function parseClassesSchedulesTree(
         // Nested names qualify the heading above them: "Kidzz" > "3-5 år",
         // unless a weekday came in between: "Træningstider" > "Tirsdag" > "Børn"
         data.className =
-          inherited.className && inherited.classNameWeekdays === data.weekdays
-            ? `${inherited.className}, ${rest}`
+          inheritedName && inherited.classNameWeekdays === data.weekdays
+            ? `${inheritedName}, ${rest}`
             : rest;
         data.classNameWeekdays = data.weekdays;
         namedHere = true;
@@ -567,12 +601,14 @@ export function parseClassesSchedulesTree(
         }
       }
 
-      const { weekdays: days, timeRange: range, className } = data;
+      const { weekdays: days, timeRange: range } = data;
+      const className = options.className ?? data.className;
       if (!lastSet || !days || !range || !className) continue;
       // A time before its name: ["18:00 – 19:00:", "Mon hold"]
       if (
         lastSet === "timeRange" &&
         !namedHere &&
+        !options.className &&
         isPlainName(items[index + 1])
       ) {
         continue;
@@ -606,7 +642,8 @@ export function parseClassesSchedulesTree(
 export const renderClasses = (
   node: Parameters<typeof renderTextTree>[0],
   now: Date,
-) => parseClassesSchedulesTree(renderTextTree(node), now);
+  options?: ParseClassesOptions,
+) => parseClassesSchedulesTree(renderTextTree(node), now, options);
 
 function walk(
   root: AnyNode,
@@ -623,7 +660,11 @@ export function getAgeAndRankFromClassName(className: string): {
   ageRange: { min: number | null; max: number | null };
   rankRange: { min: number | null; max: number | null };
 } {
-  className = className.trim().replace("kyu junior", "mon");
+  className = className
+    .trim()
+    .replace("kyu junior", "mon")
+    // "6-16 year old", "16+ years old"
+    .replace(/\b(?:years?|yrs?)(?: old)?\b/gi, "år");
   const lClassName = className.toLowerCase();
 
   const ageIndices: number[] = [];

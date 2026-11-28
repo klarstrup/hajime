@@ -1173,6 +1173,131 @@ describe("parseClassesSchedulesTree", async () => {
       },
     ]);
   });
+  it("should handle ballerupkyokushin.dk HTML structure", async () => {
+    const parsedSchedules = renderClasses(
+      fixture("ballerupkyokushin.dk.html"),
+      new Date("2026-11-28T00:30:00.000Z"),
+    );
+    expect(
+      parsedSchedules.sort(
+        (a, b) => a.nextStart.getTime() - b.nextStart.getTime(),
+      ),
+    ).toEqual([
+      {
+        className: "Begyndere",
+        weekday: "TU",
+        nextStart: new Date("2026-12-01T16:30:00.000Z"),
+        nextEnd: new Date("2026-12-01T17:30:00.000Z"),
+        ageRange: { min: null, max: null },
+        rankRange: { min: -10.5, max: null },
+      },
+      {
+        className: "Øvede",
+        weekday: "TU",
+        nextStart: new Date("2026-12-01T16:30:00.000Z"),
+        nextEnd: new Date("2026-12-01T18:00:00.000Z"),
+        ageRange: { min: null, max: null },
+        rankRange: { min: -10, max: null },
+      },
+      {
+        className: "Begyndere",
+        weekday: "TH",
+        nextStart: new Date("2026-12-03T16:30:00.000Z"),
+        nextEnd: new Date("2026-12-03T17:30:00.000Z"),
+        ageRange: { min: null, max: null },
+        rankRange: { min: -10.5, max: null },
+      },
+      {
+        className: "Øvede",
+        weekday: "TH",
+        nextStart: new Date("2026-12-03T16:30:00.000Z"),
+        nextEnd: new Date("2026-12-03T18:00:00.000Z"),
+        ageRange: { min: null, max: null },
+        rankRange: { min: -10, max: null },
+      },
+    ]);
+  });
+  it("should handle billund-if.dk HTML structure", async () => {
+    const parsedSchedules = renderClasses(
+      fixture("billund-if.dk.html"),
+      new Date("2026-11-28T00:30:00.000Z"),
+    );
+    expect(
+      parsedSchedules.sort(
+        (a, b) => a.nextStart.getTime() - b.nextStart.getTime(),
+      ),
+    ).toEqual([
+      {
+        className: "Children (6-16 year old)",
+        weekday: "TU",
+        nextStart: new Date("2026-12-01T16:30:00.000Z"),
+        nextEnd: new Date("2026-12-01T18:00:00.000Z"),
+        ageRange: { min: 6, max: 16 },
+        rankRange: { min: -10.5, max: null },
+      },
+      {
+        className: "Adults (16+ years old)",
+        weekday: "TU",
+        nextStart: new Date("2026-12-01T16:30:00.000Z"),
+        nextEnd: new Date("2026-12-01T18:00:00.000Z"),
+        ageRange: { min: 16, max: null },
+        rankRange: { min: -10.5, max: null },
+      },
+      {
+        className: "Children (6-16 year old)",
+        weekday: "TH",
+        nextStart: new Date("2026-12-03T16:00:00.000Z"),
+        nextEnd: new Date("2026-12-03T17:30:00.000Z"),
+        ageRange: { min: 6, max: 16 },
+        rankRange: { min: -10.5, max: null },
+      },
+      {
+        className: "Adults (16+ years old)",
+        weekday: "TH",
+        nextStart: new Date("2026-12-03T16:00:00.000Z"),
+        nextEnd: new Date("2026-12-03T17:30:00.000Z"),
+        ageRange: { min: 16, max: null },
+        rankRange: { min: -10.5, max: null },
+      },
+    ]);
+  });
+  it("should handle aarhusshinkyokushinkarate.dk HTML structure", async () => {
+    const parsedSchedules = renderClasses(
+      fixture("aarhusshinkyokushinkarate.dk.html"),
+      new Date("2026-11-28T00:30:00.000Z"),
+      { className: "Træning" },
+    );
+    expect(
+      parsedSchedules.sort(
+        (a, b) => a.nextStart.getTime() - b.nextStart.getTime(),
+      ),
+    ).toEqual([
+      {
+        className: "Træning",
+        weekday: "MO",
+        nextStart: new Date("2026-11-30T17:00:00.000Z"),
+        nextEnd: new Date("2026-11-30T18:30:00.000Z"),
+        ageRange: { min: null, max: null },
+        rankRange: { min: -10.5, max: null },
+      },
+      {
+        className: "Træning",
+        weekday: "TU",
+        nextStart: new Date("2026-12-01T19:00:00.000Z"),
+        nextEnd: new Date("2026-12-01T20:00:00.000Z"),
+        ageRange: { min: null, max: null },
+        rankRange: { min: -10.5, max: null },
+      },
+      {
+        className: "Træning",
+        weekday: "TH",
+        nextStart: new Date("2026-12-03T17:30:00.000Z"),
+        nextEnd: new Date("2026-12-03T19:00:00.000Z"),
+        ageRange: { min: null, max: null },
+        rankRange: { min: -10.5, max: null },
+      },
+    ]);
+  });
 });
 
 describe("getRRuleWeekdaysByFullDanishName", () => {
