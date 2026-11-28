@@ -350,6 +350,7 @@ export function parseClassesSchedulesTree(
     // The weekdays in effect when className was set, to tell whether a
     // weekday came between a heading and a nested name
     classNameWeekdays?: Weekday[];
+    instructors?: string[];
   }
 
   // Headings that introduce a schedule rather than name a class
@@ -384,7 +385,9 @@ export function parseClassesSchedulesTree(
 
   // "Sensei A og Senpai B", "Instruktør: A, B", "Forskellige instruktører"
   const parseInstructors = (line: string): string[] | null => {
-    const labeled = /^instruktø(?:r|rer)\s*:\s*(.+)$/i.exec(line)?.[1];
+    const labeled = /^(?:instruktø(?:r|rer)|undervisere?)\s*:\s*(.+)$/i.exec(
+      line,
+    )?.[1];
     // A title followed by a capitalised name; "Senpai hold" is a class
     const initial =
       /^(?:sensei|senpai|senpei|sempai|shihan|hanshi|kyoshi|renshi)\s+(\S)/i.exec(
@@ -398,7 +401,8 @@ export function parseClassesSchedulesTree(
   };
   const splitInstructors = (names: string) =>
     names
-      .replace(/\.$/, "")
+      // A full stop ends the sentence, unless it's an initial: "Senpai Per A."
+      .replace(/(?<!\b\p{L})\.$/u, "")
       .split(/\s*[,/]\s*|\s+(?:og|eller|and|or)\s+/)
       .map((name) => name.trim())
       .filter(Boolean);
@@ -446,7 +450,10 @@ export function parseClassesSchedulesTree(
     !/[a-zæøå]\.$/i.test(item) &&
     !isGenericHeading(item);
 
-  function visit(node: TextTree[], inherited: Context) {
+  // Details a node gives for the classes beside it, not just inside it
+  type Beside = Pick<Context, "ageRange" | "instructors">;
+
+  function visit(node: TextTree[], inherited: Context): Beside {
     const data: Context = { ...inherited };
     // Classes added by the previous line, for instructors listed right after
     let justAdded: ParsedClass[] = [];
@@ -454,6 +461,9 @@ export function parseClassesSchedulesTree(
     let namedHere = false;
     // A name set in this node that no class has used yet
     let nameUnused = false;
+    // "Alder: …" and instructor lines in this node also apply beside it
+    const beside: Beside = {};
+    let previousWasInstructors = false;
     // The heading above this node, until a generic heading cuts it off
     let inheritedName = inherited.className;
 
@@ -463,7 +473,15 @@ export function parseClassesSchedulesTree(
       justAdded = [];
 
       if (Array.isArray(entry)) {
-        visit(entry, data);
+        previousWasInstructors = false;
+        const classCount = classes.length;
+        const childBeside = visit(entry, data);
+        // Details given beside the times rather than above them:
+        // [["Alder: 6-15 år", "Underviser: Senpai Jesper"], ["MANDAG", "…"]]
+        if (classes.length === classCount) {
+          data.ageRange = childBeside.ageRange ?? data.ageRange;
+          data.instructors = childBeside.instructors ?? data.instructors;
+        }
         continue;
       }
 
@@ -475,9 +493,19 @@ export function parseClassesSchedulesTree(
 
       const instructors = parseInstructors(item);
       if (instructors) {
-        for (const parsed of previous) parsed.instructors = instructors;
+        // After a class it's that class's; before one, it's for what follows
+        if (previous.length) {
+          for (const parsed of previous) parsed.instructors = instructors;
+        } else {
+          // Instructor lines in a row add up
+          const listed = previousWasInstructors ? (data.instructors ?? []) : [];
+          data.instructors = [...listed, ...instructors];
+          beside.instructors = data.instructors;
+        }
+        previousWasInstructors = true;
         continue;
       }
+      previousWasInstructors = false;
 
       // First time range in the line that isn't an age range ("4 – 10 år")
       const timeMatch = Array.from(
@@ -585,6 +613,9 @@ export function parseClassesSchedulesTree(
         !isNote &&
         !isPrice &&
         !isContact &&
+        // Names start with a capital or a digit; "mødes Junior holdet" is
+        // what's left of a sentence
+        !/^[a-zæøå]/.test(rest) &&
         !isSubtitle &&
         // A weekday on its own line is a schedule ("Tuesday HAL 3 gym"),
         // unless a name comes first: "Kamphold tirsdag"
@@ -605,6 +636,7 @@ export function parseClassesSchedulesTree(
         const lineAge = getAgeAndRankFromClassName(item).ageRange;
         if (lineAge.min !== null || lineAge.max !== null) {
           data.ageRange = lineAge;
+          if (/^alder\b/i.test(item)) beside.ageRange = lineAge;
         }
       }
 
@@ -631,7 +663,9 @@ export function parseClassesSchedulesTree(
           ...getNextStartAndEnd(range, weekday, now),
           ageRange: nameHasAge ? ageRange : (data.ageRange ?? ageRange),
           rankRange,
-          ...(lineInstructors && { instructors: lineInstructors }),
+          ...((lineInstructors ?? data.instructors) && {
+            instructors: lineInstructors ?? data.instructors,
+          }),
         });
       }
 
@@ -640,6 +674,8 @@ export function parseClassesSchedulesTree(
       nameUnused = false;
       classes.push(...justAdded);
     }
+
+    return beside;
   }
 
   visit(tree, {});

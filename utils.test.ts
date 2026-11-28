@@ -1446,6 +1446,62 @@ describe("parseClassesSchedulesTree", async () => {
       },
     ]);
   });
+  it("should handle rkos2020.wixsite.com HTML structure", async () => {
+    const parsedSchedules = renderClasses(
+      fixture("rkos2020.wixsite.com.html"),
+      new Date("2026-11-28T00:30:00.000Z"),
+    );
+    expect(
+      parsedSchedules.sort(
+        (a, b) => a.nextStart.getTime() - b.nextStart.getTime(),
+      ),
+    ).toEqual([
+      {
+        className: "JUNIOR HOLD",
+        instructors: ["Senpai Jesper"],
+        weekday: "MO",
+        nextStart: new Date("2026-11-30T16:30:00.000Z"),
+        nextEnd: new Date("2026-11-30T17:30:00.000Z"),
+        ageRange: { min: 6, max: 15 },
+        rankRange: { min: -10.5, max: null },
+      },
+      {
+        className: "SENIOR HOLD",
+        instructors: ["Senpai Per G.", "Senpai Per A."],
+        weekday: "MO",
+        nextStart: new Date("2026-11-30T17:00:00.000Z"),
+        nextEnd: new Date("2026-11-30T18:30:00.000Z"),
+        ageRange: { min: 15, max: null },
+        rankRange: { min: -10.5, max: null },
+      },
+      {
+        className: "JUNIOR HOLD",
+        instructors: ["Senpai Jesper"],
+        weekday: "TH",
+        nextStart: new Date("2026-12-03T16:30:00.000Z"),
+        nextEnd: new Date("2026-12-03T17:30:00.000Z"),
+        ageRange: { min: 6, max: 15 },
+        rankRange: { min: -10.5, max: null },
+      },
+      {
+        className: "SENIOR HOLD",
+        instructors: ["Senpai Per G.", "Senpai Per A."],
+        weekday: "TH",
+        nextStart: new Date("2026-12-03T17:00:00.000Z"),
+        nextEnd: new Date("2026-12-03T18:30:00.000Z"),
+        ageRange: { min: 15, max: null },
+        rankRange: { min: -10.5, max: null },
+      },
+      {
+        className: "Alle kan deltage fra",
+        weekday: "FR",
+        nextStart: new Date("2026-12-04T16:00:00.000Z"),
+        nextEnd: new Date("2026-12-04T17:30:00.000Z"),
+        ageRange: { min: null, max: null },
+        rankRange: { min: -10.5, max: null },
+      },
+    ]);
+  });
 });
 
 describe("getRRuleWeekdaysByFullDanishName", () => {

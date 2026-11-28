@@ -45,6 +45,16 @@ export const wkbSources = [
     type: "club",
     federation: ["wkb"],
     classesUrl: "https://rkos2020.wixsite.com/website/hold",
+    async *loadClasses({ now }: { now: Date }) {
+      const classes = await fetchClasses(
+        "https://rkos2020.wixsite.com/website/hold",
+        now,
+      );
+      // Friday's extra training is only in odd weeks, which a weekly class
+      // can't express
+      // TODO: handle odd classes generally
+      yield* classes.filter((c) => c.weekday !== "FR");
+    },
   },
   {
     sourceId: "niva-budoklub",
